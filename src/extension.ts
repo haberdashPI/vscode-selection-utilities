@@ -54,7 +54,9 @@ function getSelectMemory(args: SelectMemoryArgs){
         memory = selectionRegisters[register];
     }
 
-    return memory;
+    return memory.sort((a,b) => a.anchor.line !== b.anchor.line ?
+        a.anchor.line - b.anchor.line :
+        a.anchor.character - b.anchor.character);
 }
 
 function saveSelectMemory(sels: vscode.Selection[], args: SelectMemoryArgs,
