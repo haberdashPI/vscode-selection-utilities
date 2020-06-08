@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { addListener } from 'cluster';
 
 let activeSelectDecorator: vscode.TextEditorDecorationType;
 let savedSelectDecorator: vscode.TextEditorDecorationType;
@@ -43,6 +44,15 @@ interface SelectMemoryArgs{
     register?: string;
 }
 
+function compareSels(a: vscode.Selection, b: vscode.Selection){
+    let active = a.active.compareTo(b.active);
+    if(active === 0){
+        return a.anchor.compareTo(b.anchor);
+    }else{
+        return active;
+    }
+}
+
 function getSelectMemory(args: SelectMemoryArgs){
     let register = 'default';
     if(args?.register !== undefined){
@@ -54,9 +64,22 @@ function getSelectMemory(args: SelectMemoryArgs){
         memory = selectionRegisters[register];
     }
 
-    return memory.sort((a,b) => a.anchor.line !== b.anchor.line ?
-        a.anchor.line - b.anchor.line :
-        a.anchor.character - b.anchor.character);
+    // properly organize the selections (otherwise appending after reoordering
+    // the primary selection, appending can result in a non-sequential order)
+    if(memory.length > 1){
+        let primary = memory.shift();
+        if(primary !== undefined){
+            let prim = primary;
+            let after = memory.filter(x => compareSels(prim,x) < 0).
+                sort(compareSels);
+            let before = memory.filter(x => compareSels(prim,x) >= 0).
+                sort(compareSels);
+
+            after.unshift(primary);
+            return after.concat(before);
+        }
+    }
+    return memory;
 }
 
 function saveSelectMemory(sels: vscode.Selection[], args: SelectMemoryArgs,
