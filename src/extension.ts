@@ -53,7 +53,7 @@ function compareSels(a: vscode.Selection, b: vscode.Selection){
     }
 }
 
-function getSelectMemory(args: SelectMemoryArgs){
+function getSelectMemory(args: SelectMemoryArgs,order: boolean = true){
     let register = 'default';
     if(args?.register !== undefined){
         register = args.register;
@@ -66,7 +66,7 @@ function getSelectMemory(args: SelectMemoryArgs){
 
     // properly organize the selections (otherwise appending after reoordering
     // the primary selection, appending can result in a non-sequential order)
-    if(memory.length > 1){
+    if(memory.length > 1 && order){
         let primary = memory.shift();
         if(primary !== undefined){
             let prim = primary;
@@ -237,6 +237,27 @@ export function activate(context: vscode.ExtensionContext) {
                 let pos = editor.selections[0].active;
                 saveSelectMemory(editor.selections,{register: 'cancel'},editor);
                 editor.selection = new vscode.Selection(pos,pos);
+            }
+        }));
+
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.delete-last-saved',
+        (args: SelectMemoryArgs) => {
+            let editor = vscode.window.activeTextEditor;
+            if(editor){
+                let memory = getSelectMemory(args);
+                memory.pop();
+                saveSelectMemory(memory,args,editor);
+            }
+        }));
+
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.delete-primary', () => {
+            let editor = vscode.window.activeTextEditor;
+            if(editor){
+                let sels = editor.selections;
+                sels.shift();
+                editor.selections = sels;
             }
         }));
 }

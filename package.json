@@ -52,12 +52,22 @@
 			},
 			{
 				"command": "selection-utilities.swap-with-memory",
-				"title": "Swap current selections with saved selections (or save selections)",
+				"title": "Swap current selections with saved selections (or save current selections)",
 				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.cancel-selection",
 				"title": "Cancel Selection (end on primary)",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.delete-last-saved",
+				"title": "Delete last saved selection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.delete-last-saved",
+				"title": "Delete primary selection",
 				"category": "Selection Utilities"
 			}
 		]
