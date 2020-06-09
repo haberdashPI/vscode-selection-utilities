@@ -145,6 +145,30 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.delete-primary', deletePrimary));
 
+function swapWithMemoryFn(editor: vscode.TextEditor,
+    current: vscode.Selection[], old: vscode.Selection[]){
+
+    let curText = current.map(sel =>
+        editor.document.getText(new vscode.Range(sel.start,sel.end))
+    );
+    let oldText = old.map(sel =>
+        editor.document.getText(new vscode.Range(sel.start,sel.end))
+    );
+    return (edit: vscode.TextEditorEdit) => {
+        current.forEach((sel,i) => {
+            edit.replace(sel,oldText[i]);
+        });
+        old.forEach((sel,i) => {
+            edit.replace(sel,curText[i]);
+        });
+    };
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {}
+
+/* -------------------------------- Commands -------------------------------- */
+
 function exchangeAnchorActive(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
@@ -225,22 +249,22 @@ function restoreAndClear(args: SelectMemoryArgs){
         }
     }
 
-    function swapWithMemory(args: SelectMemoryArgs){
-        let editor = vscode.window.activeTextEditor;
-        if(editor){
-            let memory = getSelectMemory(args);
-            if(memory.length === 0){
-                saveSelectMemory(curSelectionOrWord(editor),args,editor);
-            }else if(memory.length !== editor.selections.length){
-                vscode.window.showErrorMessage('Number of saved '+
-                    'selections must match the current number of '+
-                    'selections.');
-            }else{
-                editor.edit(swapWithMemoryFn(editor,editor.selections,memory));
-                saveSelectMemory([],args,editor);
-            }
+function swapWithMemory(args: SelectMemoryArgs){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let memory = getSelectMemory(args);
+        if(memory.length === 0){
+            saveSelectMemory(curSelectionOrWord(editor),args,editor);
+        }else if(memory.length !== editor.selections.length){
+            vscode.window.showErrorMessage('Number of saved '+
+                'selections must match the current number of '+
+                'selections.');
+        }else{
+            editor.edit(swapWithMemoryFn(editor,editor.selections,memory));
+            saveSelectMemory([],args,editor);
         }
     }
+}
 
 function cancelSelection(){
     let editor = vscode.window.activeTextEditor;
