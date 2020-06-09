@@ -204,7 +204,7 @@ function movePrimaryLeft(){
     if(editor){
         primarySelection--;
         if(primarySelection < 0){
-            primarySelection = editor.selections.length-1;
+            primarySelection = Math.max(0,editor.selections.length-1);
         }
 
         let pos = editor.selection.active;
@@ -233,6 +233,11 @@ function appendToMemory(args: SelectMemoryArgs){
         let memory = getSelectMemory(args);
         memory = memory.concat(curSelectionOrWord(editor));
         saveSelectMemory(memory,args,editor);
+
+        if(primarySelection >= editor.selections.length){
+            primarySelection = 0;
+        }
+        editor.selection = editor.selections[primarySelection];
     }
 }
 
@@ -240,13 +245,47 @@ function restoreAndClear(args: SelectMemoryArgs){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let memory = getSelectMemory(args);
-        if(memory !== undefined){
+        if(memory !== undefined && memory.length > 0){
+            if(primarySelection >= editor.selections.length){
+                primarySelection = 0;
+            }
+            primarySelection = findClosestIndex(memory,editor.selections[primarySelection]);
             editor.selections = memory;
-            primarySelection = 0;
             let pos = editor.selection.active;
             editor.revealRange(new vscode.Range(pos,pos));
             saveSelectMemory([],args,editor);
         }
+    }
+}
+
+function findClosestIndex(sels: vscode.Selection[], x: vscode.Selection){
+    let sameLineIndices = sels.
+        map((y,i) => y.active.line === x.active.line ? i : -1).
+        filter(x => x > 0);
+    if(sameLineIndices.length === 0){
+        let mindist = Number.MAX_VALUE;
+        let index = 0;
+
+        for(let i=0;i<sels.length;i++){
+            let dist = Math.abs(sels[i].active.line - x.active.line);
+            if(mindist > dist){
+                mindist = dist;
+                index = i;
+            }
+        }
+        return index;
+    }else{
+        let mindist = Number.MAX_VALUE;
+        let index = 0;
+
+        for(let i of sameLineIndices){
+            let dist = Math.abs(sels[i].active.character - x.active.character);
+            if(mindist > dist){
+                mindist = dist;
+                index = i;
+            }
+        }
+        return index;
     }
 }
 
@@ -269,7 +308,7 @@ function swapWithMemory(args: SelectMemoryArgs){
 
 function cancelSelection(){
     let editor = vscode.window.activeTextEditor;
-    if(editor){
+    if(editor && editor.selections.length > 0){
         if(primarySelection >= editor.selections.length){
             primarySelection = 0;
         }
@@ -295,7 +334,7 @@ function deletePrimary(){
         let sels = editor.selections;
         sels.splice(primarySelection,1);
         if(primarySelection >= sels.length){
-            primarySelection = sels.length-1;
+            primarySelection = Math.max(0,sels.length-1);
         }
         editor.selections = sels;
     }
@@ -335,8 +374,6 @@ async function addNext(){
 async function skipNext(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        let sel = curSelectionOrWord(editor);
-
         if(editor.selection.isEmpty){
             await vscode.commands.
                 executeCommand('editor.action.moveSelectionToNextFindMatch');
