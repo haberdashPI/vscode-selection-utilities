@@ -330,13 +330,18 @@ function deleteLastSaved(args: SelectMemoryArgs){
 
 function deletePrimary(){
     let editor = vscode.window.activeTextEditor;
-    if(editor){
-        let sels = editor.selections;
-        sels.splice(primarySelection,1);
-        if(primarySelection >= sels.length){
-            primarySelection = Math.max(0,sels.length-1);
+    if(editor && editor.selections.length > 1){
+        if(editor.selections.length > 1){
+            let sels = editor.selections;
+            sels.splice(primarySelection,1);
+            if(primarySelection >= sels.length){
+                primarySelection = Math.max(0,sels.length-1);
+            }
+            editor.selections = sels;
+        }else{
+            let pos = editor.selection.active;
+            editor.selection = new vscode.Selection(pos,pos);
         }
-        editor.selections = sels;
     }
 }
 
