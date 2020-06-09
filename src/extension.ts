@@ -322,7 +322,7 @@ function cancelSelection(){
 function deleteLastSaved(args: SelectMemoryArgs){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        let memory = getSelectMemory(args);
+        let memory = getSelectMemory(args,false);
         memory.pop();
         saveSelectMemory(memory,args,editor);
     }
