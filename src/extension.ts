@@ -2,15 +2,22 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { addListener } from 'cluster';
+import { resolveAny } from 'dns';
+import { ok } from 'assert';
 
 let activeSelectDecorator: vscode.TextEditorDecorationType;
 let savedSelectDecorator: vscode.TextEditorDecorationType;
+let primarySelection = 0;
 
 function updateActiveSelection(editor: vscode.TextEditor, sel: ReadonlyArray<vscode.Selection>){
     if(sel.length > 1){
+        if(primarySelection >= sel.length){
+            primarySelection = 0;
+        }
         editor.setDecorations(
             activeSelectDecorator,
-            [new vscode.Range(sel[0].start, sel[0].end)]
+            [new vscode.Range(sel[primarySelection].start,
+                              sel[primarySelection].end)]
         );
     }else{
         editor.setDecorations(
@@ -64,22 +71,7 @@ function getSelectMemory(args: SelectMemoryArgs,order: boolean = true){
         memory = selectionRegisters[register];
     }
 
-    // properly organize the selections (otherwise appending after reoordering
-    // the primary selection, appending can result in a non-sequential order)
-    if(memory.length > 1 && order){
-        let primary = memory.shift();
-        if(primary !== undefined){
-            let prim = primary;
-            let after = memory.filter(x => compareSels(prim,x) < 0).
-                sort(compareSels);
-            let before = memory.filter(x => compareSels(prim,x) >= 0).
-                sort(compareSels);
-
-            after.unshift(primary);
-            return after.concat(before);
-        }
-    }
-    return memory;
+    return order ? memory.sort(compareSels) : memory;
 }
 
 function saveSelectMemory(sels: vscode.Selection[], args: SelectMemoryArgs,
@@ -144,6 +136,11 @@ export function activate(context: vscode.ExtensionContext) {
         registerCommand('selection-utilities.delete-last-saved',deleteLastSaved));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.delete-primary', deletePrimary));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.add-next',addNext));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.skip-next', skipNext));
+}
 
 function swapWithMemoryFn(editor: vscode.TextEditor,
     current: vscode.Selection[], old: vscode.Selection[]){
@@ -205,8 +202,11 @@ function activeAtStart(){
 function movePrimaryLeft(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        let last = editor.selections.pop();
-        if(last){ editor.selections.unshift(last); }
+        primarySelection--;
+        if(primarySelection < 0){
+            primarySelection = editor.selections.length-1;
+        }
+
         let pos = editor.selection.active;
         editor.revealRange(new vscode.Range(pos,pos));
         updateActiveSelection(editor, editor.selections);
@@ -216,10 +216,11 @@ function movePrimaryLeft(){
 function movePrimaryRight(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        let first = editor.selections.splice(0,1);
-        if(first && first.length > 0){
-            editor.selections.push(first[0]);
+        primarySelection++;
+        if(primarySelection >= editor.selections.length){
+            primarySelection = 0;
         }
+
         let pos = editor.selection.active;
         editor.revealRange(new vscode.Range(pos,pos));
         updateActiveSelection(editor, editor.selections);
@@ -236,18 +237,18 @@ function appendToMemory(args: SelectMemoryArgs){
 }
 
 function restoreAndClear(args: SelectMemoryArgs){
-        let editor = vscode.window.activeTextEditor;
-        if(editor){
-            let memory = getSelectMemory(args);
-            if(memory !== undefined){
-                editor.selections = memory;
-            }
-            saveSelectMemory([],args,editor);
-
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let memory = getSelectMemory(args);
+        if(memory !== undefined){
+            editor.selections = memory;
+            primarySelection = 0;
             let pos = editor.selection.active;
             editor.revealRange(new vscode.Range(pos,pos));
+            saveSelectMemory([],args,editor);
         }
     }
+}
 
 function swapWithMemory(args: SelectMemoryArgs){
     let editor = vscode.window.activeTextEditor;
@@ -269,7 +270,11 @@ function swapWithMemory(args: SelectMemoryArgs){
 function cancelSelection(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        let pos = editor.selections[0].active;
+        if(primarySelection >= editor.selections.length){
+            primarySelection = 0;
+        }
+
+        let pos = editor.selections[primarySelection].active;
         saveSelectMemory(editor.selections,{register: 'cancel'},editor);
         editor.selection = new vscode.Selection(pos,pos);
     }
@@ -288,31 +293,72 @@ function deletePrimary(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let sels = editor.selections;
-        sels.shift();
+        sels.splice(primarySelection,1);
+        if(primarySelection >= sels.length){
+            primarySelection = sels.length-1;
+        }
         editor.selections = sels;
     }
 }
 
+async function addNext(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let sel = curSelectionOrWord(editor);
+
+        if(editor.selection.isEmpty){
+            editor.selection = sel[0];
+        }else{
+            let sels = editor.selections;
+            if(primarySelection >= editor.selections.length){
+                primarySelection = 0;
+            }
+
+            editor.selection = editor.selections[primarySelection];
+            await vscode.commands.
+                executeCommand('editor.action.addSelectionToNextFindMatch');
+
+            primarySelection = 0;
+            let addme = editor.selections[1];
+            sels.push(addme);
+            sels.sort(compareSels);
+            primarySelection = sels.findIndex(x => x.isEqual(addme));
+            editor.selections = sels;
+            let pos = sels[primarySelection].active;
+            editor.revealRange(new vscode.Range(pos,pos));
+            updateActiveSelection(editor, sels);
+        }
+    }
 }
 
-function swapWithMemoryFn(editor: vscode.TextEditor,
-    current: vscode.Selection[], old: vscode.Selection[]){
 
-    let curText = current.map(sel =>
-        editor.document.getText(new vscode.Range(sel.start,sel.end))
-    );
-    let oldText = old.map(sel =>
-        editor.document.getText(new vscode.Range(sel.start,sel.end))
-    );
-    return (edit: vscode.TextEditorEdit) => {
-        current.forEach((sel,i) => {
-            edit.replace(sel,oldText[i]);
-        });
-        old.forEach((sel,i) => {
-            edit.replace(sel,curText[i]);
-        });
-    };
+async function skipNext(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let sel = curSelectionOrWord(editor);
+
+        if(editor.selection.isEmpty){
+            await vscode.commands.
+                executeCommand('editor.action.moveSelectionToNextFindMatch');
+        }else{
+            let sels = editor.selections;
+            if(primarySelection >= editor.selections.length){
+                primarySelection = 0;
+            }
+
+            let oldPrimary = primarySelection;
+            editor.selection = editor.selections[primarySelection];
+            await vscode.commands.
+                executeCommand('editor.action.addSelectionToNextFindMatch');
+
+            primarySelection = oldPrimary;
+            let addme = editor.selections[1];
+            sels.splice(primarySelection,1,addme);
+            sels.sort(compareSels);
+            primarySelection = sels.findIndex(x => x.isEqual(addme));
+            editor.selections = sels;
+            let pos = sels[primarySelection].active;
+            editor.revealRange(new vscode.Range(pos,pos));
+        }
+    }
 }
-
-// this method is called when your extension is deactivated
-export function deactivate() {}

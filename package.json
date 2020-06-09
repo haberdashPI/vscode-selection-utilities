@@ -66,8 +66,18 @@
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.delete-last-saved",
+				"command": "selection-utilities.delete-primary",
 				"title": "Delete primary selection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.add-next",
+				"title": "Add next match",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.skip-next",
+				"title": "Skip to next match",
 				"category": "Selection Utilities"
 			}
 		]
