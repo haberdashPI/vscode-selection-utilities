@@ -123,166 +123,151 @@ export function activate(context: vscode.ExtensionContext) {
         updateActiveSelection(e.textEditor,e.selections));
 
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.exchange-anchor-active',
-            exchangeAnchorActive));
-
-        function exchangeAnchorActive(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                editor.selections = editor.selections.map(sel =>
-                    new vscode.Selection(sel.active,sel.anchor)
-                );
-                let pos = editor.selection.active;
-                editor.revealRange(new vscode.Range(pos,pos));
-            }
-        }
-
+        registerCommand('selection-utilities.exchange-anchor-active', exchangeAnchorActive));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.active-at-end',
-            activeAtEnd));
-
-        function activeAtEnd(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                editor.selections = editor.selections.map(sel =>
-                    new vscode.Selection(sel.start,sel.end)
-                );
-                let pos = editor.selection.active;
-                editor.revealRange(new vscode.Range(pos,pos));
-            }
-        }
-
+        registerCommand('selection-utilities.active-at-end', activeAtEnd));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.active-at-start',
-            activeAtStart));
-
-        function activeAtStart(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                editor.selections = editor.selections.map(sel =>
-                    new vscode.Selection(sel.end,sel.start)
-                );
-                let pos = editor.selection.active;
-                editor.revealRange(new vscode.Range(pos,pos));
-            }
-        }
-
+        registerCommand('selection-utilities.active-at-start', activeAtStart));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.move-primary-left',
-            movePrimaryLeft));
-
-        function movePrimaryLeft(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let last = editor.selections.pop();
-                if(last){ editor.selections.unshift(last); }
-                let pos = editor.selection.active;
-                editor.revealRange(new vscode.Range(pos,pos));
-                updateActiveSelection(editor, editor.selections);
-            }
-        }
-
+        registerCommand('selection-utilities.move-primary-left', movePrimaryLeft));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.move-primary-right',
-            movePrimaryRight));
-
-        function movePrimaryRight(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let first = editor.selections.splice(0,1);
-                if(first && first.length > 0){
-                    editor.selections.push(first[0]);
-                }
-                let pos = editor.selection.active;
-                editor.revealRange(new vscode.Range(pos,pos));
-                updateActiveSelection(editor, editor.selections);
-            }
-        }
-
+        registerCommand('selection-utilities.move-primary-right', movePrimaryRight));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.append-to-memory',appendToMemory))
-
-        function appendToMemory(args: SelectMemoryArgs){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let memory = getSelectMemory(args);
-                memory = memory.concat(curSelectionOrWord(editor));
-                saveSelectMemory(memory,args,editor);
-            }
-        }
-
+        registerCommand('selection-utilities.append-to-memory',appendToMemory));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.restore-and-clear',restoreAndClear))
-
-        function restoreAndClear(args: SelectMemoryArgs){
-                let editor = vscode.window.activeTextEditor;
-                if(editor){
-                    let memory = getSelectMemory(args);
-                    if(memory !== undefined){
-                        editor.selections = memory;
-                    }
-                    saveSelectMemory([],args,editor);
-
-                    let pos = editor.selection.active;
-                    editor.revealRange(new vscode.Range(pos,pos));
-                }
-            }
-
+        registerCommand('selection-utilities.restore-and-clear',restoreAndClear));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.swap-with-memory',swapWithMemory));
-
-            function swapWithMemory(args: SelectMemoryArgs){
-                let editor = vscode.window.activeTextEditor;
-                if(editor){
-                    let memory = getSelectMemory(args);
-                    if(memory.length === 0){
-                        saveSelectMemory(curSelectionOrWord(editor),args,editor);
-                    }else if(memory.length !== editor.selections.length){
-                        vscode.window.showErrorMessage('Number of saved '+
-                            'selections must match the current number of '+
-                            'selections.');
-                    }else{
-                        editor.edit(swapWithMemoryFn(editor,editor.selections,memory));
-                        saveSelectMemory([],args,editor);
-                    }
-                }
-            }
-
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.cancel-selection',cancelSelection));
-
-        function cancelSelection(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let pos = editor.selections[0].active;
-                saveSelectMemory(editor.selections,{register: 'cancel'},editor);
-                editor.selection = new vscode.Selection(pos,pos);
-            }
-        }
-
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.delete-last-saved',deleteLastSaved));
-
-        function deleteLastSaved(args: SelectMemoryArgs){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let memory = getSelectMemory(args);
-                memory.pop();
-                saveSelectMemory(memory,args,editor);
-            }
-        }
-
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.delete-primary', deletePrimary));
 
-        function deletePrimary(){
-            let editor = vscode.window.activeTextEditor;
-            if(editor){
-                let sels = editor.selections;
-                sels.shift();
-                editor.selections = sels;
+function exchangeAnchorActive(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        editor.selections = editor.selections.map(sel =>
+            new vscode.Selection(sel.active,sel.anchor)
+        );
+        let pos = editor.selection.active;
+        editor.revealRange(new vscode.Range(pos,pos));
+    }
+}
+
+function activeAtEnd(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        editor.selections = editor.selections.map(sel =>
+            new vscode.Selection(sel.start,sel.end)
+        );
+        let pos = editor.selection.active;
+        editor.revealRange(new vscode.Range(pos,pos));
+    }
+}
+
+function activeAtStart(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        editor.selections = editor.selections.map(sel =>
+            new vscode.Selection(sel.end,sel.start)
+        );
+        let pos = editor.selection.active;
+        editor.revealRange(new vscode.Range(pos,pos));
+    }
+}
+
+function movePrimaryLeft(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let last = editor.selections.pop();
+        if(last){ editor.selections.unshift(last); }
+        let pos = editor.selection.active;
+        editor.revealRange(new vscode.Range(pos,pos));
+        updateActiveSelection(editor, editor.selections);
+    }
+}
+
+function movePrimaryRight(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let first = editor.selections.splice(0,1);
+        if(first && first.length > 0){
+            editor.selections.push(first[0]);
+        }
+        let pos = editor.selection.active;
+        editor.revealRange(new vscode.Range(pos,pos));
+        updateActiveSelection(editor, editor.selections);
+    }
+}
+
+function appendToMemory(args: SelectMemoryArgs){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let memory = getSelectMemory(args);
+        memory = memory.concat(curSelectionOrWord(editor));
+        saveSelectMemory(memory,args,editor);
+    }
+}
+
+function restoreAndClear(args: SelectMemoryArgs){
+        let editor = vscode.window.activeTextEditor;
+        if(editor){
+            let memory = getSelectMemory(args);
+            if(memory !== undefined){
+                editor.selections = memory;
+            }
+            saveSelectMemory([],args,editor);
+
+            let pos = editor.selection.active;
+            editor.revealRange(new vscode.Range(pos,pos));
+        }
+    }
+
+    function swapWithMemory(args: SelectMemoryArgs){
+        let editor = vscode.window.activeTextEditor;
+        if(editor){
+            let memory = getSelectMemory(args);
+            if(memory.length === 0){
+                saveSelectMemory(curSelectionOrWord(editor),args,editor);
+            }else if(memory.length !== editor.selections.length){
+                vscode.window.showErrorMessage('Number of saved '+
+                    'selections must match the current number of '+
+                    'selections.');
+            }else{
+                editor.edit(swapWithMemoryFn(editor,editor.selections,memory));
+                saveSelectMemory([],args,editor);
             }
         }
+    }
+
+function cancelSelection(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let pos = editor.selections[0].active;
+        saveSelectMemory(editor.selections,{register: 'cancel'},editor);
+        editor.selection = new vscode.Selection(pos,pos);
+    }
+}
+
+function deleteLastSaved(args: SelectMemoryArgs){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let memory = getSelectMemory(args);
+        memory.pop();
+        saveSelectMemory(memory,args,editor);
+    }
+}
+
+function deletePrimary(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let sels = editor.selections;
+        sels.shift();
+        editor.selections = sels;
+    }
+}
 
 }
 
