@@ -354,6 +354,8 @@ function deletePrimary(){
             let pos = editor.selection.active;
             editor.selection = new vscode.Selection(pos,pos);
         }
+        let pos = editor.selections[primarySelection].active;
+        editor.revealRange(new vscode.Range(pos,pos));
     }
 }
 
