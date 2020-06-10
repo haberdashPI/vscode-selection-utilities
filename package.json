@@ -79,6 +79,16 @@
 				"command": "selection-utilities.skip-next",
 				"title": "Skip to next match",
 				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.split-by",
+				"title": "Split selection(s) by string",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.split-by-regex",
+				"title": "Split selection(s) by regular expression",
+				"category": "Selection Utilities"
 			}
 		]
 	},

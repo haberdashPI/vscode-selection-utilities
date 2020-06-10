@@ -140,7 +140,11 @@ export function activate(context: vscode.ExtensionContext) {
         registerCommand('selection-utilities.add-next',addNext));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.skip-next', skipNext));
-}
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.split-by', splitBy));
+        context.subscriptions.push(vscode.commands.
+            registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
+    }
 
 function swapWithMemoryFn(editor: vscode.TextEditor,
     current: vscode.Selection[], old: vscode.Selection[]){
@@ -403,4 +407,72 @@ async function skipNext(){
             editor.revealRange(new vscode.Range(pos,pos));
         }
     }
+}
+
+async function splitBy(useRegex: boolean = false){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        if(editor.selection.isEmpty && editor.selections.length <= 1){
+            return;
+        }
+        vscode.window.showInputBox({
+            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split by:`,
+            validateInput: (str: string) => {
+                if(useRegex){
+                    try{
+                        new RegExp(str);
+                        return undefined;
+                    }catch{
+                        return "Invalid regular expression";
+                    }
+                }else{
+                    return undefined;
+                }
+            }
+          }).then((by?: string) => {
+            if(by !== undefined){
+                let newSelections = ed.selections.map(sel => {
+                    let lastEnd = sel.start;
+                    let newSels: vscode.Selection[] = [];
+                    let regex = RegExp(useRegex ? by :
+                        by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),"g");
+                    for(let [start,end] of matchPos(ed,regex,new vscode.Range(sel.start,sel.end))){
+                        newSels.push(new vscode.Selection(lastEnd,start));
+                        lastEnd = end;
+                    }
+                    newSels.push(new vscode.Selection(lastEnd,sel.end));
+                    return newSels;
+                });
+
+                ed.selections = newSelections.reduce((x,y) => x.concat(y), []);
+            }
+          });
+    }
+}
+
+function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range){
+    let doc = editor.document;
+    let line = range.start.line;
+    let text = doc.getText(new vscode.Range(range.start,doc.lineAt(line).range.end));
+    let offset = range.start.character;
+    while(line <= range.end.line){
+        regex.lastIndex = 0;
+        let match = regex.exec(text);
+        while(match !== null){
+            yield [new vscode.Position(line,match.index+offset),
+                   new vscode.Position(line,match.index+offset+match[0].length)];
+            let lastIndex = regex.lastIndex;
+            match = regex.exec(text);
+            // avoid repeating the same regex match (for zero length matches)
+            if(lastIndex === regex.lastIndex){
+                regex.lastIndex++;
+            }
+        }
+        line++;
+        offset = 0;
+        text = doc.getText(new vscode.Range(new vscode.Position(line,0),
+            doc.lineAt(line).range.end));
+    }
+    return;
 }
