@@ -142,9 +142,17 @@ export function activate(context: vscode.ExtensionContext) {
         registerCommand('selection-utilities.skip-next', skipNext));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by', splitBy));
-        context.subscriptions.push(vscode.commands.
-            registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
-    }
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.include-by', () => filterBy(true)));
+    context.subscriptions.push(vscode.commands.
+    registerCommand('selection-utilities.exclude-by', () => filterBy(false)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.include-by-regex', () => filterBy(true,true)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.exclude-by-regex', () => filterBy(false,true)));
+}
 
 function swapWithMemoryFn(editor: vscode.TextEditor,
     current: vscode.Selection[], old: vscode.Selection[]){
@@ -448,6 +456,41 @@ async function splitBy(useRegex: boolean = false){
                 ed.selections = newSelections.reduce((x,y) => x.concat(y), []);
             }
           });
+    }
+}
+
+function filterBy(include: boolean, useRegex: boolean = false){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        if(editor.selection.isEmpty && editor.selections.length <= 1){
+            return;
+        }
+        vscode.window.showInputBox({
+            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split by:`,
+            validateInput: (str: string) => {
+                if(useRegex){
+                    try{
+                        new RegExp(str);
+                        return undefined;
+                    }catch{
+                        return "Invalid regular expression";
+                    }
+                }else{
+                    return undefined;
+                }
+            }
+        }).then((by?: string) => {
+            if(by !== undefined){
+                let regex = RegExp(useRegex ? by :
+                    by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+                let getText = (x: vscode.Selection) =>
+                    ed.document.getText(new vscode.Range(x.start,x.end));
+                ed.selections =
+                    ed.selections.filter(x => include ?
+                        regex.test(getText(x)) : !regex.test(getText(x)));
+            }
+        });
     }
 }
 
