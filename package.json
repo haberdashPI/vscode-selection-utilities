@@ -11,7 +11,23 @@
 	"categories": [
 		"Other"
 	],
-	"activationEvents": ["*"],
+	"activationEvents": [
+		"onCommand:selection-utilities.exchange-anchor-active",
+		"onCommand:selection-utilities.active-at-end",
+		"onCommand:selection-utilities.active-at-start",
+		"onCommand:selection-utilities.move-primary-left",
+		"onCommand:selection-utilities.move-primary-right",
+		"onCommand:selection-utilities.append-to-memory",
+		"onCommand:selection-utilities.restore-and-clear",
+		"onCommand:selection-utilities.swap-with-memory",
+		"onCommand:selection-utilities.cancel-selection",
+		"onCommand:selection-utilities.delete-last-saved",
+		"onCommand:selection-utilities.delete-primary",
+		"onCommand:selection-utilities.add-next",
+		"onCommand:selection-utilities.skip-next",
+		"onCommand:selection-utilities.split-by",
+		"onCommand:selection-utilities.split-by-regex"
+	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
