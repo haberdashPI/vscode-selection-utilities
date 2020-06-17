@@ -26,7 +26,8 @@
 		"onCommand:selection-utilities.add-next",
 		"onCommand:selection-utilities.skip-next",
 		"onCommand:selection-utilities.split-by",
-		"onCommand:selection-utilities.split-by-regex"
+		"onCommand:selection-utilities.split-by-regex",
+		"onCommand:selection-utilities.align-selections"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -104,6 +105,11 @@
 			{
 				"command": "selection-utilities.split-by-regex",
 				"title": "Split selection(s) by regular expression",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.align-selections",
+				"title": "Align selections (using spaces)",
 				"category": "Selection Utilities"
 			}
 		]

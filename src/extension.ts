@@ -152,6 +152,8 @@ export function activate(context: vscode.ExtensionContext) {
         registerCommand('selection-utilities.include-by-regex', () => filterBy(true,true)));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.exclude-by-regex', () => filterBy(false,true)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.align-selections', alignSelections));
 }
 
 function swapWithMemoryFn(editor: vscode.TextEditor,
@@ -520,4 +522,81 @@ function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range
             doc.lineAt(line).range.end));
     }
     return;
+}
+
+interface AlignColumn{
+    line: number,
+    character: number,
+    editCharacter: number,
+    column: number,
+    pad: number,
+}
+
+interface AlignRow{
+    columns: AlignColumn[],
+}
+
+function characterPos(column: AlignColumn){
+    return column.editCharacter + column.pad;
+}
+
+function alignSelections(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let rows: AlignRow[] = [];
+        let selections = editor.selections.sort(compareSels);
+        let column = 0;
+        let lastLine = -1;
+        let i = 0;
+        let totalColumns = 0;
+        for(let sel of selections){
+            if(sel.active.line === lastLine){
+                column++;
+                rows[rows.length-1].columns.push({
+                    line: sel.active.line,
+                    character: sel.active.character,
+                    editCharacter: sel.active.character,
+                    column: column,
+                    pad: 0
+                });
+                totalColumns = Math.max(totalColumns,column+1);
+            }else{
+                column = 0;
+                rows.push({columns: [{
+                    line: sel.active.line,
+                    character: sel.active.character,
+                    editCharacter: sel.active.character,
+                    column: column,
+                    pad: 0
+                }]});
+            }
+            lastLine = sel.active.line;
+            totalColumns = Math.max(totalColumns,column+1);
+        }
+
+        for(column=0;column<totalColumns;column++){
+            let maxchar = rows.map(x => characterPos(x.columns[column])).
+                reduce((x,y) => Math.max(x,y));
+            rows = rows.map(x => {
+                let offset = maxchar - characterPos(x.columns[column]);
+                // offset this character
+                x.columns[column].pad += offset;
+                // keep track of how this affects other columns in this row
+                for(let c = column+1; c<totalColumns; c++){
+                    x.columns[c].editCharacter += offset;
+                }
+                return x;
+            });
+        }
+
+        editor.edit((edit: vscode.TextEditorEdit) => {
+            let i = 0;
+            for(let row of rows){
+                for(let col of row.columns){
+                    edit.insert(new vscode.Position(col.line,col.character),
+                        ' '.repeat(col.pad));
+                }
+            }
+        });
+    }
 }
