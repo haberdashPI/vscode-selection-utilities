@@ -151,6 +151,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.skip-next', skipNext));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.split-by-newline', splitByNewline));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by', splitBy));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
@@ -402,7 +404,16 @@ async function skipNext(){
     }
 }
 
+async function splitByNewline(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        if(editor.selection.isEmpty && editor.selections.length <= 1){
+            return;
         }
+
+        await vscode.commands.executeCommand('editor.action.insertCursorAtEndOfEachLineSelected');
+        editor.selections = editor.selections.map(sel =>
+            new vscode.Selection(new vscode.Position(sel.active.line,0),sel.active));
     }
 }
 

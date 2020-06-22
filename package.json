@@ -26,8 +26,13 @@
 		"onCommand:selection-utilities.add-next",
 		"onCommand:selection-utilities.skip-next",
 		"onCommand:selection-utilities.split-by",
+		"onCommand:selection-utilities.split-by-newline",
 		"onCommand:selection-utilities.split-by-regex",
-		"onCommand:selection-utilities.align-selections"
+		"onCommand:selection-utilities.align-selections",
+		"onCommand:selection-utilities.include-by",
+		"onCommand:selection-utilities.exclude-by",
+		"onCommand:selection-utilities.include-by-regex",
+		"onCommand:selection-utilities.exclude-by-regex"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -103,6 +108,11 @@
 				"category": "Selection Utilities"
 			},
 			{
+				"command": "selection-utilities.split-by-newline",
+				"title": "Split selection(s) by newline",
+				"category": "Selection Utilities"
+			},
+			{
 				"command": "selection-utilities.split-by-regex",
 				"title": "Split selection(s) by regular expression",
 				"category": "Selection Utilities"
@@ -111,6 +121,26 @@
 				"command": "selection-utilities.align-selections",
 				"title": "Align selections (using spaces)",
 				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.include-by",
+				"title": "Include selections by...",
+				"category": "Selcetion Utilities"
+			},
+			{
+				"command": "selection-utilities.exclude-by",
+				"title": "Exclude selections by... (regex)",
+				"category": "Selcetion Utilities"
+			},
+			{
+				"command": "selection-utilities.include-by-regex",
+				"title": "Include selections by...",
+				"category": "Selcetion Utilities"
+			},
+			{
+				"command": "selection-utilities.exclude-by-regex",
+				"title": "Exclude selections by... (regex)",
+				"category": "Selcetion Utilities"
 			}
 		]
 	},
