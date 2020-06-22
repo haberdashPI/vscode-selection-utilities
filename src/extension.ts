@@ -7,23 +7,33 @@ import { ok } from 'assert';
 
 let activeSelectDecorator: vscode.TextEditorDecorationType;
 let savedSelectDecorator: vscode.TextEditorDecorationType;
-let primarySelection = 0;
+let primarySelectionIndex = 0;
+
+function getPrimarySelectionIndex(editor: vscode.TextEditor){
+    if(primarySelectionIndex >= editor.selections.length){
+        primarySelectionIndex = editor.selections.length-1;
+    }
+    return primarySelectionIndex;
+}
+
+function getPrimarySelection(editor: vscode.TextEditor){
+    return editor.selections[getPrimarySelectionIndex(editor)];
+}
+
+function updateView(editor: vscode.TextEditor){
+    let pos = getPrimarySelection(editor).active;
+    editor.revealRange(new vscode.Range(pos,pos));
+}
 
 function updateActiveSelection(editor: vscode.TextEditor, sel: ReadonlyArray<vscode.Selection>){
     if(sel.length > 1){
-        if(primarySelection >= sel.length){
-            primarySelection = 0;
-        }
+        let prim = getPrimarySelection(editor)
         editor.setDecorations(
             activeSelectDecorator,
-            [new vscode.Range(sel[primarySelection].start,
-                              sel[primarySelection].end)]
+            [new vscode.Range(prim.start, prim.end)]
         );
     }else{
-        editor.setDecorations(
-            activeSelectDecorator,
-            []
-        );
+        editor.setDecorations( activeSelectDecorator, [] );
     }
 }
 
@@ -186,8 +196,7 @@ function exchangeAnchorActive(){
         editor.selections = editor.selections.map(sel =>
             new vscode.Selection(sel.active,sel.anchor)
         );
-        let pos = editor.selection.active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
     }
 }
 
@@ -197,8 +206,7 @@ function activeAtEnd(){
         editor.selections = editor.selections.map(sel =>
             new vscode.Selection(sel.start,sel.end)
         );
-        let pos = editor.selection.active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
     }
 }
 
@@ -208,21 +216,19 @@ function activeAtStart(){
         editor.selections = editor.selections.map(sel =>
             new vscode.Selection(sel.end,sel.start)
         );
-        let pos = editor.selection.active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
     }
 }
 
 function movePrimaryLeft(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        primarySelection--;
-        if(primarySelection < 0){
-            primarySelection = Math.max(0,editor.selections.length-1);
+        primarySelectionIndex--;
+        if(primarySelectionIndex < 0){
+            primarySelectionIndex = Math.max(0,editor.selections.length-1);
         }
 
-        let pos = editor.selection.active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
         updateActiveSelection(editor, editor.selections);
     }
 }
@@ -230,13 +236,12 @@ function movePrimaryLeft(){
 function movePrimaryRight(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        primarySelection++;
-        if(primarySelection >= editor.selections.length){
-            primarySelection = 0;
+        primarySelectionIndex++;
+        if(primarySelectionIndex >= editor.selections.length){
+            primarySelectionIndex = 0;
         }
 
-        let pos = editor.selection.active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
         updateActiveSelection(editor, editor.selections);
     }
 }
@@ -248,10 +253,7 @@ function appendToMemory(args: SelectMemoryArgs){
         memory = memory.concat(curSelectionOrWord(editor));
         saveSelectMemory(memory,args,editor);
 
-        if(primarySelection >= editor.selections.length){
-            primarySelection = 0;
-        }
-        editor.selection = editor.selections[primarySelection];
+        editor.selection = getPrimarySelection(editor);
     }
 }
 
@@ -260,13 +262,10 @@ function restoreAndClear(args: SelectMemoryArgs){
     if(editor){
         let memory = getSelectMemory(args);
         if(memory !== undefined && memory.length > 0){
-            if(primarySelection >= editor.selections.length){
-                primarySelection = 0;
-            }
-            primarySelection = findClosestIndex(memory,editor.selections[primarySelection]);
+            let prim = getPrimarySelection(editor);
+            primarySelectionIndex = findClosestIndex(memory,prim);
             editor.selections = memory;
-            let pos = editor.selection.active;
-            editor.revealRange(new vscode.Range(pos,pos));
+            updateView(editor);
             saveSelectMemory([],args,editor);
         }
     }
@@ -323,11 +322,7 @@ function swapWithMemory(args: SelectMemoryArgs){
 function cancelSelection(){
     let editor = vscode.window.activeTextEditor;
     if(editor && editor.selections.length > 0){
-        if(primarySelection >= editor.selections.length){
-            primarySelection = 0;
-        }
-
-        let pos = editor.selections[primarySelection].active;
+        let pos = getPrimarySelection(editor).active;
         saveSelectMemory(editor.selections,{register: 'cancel'},editor);
         editor.selection = new vscode.Selection(pos,pos);
     }
@@ -347,17 +342,14 @@ function deletePrimary(){
     if(editor && editor.selections.length > 1){
         if(editor.selections.length > 1){
             let sels = editor.selections;
-            sels.splice(primarySelection,1);
-            if(primarySelection >= sels.length){
-                primarySelection = Math.max(0,sels.length-1);
-            }
+            let prim = getPrimarySelectionIndex(editor);
+            sels.splice(prim,1);
             editor.selections = sels;
         }else{
             let pos = editor.selection.active;
             editor.selection = new vscode.Selection(pos,pos);
         }
-        let pos = editor.selections[primarySelection].active;
-        editor.revealRange(new vscode.Range(pos,pos));
+        updateView(editor);
     }
 }
 
@@ -370,22 +362,16 @@ async function addNext(){
             editor.selection = sel[0];
         }else{
             let sels = editor.selections;
-            if(primarySelection >= editor.selections.length){
-                primarySelection = 0;
-            }
-
-            editor.selection = editor.selections[primarySelection];
+            editor.selection = getPrimarySelection(editor);
             await vscode.commands.
                 executeCommand('editor.action.addSelectionToNextFindMatch');
 
-            primarySelection = 0;
             let addme = editor.selections[1];
             sels.push(addme);
             sels.sort(compareSels);
-            primarySelection = sels.findIndex(x => x.isEqual(addme));
+            primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
             editor.selections = sels;
-            let pos = sels[primarySelection].active;
-            editor.revealRange(new vscode.Range(pos,pos));
+            updateView(editor);
             updateActiveSelection(editor, sels);
         }
     }
@@ -400,23 +386,22 @@ async function skipNext(){
                 executeCommand('editor.action.moveSelectionToNextFindMatch');
         }else{
             let sels = editor.selections;
-            if(primarySelection >= editor.selections.length){
-                primarySelection = 0;
-            }
-
-            let oldPrimary = primarySelection;
-            editor.selection = editor.selections[primarySelection];
+            let oldPrimary = getPrimarySelectionIndex(editor);
+            editor.selection = editor.selections[oldPrimary];
             await vscode.commands.
                 executeCommand('editor.action.addSelectionToNextFindMatch');
 
-            primarySelection = oldPrimary;
+            primarySelectionIndex = oldPrimary;
             let addme = editor.selections[1];
-            sels.splice(primarySelection,1,addme);
+            sels.splice(getPrimarySelectionIndex(editor),1,addme);
             sels.sort(compareSels);
-            primarySelection = sels.findIndex(x => x.isEqual(addme));
+            primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
             editor.selections = sels;
-            let pos = sels[primarySelection].active;
-            editor.revealRange(new vscode.Range(pos,pos));
+            updateView(editor);
+        }
+    }
+}
+
         }
     }
 }
