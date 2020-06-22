@@ -469,7 +469,8 @@ function filterBy(include: boolean, useRegex: boolean = false){
             return;
         }
         vscode.window.showInputBox({
-            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split by:`,
+            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to `+
+                    ` ${include ? "include" : "exclude"} selections by:`,
             validateInput: (str: string) => {
                 if(useRegex){
                     try{
