@@ -28,7 +28,8 @@
 		"onCommand:selection-utilities.split-by",
 		"onCommand:selection-utilities.split-by-newline",
 		"onCommand:selection-utilities.split-by-regex",
-		"onCommand:selection-utilities.align-selections",
+		"onCommand:selection-utilities.align-selections-left",
+		"onCommand:selection-utilities.align-selections-right",
 		"onCommand:selection-utilities.include-by",
 		"onCommand:selection-utilities.exclude-by",
 		"onCommand:selection-utilities.include-by-regex",
@@ -118,8 +119,13 @@
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.align-selections",
-				"title": "Align selections (using spaces)",
+				"command": "selection-utilities.align-selections-left",
+				"title": "Left align selections (using spaces)",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.align-selections-right",
+				"title": "Right align selections (using spaces)",
 				"category": "Selection Utilities"
 			},
 			{

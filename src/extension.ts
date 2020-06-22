@@ -165,7 +165,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.exclude-by-regex', () => filterBy(false,true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.align-selections', alignSelections));
+        registerCommand('selection-utilities.align-selections-left', alignSelections));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.align-selections-right', () => alignSelections(false)));
 }
 
 function swapWithMemoryFn(editor: vscode.TextEditor,
@@ -540,7 +542,7 @@ function characterPos(column: AlignColumn){
     return column.editCharacter + column.pad;
 }
 
-function alignSelections(){
+function alignSelections(left: boolean = true){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let rows: AlignRow[] = [];
@@ -563,14 +565,14 @@ function alignSelections(){
             }else{
                 column = 0;
                 rows.push({columns: [{
-                    line: sel.active.line,
-                    character: sel.active.character,
-                    editCharacter: sel.active.character,
+                    line: sel.end.line,
+                    character: left ? sel.end.character : sel.start.character,
+                    editCharacter: sel.end.character,
                     column: column,
                     pad: 0
                 }]});
             }
-            lastLine = sel.active.line;
+            lastLine = sel.end.line;
             totalColumns = Math.max(totalColumns,column+1);
         }
 
