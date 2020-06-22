@@ -414,6 +414,7 @@ async function splitByNewline(){
         await vscode.commands.executeCommand('editor.action.insertCursorAtEndOfEachLineSelected');
         editor.selections = editor.selections.map(sel =>
             new vscode.Selection(new vscode.Position(sel.active.line,0),sel.active));
+        updateView(editor);
     }
 }
 
@@ -454,6 +455,7 @@ async function splitBy(useRegex: boolean = false){
                 });
 
                 ed.selections = newSelections.reduce((x,y) => x.concat(y), []);
+                updateView(ed);
             }
           });
     }
@@ -489,6 +491,7 @@ function filterBy(include: boolean, useRegex: boolean = false){
                 ed.selections =
                     ed.selections.filter(x => include ?
                         regex.test(getText(x)) : !regex.test(getText(x)));
+                updateView(ed);
             }
         });
     }
