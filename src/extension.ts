@@ -97,8 +97,6 @@ function saveSelectMemory(sels: vscode.Selection[], args: SelectMemoryArgs,
 }
 
 function curSelectionOrWord(editor: vscode.TextEditor){
-    // if there's no selection add the word under the cursor
-    // to the selection memory
     if(editor.selections.length === 1 && editor.selection.isEmpty){
         let range = editor.document.
             getWordRangeAtPosition(editor.selection.start);
@@ -577,8 +575,8 @@ function alignSelections(left: boolean = true){
                 column = 0;
                 rows.push({columns: [{
                     line: sel.end.line,
-                    character: left ? sel.end.character : sel.start.character,
-                    editCharacter: sel.end.character,
+                    character: sel.start.character,
+                    editCharacter: left ? sel.start.character : sel.end.character,
                     column: column,
                     pad: 0
                 }]});
