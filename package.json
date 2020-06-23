@@ -57,12 +57,12 @@
 			},
 			{
 				"command": "selection-utilities.move-primary-left",
-				"title": "Move primary selecetion left",
+				"title": "Move primary selection left",
 				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.move-primary-right",
-				"title": "Move primary selecetion right",
+				"title": "Move primary selection right",
 				"category": "Selection Utilities"
 			},
 			{
