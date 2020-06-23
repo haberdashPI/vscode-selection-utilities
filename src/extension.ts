@@ -157,6 +157,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.create-by', () => splitBy(false, true)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.create-by-regex', () => splitBy(true, true)));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.include-by', () => filterBy(true)));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.exclude-by', () => filterBy(false)));
@@ -420,7 +424,7 @@ async function splitByNewline(){
     }
 }
 
-async function splitBy(useRegex: boolean = false){
+async function splitBy(useRegex: boolean = false, into: boolean = false){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let ed = editor;
@@ -428,7 +432,8 @@ async function splitBy(useRegex: boolean = false){
             return;
         }
         vscode.window.showInputBox({
-            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split by:`,
+            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split `+
+                (into ? "into." : "by."),
             validateInput: (str: string) => {
                 if(useRegex){
                     try{
@@ -449,10 +454,16 @@ async function splitBy(useRegex: boolean = false){
                     let regex = RegExp(useRegex ? by :
                         by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),"g");
                     for(let [start,end] of matchPos(ed,regex,new vscode.Range(sel.start,sel.end))){
-                        newSels.push(new vscode.Selection(lastEnd,start));
-                        lastEnd = end;
+                        if(into){
+                            newSels.push(new vscode.Selection(start,end));
+                        }else{
+                            newSels.push(new vscode.Selection(lastEnd,start));
+                            lastEnd = end;
+                        }
                     }
-                    newSels.push(new vscode.Selection(lastEnd,sel.end));
+                    if(!into){
+                        newSels.push(new vscode.Selection(lastEnd,sel.end));
+                    }
                     return newSels;
                 });
 

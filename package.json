@@ -28,6 +28,8 @@
 		"onCommand:selection-utilities.split-by",
 		"onCommand:selection-utilities.split-by-newline",
 		"onCommand:selection-utilities.split-by-regex",
+		"onCommand:selection-utilities.create-by",
+		"onCommand:selection-utilities.create-by-regex",
 		"onCommand:selection-utilities.align-selections-left",
 		"onCommand:selection-utilities.align-selections-right",
 		"onCommand:selection-utilities.include-by",
@@ -116,6 +118,16 @@
 			{
 				"command": "selection-utilities.split-by-regex",
 				"title": "Split selection(s) by regular expression",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.create-by",
+				"title": "Create selections by string",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.create-by-regex",
+				"title": "Create selections by regex",
 				"category": "Selection Utilities"
 			},
 			{
