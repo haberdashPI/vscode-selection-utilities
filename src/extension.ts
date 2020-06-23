@@ -159,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.include-by', () => filterBy(true)));
     context.subscriptions.push(vscode.commands.
-    registerCommand('selection-utilities.exclude-by', () => filterBy(false)));
+        registerCommand('selection-utilities.exclude-by', () => filterBy(false)));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.include-by-regex', () => filterBy(true,true)));
     context.subscriptions.push(vscode.commands.
