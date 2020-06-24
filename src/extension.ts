@@ -107,17 +107,28 @@ function curSelectionOrWord(editor: vscode.TextEditor){
     return editor.selections;
 }
 
+function updateDecorators(event?: vscode.ConfigurationChangeEvent){
+    if(!event || event.affectsConfiguration("selection-utilities")){
+        let config = vscode.workspace.getConfiguration("selection-utilities");
+        let primarySelectionColor = config.get<string>("primary-selection-color");
+        let savedSelectionColor = config.get<string>("saved-selection-color");
+
+        activeSelectDecorator = vscode.window.createTextEditorDecorationType({
+            backgroundColor: primarySelectionColor
+        });
+
+        savedSelectDecorator = vscode.window.createTextEditorDecorationType({
+            backgroundColor: savedSelectionColor
+        });
+    }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-    activeSelectDecorator = vscode.window.createTextEditorDecorationType({
-        backgroundColor: "rgba(150,50,50,0.4)"
-    });
-
-    savedSelectDecorator = vscode.window.createTextEditorDecorationType({
-        backgroundColor: "rgba(150,50,150,0.4)"
-    });
+    updateDecorators();
+    vscode.workspace.onDidChangeConfiguration(updateDecorators);
 
     vscode.window.onDidChangeTextEditorSelection(e =>
         updateActiveSelection(e.textEditor,e.selections));

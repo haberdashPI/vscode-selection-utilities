@@ -102,7 +102,6 @@ These commands insert spaces to align text to the left or right.
 
 ## Roadmap
 
-- Allow selection highlight colors to be customized
 - A GIF in the README demonstrating each command.
 - Provide a set of keyboard shortcuts for users of ModalEdit
 - Provide a set of keyboard shortcuts for those not using ModalEdit
