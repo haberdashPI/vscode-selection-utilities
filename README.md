@@ -61,6 +61,9 @@ position. On a cancel, the cursor is placed at the location of the primary selec
 - "Move primary selection left" (`selection-utilities.move-primary-left`): Make the selection to the left (or below) primary.
 - "Move primary selection right" (`selection-utilities.move-primary-right`): Make the selection
 to the right (or above) primary.
+- "Focus view on primary selection" (`selection-utilities.focus-primary-selection`): Change
+  the view of the current editor so that the active position of the primary selection
+  is visible.
 - "Delete primary selection" (`selection-utilities.delete-primary`): Delete the primary
 selection.
 - "Add next match" (`selection-utilities.add-next`): Add the next text which matches

@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -17,6 +17,7 @@
 		"onCommand:selection-utilities.active-at-start",
 		"onCommand:selection-utilities.move-primary-left",
 		"onCommand:selection-utilities.move-primary-right",
+		"onCommand:selection-utilities.focus-primary-selection",
 		"onCommand:selection-utilities.append-to-memory",
 		"onCommand:selection-utilities.restore-and-clear",
 		"onCommand:selection-utilities.swap-with-memory",
@@ -85,6 +86,11 @@
 				"command": "selection-utilities.move-primary-right",
 				"title": "Move primary selection right",
 				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.focus-primary-selection",
+				"title": "Focus view on primary selection",
+				"category": "Selection Utilitiese"
 			},
 			{
 				"command": "selection-utilities.append-to-memory",

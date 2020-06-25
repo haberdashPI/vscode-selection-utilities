@@ -144,6 +144,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.move-primary-right', movePrimaryRight));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.focus-primary-selection', focusPrimarySelection));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.append-to-memory',appendToMemory));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.restore-and-clear',restoreAndClear));
@@ -261,6 +263,11 @@ function movePrimaryRight(){
         updateView(editor);
         updateActiveSelection(editor, editor.selections);
     }
+}
+
+function focusPrimarySelection(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){ updateView(editor); }
 }
 
 function appendToMemory(args: SelectMemoryArgs){
