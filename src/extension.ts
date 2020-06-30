@@ -482,9 +482,14 @@ async function splitBy(useRegex: boolean = false, into: boolean = false){
                     }
                     return newSels;
                 });
+                let flattened = newSelections.reduce((x,y) => x.concat(y), []);
 
-                ed.selections = newSelections.reduce((x,y) => x.concat(y), []);
-                updateView(ed);
+                if(flattened.length > 0){
+                    ed.selections = flattened;
+                    updateView(ed);
+                }else{
+                    vscode.window.showErrorMessage("No match for search pattern");
+                }
             }
           });
     }

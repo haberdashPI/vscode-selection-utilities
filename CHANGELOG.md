@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.4]
+- **Bugfix**: gracefully handle empty search results for `create-by` commands.
+
 ## [0.0.3]
 - **New command**: Focus view on primary selection.
 
