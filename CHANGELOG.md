@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.5]
+- **Bufgix**: gracefully handle 0 matches for skip-next and add-next commands
+
 ## [0.0.4]
 - **Bugfix**: gracefully handle empty search results for `create-by` commands.
 

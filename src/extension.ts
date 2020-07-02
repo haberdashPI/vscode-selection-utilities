@@ -390,10 +390,12 @@ async function addNext(){
             await vscode.commands.
                 executeCommand('editor.action.addSelectionToNextFindMatch');
 
-            let addme = editor.selections[1];
-            sels.push(addme);
-            sels.sort(compareSels);
-            primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
+            if(editor.selections.length > 1){
+                let addme = editor.selections[1];
+                sels.push(addme);
+                sels.sort(compareSels);
+                primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
+            }
             editor.selections = sels;
             updateView(editor);
             updateActiveSelection(editor, sels);
@@ -416,10 +418,12 @@ async function skipNext(){
                 executeCommand('editor.action.addSelectionToNextFindMatch');
 
             primarySelectionIndex = oldPrimary;
-            let addme = editor.selections[1];
-            sels.splice(getPrimarySelectionIndex(editor),1,addme);
-            sels.sort(compareSels);
-            primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
+            if(editor.selections.length > 1){
+                let addme = editor.selections[1];
+                sels.splice(getPrimarySelectionIndex(editor),1,addme);
+                sels.sort(compareSels);
+                primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
+            }
             editor.selections = sels;
             updateView(editor);
         }
