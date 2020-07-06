@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.6]
+- **Bugfix**: proper handling of document end when splitting selections
+
 ## [0.0.5]
 - **Bufgix**: gracefully handle 0 matches for skip-next and add-next commands
 
