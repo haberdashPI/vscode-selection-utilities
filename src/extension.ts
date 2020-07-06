@@ -556,8 +556,12 @@ function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range
         }
         line++;
         offset = 0;
-        text = doc.getText(new vscode.Range(new vscode.Position(line,0),
-            doc.lineAt(line).range.end));
+        if(line >= editor.document.lineCount){
+            return;
+        }else{
+            text = doc.getText(new vscode.Range(new vscode.Position(line,0),
+                doc.lineAt(line).range.end));
+        }
     }
     return;
 }
