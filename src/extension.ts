@@ -617,14 +617,17 @@ function alignSelections(left: boolean = true){
         }
 
         for(column=0;column<totalColumns;column++){
-            let maxchar = rows.map(x => characterPos(x.columns[column])).
+            let maxchar = rows.
+                map(x => column < x.columns.length ? characterPos(x.columns[column]) : 0).
                 reduce((x,y) => Math.max(x,y));
             rows = rows.map(x => {
+                if(column >= x.columns.length){ return x; }
+
                 let offset = maxchar - characterPos(x.columns[column]);
                 // offset this character
                 x.columns[column].pad += offset;
                 // keep track of how this affects other columns in this row
-                for(let c = column+1; c<totalColumns; c++){
+                for(let c = column+1; c<x.columns.length; c++){
                     x.columns[c].editCharacter += offset;
                 }
                 return x;
