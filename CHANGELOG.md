@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.8]
+- **Bugfix**: dependency upgrade to avoid vulnerabilities
+
 ## [0.0.7]
 - **Bugfix**: proper handling of column alignment when rows have a different number of columns
 
