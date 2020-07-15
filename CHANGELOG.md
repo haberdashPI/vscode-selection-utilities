@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.7]
+- **Bugfix**: proper handling of column alignment when rows have a different number of columns
+
 ## [0.0.6]
 - **Bugfix**: proper handling of document end when splitting selections
 

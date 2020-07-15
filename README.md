@@ -27,7 +27,7 @@ a list of soon-to-be multiple selections. Saved selections can also be used to e
 position of two regions of text. The following commands manipulate or recall from a memory
 a set of selections. Saved selections are displayed in the editor using a distinct color.
 
-All of the commands that recall or store from memory take an optional argument `register`
+All of the commands that recall or store from memory take an optional argument, `register`,
 which is a string that names a specific memory register. If not specified, the "default"
 memory register is used. Only the default register is displayed.
 
@@ -58,9 +58,9 @@ The primary selection also changes how selections are canceled and restored from
 a restore the primary selection is always the selection closest to the current cursor
 position. On a cancel, the cursor is placed at the location of the primary selection.
 
-- "Move primary selection left" (`selection-utilities.move-primary-left`): Make the selection to the left (or below) primary.
+- "Move primary selection left" (`selection-utilities.move-primary-left`): Make the selection to the left (or above) primary.
 - "Move primary selection right" (`selection-utilities.move-primary-right`): Make the selection
-to the right (or above) primary.
+to the right (or below) primary.
 - "Focus view on primary selection" (`selection-utilities.focus-primary-selection`): Change
   the view of the current editor so that the active position of the primary selection
   is visible.
