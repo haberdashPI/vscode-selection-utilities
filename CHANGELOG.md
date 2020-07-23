@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.9]
+- **Bugfix**: skip to next match works with more selection condittions
+
 ## [0.0.8]
 - **Bugfix**: dependency upgrade to avoid vulnerabilities
 
