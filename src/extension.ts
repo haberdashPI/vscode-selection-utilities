@@ -407,7 +407,7 @@ async function addNext(){
 async function skipNext(){
     let editor = vscode.window.activeTextEditor;
     if(editor){
-        if(editor.selection.isEmpty){
+        if(editor.selections.length <= 1){
             await vscode.commands.
                 executeCommand('editor.action.moveSelectionToNextFindMatch');
         }else{
@@ -417,10 +417,10 @@ async function skipNext(){
             await vscode.commands.
                 executeCommand('editor.action.addSelectionToNextFindMatch');
 
-            primarySelectionIndex = oldPrimary;
-            if(editor.selections.length > 1){
+            if(editor.selections.length >= 1){
                 let addme = editor.selections[1];
-                sels.splice(getPrimarySelectionIndex(editor),1,addme);
+                sels.splice(oldPrimary,1,addme);
+                sels.push(addme);
                 sels.sort(compareSels);
                 primarySelectionIndex = sels.findIndex(x => x.isEqual(addme));
             }
