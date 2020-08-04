@@ -152,6 +152,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.swap-with-memory',swapWithMemory));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilites.reset-selection', resetSelection));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.cancel-selection',cancelSelection));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.delete-last-saved',deleteLastSaved));
@@ -340,6 +342,14 @@ function swapWithMemory(args: SelectMemoryArgs){
             editor.edit(swapWithMemoryFn(editor,editor.selections,memory));
             saveSelectMemory([],args,editor);
         }
+    }
+}
+
+function resetSelection(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        editor.selections = editor.selections.map(x => 
+            new vscode.Selection(x.active, x.active));
     }
 }
 
