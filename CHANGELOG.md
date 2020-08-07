@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.10]
+- **Feature**: delete whitespace around a selection
+- **Feature**: shrink selection to remove whitespace
+
 ## [0.0.9]
 - **Bugfix**: skip to next match works with more selection condittions
 

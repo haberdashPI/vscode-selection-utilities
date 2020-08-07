@@ -94,14 +94,21 @@ do not contain a match of the given string.
 - "Exclude selections by... (regex)" (`selection-utilities.exclude-by-regex`): Remove any
   selections that contain a match of the given regular expression.
 
-### Aligning Selections
+### Shrinking selections
 
-These commands insert spaces to align text to the left or right.
+These commands modify the start and end of selections.
+
+- "Trim selection to exclude whitespace at start/end" (`selection-utilities.trim-selection-whitespace`): Self explanatory
+
+### Editing Text by Selection
+
+These commands modify selected text in various ways
 
 - "Left align selections (using spaces)" (`selection-utilities.align-selections-left`):
   Insert spaces to the left of a selection so that the left side of the selections align.
 - "Right align selections (using spaces)" (`selection-utilities.align-selections-right`):
   Insert spaces to the left of a selection so that the right side of the selections align.
+- "Trim whitespace at start/end of selection" (`selection-utilities.trim-whitespace`)
 
 ## Roadmap
 

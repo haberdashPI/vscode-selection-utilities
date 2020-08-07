@@ -162,6 +162,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.skip-next', skipNext));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.trim-selection-whitespace', trimSelectionWhitespace));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.trim-whitespace', trimWhitespace));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by-newline', splitByNewline));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.split-by', splitBy));
@@ -427,6 +431,51 @@ async function skipNext(){
             editor.selections = sels;
             updateView(editor);
         }
+    }
+}
+
+function trimOneSelectionWhitespace(sel: vscode.Selection, editor: vscode.TextEditor){
+    let content = editor.document.getText(new vscode.Range(sel.start,sel.end));
+
+    let leading = content.match(/^\s+/);
+    let leadingPos = sel.start;
+    if(leading !== null){
+        let offset = editor.document.offsetAt(sel.start);
+        leadingPos = editor.document.positionAt(offset + leading[0].length);
+    }
+
+    let trailing = content.match(/\s+$/);
+    let trailingPos = sel.end;
+    if(trailing !== null){
+        let offset = editor.document.offsetAt(sel.end);
+        trailingPos = editor.document.positionAt(offset - trailing[0].length);
+    }
+
+    return new vscode.Selection(leadingPos,trailingPos);
+}
+
+function trimWhitespace(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        editor.edit((edit: vscode.TextEditorEdit) => {
+            ed.selections.forEach(sel => {
+                let trimmed = trimOneSelectionWhitespace(sel, ed);
+                edit.delete(new vscode.Range(sel.start,   trimmed.start));
+                edit.delete(new vscode.Range(trimmed.end, sel.end));
+            });
+        });
+    }
+}
+
+function trimSelectionWhitespace(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        ed.selections = ed.selections.map(sel => {
+            let trimmed = trimOneSelectionWhitespace(sel, ed);
+            return new vscode.Selection(trimmed.start, trimmed.end);
+        });
     }
 }
 

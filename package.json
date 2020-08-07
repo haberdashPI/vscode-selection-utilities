@@ -26,6 +26,8 @@
 		"onCommand:selection-utilities.delete-primary",
 		"onCommand:selection-utilities.add-next",
 		"onCommand:selection-utilities.skip-next",
+		"onCommand:selection-utilities.trim-whitespace",
+		"onCommand:selection-utilities.trim-selection-whitespace",
 		"onCommand:selection-utilities.split-by",
 		"onCommand:selection-utilities.split-by-newline",
 		"onCommand:selection-utilities.split-by-regex",
@@ -130,6 +132,16 @@
 			{
 				"command": "selection-utilities.skip-next",
 				"title": "Skip to next match",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.trim-whitespace",
+				"title": "Trim whitespace at start/end of selection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.trim-selection-whitespace",
+				"title": "Trim selection to exclude whitespace at start/end",
 				"category": "Selection Utilities"
 			},
 			{
