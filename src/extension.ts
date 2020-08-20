@@ -162,6 +162,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.skip-next', skipNext));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.add-prev',() => addNext(false)));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.skip-prev',() => skipNext(false)));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.trim-selection-whitespace', trimSelectionWhitespace));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.trim-whitespace', trimWhitespace));
@@ -381,7 +385,7 @@ function deletePrimary(){
     }
 }
 
-async function addNext(){
+async function addNext(next: boolean = true){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let sel = curSelectionOrWord(editor);
@@ -391,8 +395,13 @@ async function addNext(){
         }else{
             let sels = editor.selections;
             editor.selection = getPrimarySelection(editor);
-            await vscode.commands.
-                executeCommand('editor.action.addSelectionToNextFindMatch');
+            if(next){
+                await vscode.commands.
+                    executeCommand('editor.action.addSelectionToNextFindMatch');
+            }else{
+                await vscode.commands.
+                    executeCommand('editor.action.addSelectionToPreviousFindMatch');
+            }
 
             if(editor.selections.length > 1){
                 let addme = editor.selections[1];
@@ -408,19 +417,28 @@ async function addNext(){
 }
 
 
-async function skipNext(){
+async function skipNext(next: boolean = true){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         if(editor.selections.length <= 1){
-            await vscode.commands.
-                executeCommand('editor.action.moveSelectionToNextFindMatch');
+            if(next){
+                await vscode.commands.
+                    executeCommand('editor.action.moveSelectionToNextFindMatch');
+            }else{
+                await vscode.commands.
+                    executeCommand('editor.action.moveSelectionToPreviousFindMatch');
+            }
         }else{
             let sels = editor.selections;
             let oldPrimary = getPrimarySelectionIndex(editor);
             editor.selection = editor.selections[oldPrimary];
-            await vscode.commands.
-                executeCommand('editor.action.addSelectionToNextFindMatch');
-
+            if(next){
+                await vscode.commands.
+                    executeCommand('editor.action.addSelectionToNextFindMatch');
+            }else{
+                await vscode.commands.
+                    executeCommand('editor.action.addSelectionToPreviousFindMatch');
+            }
             if(editor.selections.length >= 1){
                 let addme = editor.selections[1];
                 sels.splice(oldPrimary,1,addme);

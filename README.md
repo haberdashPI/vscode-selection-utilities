@@ -4,7 +4,7 @@ This provides a series of utilities for manipulating, saving and creating multip
 selections, inspired by [Kakoune](http://kakoune.org/). This is an extension that I use
 daily, so it is in good working order.
 
-I use these commands mostly in conjunction with a [modified version](https://github.com/johtela/vscode-modaledit/pull/16) of [vscode-modaledit](https://johtela.github.io/vscode-modaledit/docs/tutorial.html).
+I use these commands mostly in conjunction with [vscode-modaledit](https://johtela.github.io/vscode-modaledit/docs/tutorial.html).
 
 There are many commands, and they are designed to work in conjunction with one another.
 
@@ -58,18 +58,23 @@ The primary selection also changes how selections are canceled and restored from
 a restore the primary selection is always the selection closest to the current cursor
 position. On a cancel, the cursor is placed at the location of the primary selection.
 
-- "Move primary selection left" (`selection-utilities.move-primary-left`): Make the selection to the left (or above) primary.
-- "Move primary selection right" (`selection-utilities.move-primary-right`): Make the selection
-to the right (or below) primary.
+- "Move primary selection left" (`selection-utilities.move-primary-left`): Make the
+  selection to the left (or above) primary.
+- "Move primary selection right" (`selection-utilities.move-primary-right`): Make the
+  selection to the right (or below) primary.
 - "Focus view on primary selection" (`selection-utilities.focus-primary-selection`): Change
-  the view of the current editor so that the active position of the primary selection
-  is visible.
+  the view of the current editor so that the active position of the primary selection is
+  visible.
 - "Delete primary selection" (`selection-utilities.delete-primary`): Delete the primary
-selection.
-- "Add next match" (`selection-utilities.add-next`): Add the next text which matches
-the primary selection
+  selection.
+- "Add next match" (`selection-utilities.add-next`): Add the next text which matches the
+  primary selection
 - "Skip to next match" (`selection-utilities.skip-next`): Move the primary selection to the
-next match.
+  next match.
+- "Add previous match" (`selection-utilities.add-prev`): Add the previous text which matches
+  the primary selection
+- "Skip to previous match" (`selection-utilities.skip-prev`): Move the primary selection to
+  the previous match.
 
 ### Splitting/filtering selections
 
