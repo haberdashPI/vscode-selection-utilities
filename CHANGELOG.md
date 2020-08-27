@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.12]
+- **Bugfix**: correct command names for regex filters
+
 ## [0.0.11]
 - **Feature**: skip to/add previous match to selections
 
