@@ -92,9 +92,9 @@ These commands split, create or filter selections according to tokens.
   selection create a new selection for each instance of the given regular expression.
 - "Include selections by..." (`selection-utilities.include-by`): Remove any selections that
 do not contain a match of the given string.
-- "Exclude selections by... (regex)" (`selection-utilities.exclude-by`): Remove any
+- "Exclude selections by..." (`selection-utilities.exclude-by`): Remove any
   selections that contain a match of the given string.
-- "Include selections by..." (`selection-utilities.include-by-regex`): Remove any
+- "Include selections by... (regex)" (`selection-utilities.include-by-regex`): Remove any
   selections that do not contain a match of the given regular expression.
 - "Exclude selections by... (regex)" (`selection-utilities.exclude-by-regex`): Remove any
   selections that contain a match of the given regular expression.

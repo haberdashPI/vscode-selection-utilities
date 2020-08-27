@@ -198,12 +198,12 @@
 			},
 			{
 				"command": "selection-utilities.exclude-by",
-				"title": "Exclude selections by... (regex)",
+				"title": "Exclude selections by...",
 				"category": "Selcetion Utilities"
 			},
 			{
 				"command": "selection-utilities.include-by-regex",
-				"title": "Include selections by...",
+				"title": "Include selections by... (regex)",
 				"category": "Selcetion Utilities"
 			},
 			{
