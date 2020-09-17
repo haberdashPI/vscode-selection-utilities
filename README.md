@@ -1,8 +1,12 @@
 # Selection Utilities
 
-This provides a series of utilities for manipulating, saving and creating multiple
-selections, inspired by [Kakoune](http://kakoune.org/). This is an extension that I use
-daily, so it is in good working order.
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+
+This provides a series of utilities for manipulating, saving and creating both single and
+multiple selections, inspired by [Kakoune](http://kakoune.org/). This is an extension that I
+use daily, so it is in good working order for many kinds of every-day use; however I am
+constantly adding new features and changing command names, so if you do use this extension
+be aware that things may break with new releases.
 
 I use these commands mostly in conjunction with [vscode-modaledit](https://johtela.github.io/vscode-modaledit/docs/tutorial.html).
 
@@ -114,12 +118,6 @@ These commands modify selected text in various ways
 - "Right align selections (using spaces)" (`selection-utilities.align-selections-right`):
   Insert spaces to the left of a selection so that the right side of the selections align.
 - "Trim whitespace at start/end of selection" (`selection-utilities.trim-whitespace`)
-
-## Roadmap
-
-- A GIF in the README demonstrating each command.
-- Provide a set of keyboard shortcuts for users of ModalEdit
-- Provide a set of keyboard shortcuts for those not using ModalEdit
 
 ## Related projects
 
