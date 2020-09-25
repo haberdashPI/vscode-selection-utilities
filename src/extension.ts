@@ -110,8 +110,8 @@ function curSelectionOrWord(editor: vscode.TextEditor){
 function updateDecorators(event?: vscode.ConfigurationChangeEvent){
     if(!event || event.affectsConfiguration("selection-utilities")){
         let config = vscode.workspace.getConfiguration("selection-utilities");
-        let primarySelectionColor = config.get<string>("primary-selection-color");
-        let savedSelectionColor = config.get<string>("saved-selection-color");
+        let primarySelectionColor = config.get<string>("primarySelectionColor");
+        let savedSelectionColor = config.get<string>("savedSelectionColor");
 
         activeSelectDecorator = vscode.window.createTextEditorDecorationType({
             backgroundColor: primarySelectionColor
@@ -134,63 +134,63 @@ export function activate(context: vscode.ExtensionContext) {
         updateActiveSelection(e.textEditor,e.selections));
 
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.exchange-anchor-active', exchangeAnchorActive));
+        registerCommand('selection-utilities.exchangeAnchorActive', exchangeAnchorActive));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.active-at-end', activeAtEnd));
+        registerCommand('selection-utilities.activeAtEnd', activeAtEnd));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.active-at-start', activeAtStart));
+        registerCommand('selection-utilities.activeAtStart', activeAtStart));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.move-primary-left', movePrimaryLeft));
+        registerCommand('selection-utilities.movePrimaryLeft', movePrimaryLeft));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.move-primary-right', movePrimaryRight));
+        registerCommand('selection-utilities.movePrimaryRight', movePrimaryRight));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.focus-primary-selection', focusPrimarySelection));
+        registerCommand('selection-utilities.focusPrimarySelection', focusPrimarySelection));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.append-to-memory',appendToMemory));
+        registerCommand('selection-utilities.appendToMemory',appendToMemory));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.restore-and-clear',restoreAndClear));
+        registerCommand('selection-utilities.restoreAndClear',restoreAndClear));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.swap-with-memory',swapWithMemory));
+        registerCommand('selection-utilities.swapWithMemory',swapWithMemory));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.cancel-selection',cancelSelection));
+        registerCommand('selection-utilities.cancelSelection',cancelSelection));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.delete-last-saved',deleteLastSaved));
+        registerCommand('selection-utilities.deleteLastSaved',deleteLastSaved));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.delete-primary', deletePrimary));
+        registerCommand('selection-utilities.deletePrimary', deletePrimary));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.add-next',addNext));
+        registerCommand('selection-utilities.addNext',addNext));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.skip-next', skipNext));
+        registerCommand('selection-utilities.skipNext', skipNext));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.add-prev',() => addNext(false)));
+        registerCommand('selection-utilities.addPrev',() => addNext(false)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.skip-prev',() => skipNext(false)));
+        registerCommand('selection-utilities.skipPrev',() => skipNext(false)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.trim-selection-whitespace', trimSelectionWhitespace));
+        registerCommand('selection-utilities.trimSelectionWhitespace', trimSelectionWhitespace));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.trim-whitespace', trimWhitespace));
+        registerCommand('selection-utilities.trimWhitespace', trimWhitespace));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.split-by-newline', splitByNewline));
+        registerCommand('selection-utilities.splitByNewline', splitByNewline));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.split-by', splitBy));
+        registerCommand('selection-utilities.splitBy', splitBy));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.split-by-regex', () => splitBy(true)));
+        registerCommand('selection-utilities.splitByRegex', () => splitBy(true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.create-by', () => splitBy(false, true)));
+        registerCommand('selection-utilities.createBy', () => splitBy(false, true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.create-by-regex', () => splitBy(true, true)));
+        registerCommand('selection-utilities.createByRegex', () => splitBy(true, true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.include-by', () => filterBy(true)));
+        registerCommand('selection-utilities.includeBy', () => filterBy(true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.exclude-by', () => filterBy(false)));
+        registerCommand('selection-utilities.excludeBy', () => filterBy(false)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.include-by-regex', () => filterBy(true,true)));
+        registerCommand('selection-utilities.includeByRegex', () => filterBy(true,true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.exclude-by-regex', () => filterBy(false,true)));
+        registerCommand('selection-utilities.excludeByRegex', () => filterBy(false,true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.align-selections-left', alignSelections));
+        registerCommand('selection-utilities.alignSelectionsLeft', alignSelections));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.align-selections-right', () => alignSelections(false)));
+        registerCommand('selection-utilities.alignSelectionsRight', () => alignSelections(false)));
 }
 
 function swapWithMemoryFn(editor: vscode.TextEditor,

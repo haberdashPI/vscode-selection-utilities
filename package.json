@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.0.12",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.47.0"
 	},
@@ -12,35 +12,35 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:selection-utilities.exchange-anchor-active",
-		"onCommand:selection-utilities.active-at-end",
-		"onCommand:selection-utilities.active-at-start",
-		"onCommand:selection-utilities.move-primary-left",
-		"onCommand:selection-utilities.move-primary-right",
-		"onCommand:selection-utilities.focus-primary-selection",
-		"onCommand:selection-utilities.append-to-memory",
-		"onCommand:selection-utilities.restore-and-clear",
-		"onCommand:selection-utilities.swap-with-memory",
-		"onCommand:selection-utilities.cancel-selection",
-		"onCommand:selection-utilities.delete-last-saved",
-		"onCommand:selection-utilities.delete-primary",
-		"onCommand:selection-utilities.add-next",
-		"onCommand:selection-utilities.skip-next",
-		"onCommand:selection-utilities.add-prev",
-		"onCommand:selection-utilities.skip-prev",
-		"onCommand:selection-utilities.trim-whitespace",
-		"onCommand:selection-utilities.trim-selection-whitespace",
-		"onCommand:selection-utilities.split-by",
-		"onCommand:selection-utilities.split-by-newline",
-		"onCommand:selection-utilities.split-by-regex",
-		"onCommand:selection-utilities.create-by",
-		"onCommand:selection-utilities.create-by-regex",
-		"onCommand:selection-utilities.align-selections-left",
-		"onCommand:selection-utilities.align-selections-right",
-		"onCommand:selection-utilities.include-by",
-		"onCommand:selection-utilities.exclude-by",
-		"onCommand:selection-utilities.include-by-regex",
-		"onCommand:selection-utilities.exclude-by-regex"
+		"onCommand:selection-utilities.exchangeAnchorActive",
+		"onCommand:selection-utilities.activeAtEnd",
+		"onCommand:selection-utilities.activeAtStart",
+		"onCommand:selection-utilities.movePrimaryLeft",
+		"onCommand:selection-utilities.movePrimaryRight",
+		"onCommand:selection-utilities.focusPrimarySelection",
+		"onCommand:selection-utilities.appendToMemory",
+		"onCommand:selection-utilities.restoreAndClear",
+		"onCommand:selection-utilities.swapWithMemory",
+		"onCommand:selection-utilities.cancelSelection",
+		"onCommand:selection-utilities.deleteLastSaved",
+		"onCommand:selection-utilities.deletePrimary",
+		"onCommand:selection-utilities.addNext",
+		"onCommand:selection-utilities.skipNext",
+		"onCommand:selection-utilities.addPrev",
+		"onCommand:selection-utilities.skipPrev",
+		"onCommand:selection-utilities.trimWhitespace",
+		"onCommand:selection-utilities.trimSelectionWhitespace",
+		"onCommand:selection-utilities.splitBy",
+		"onCommand:selection-utilities.splitByNewline",
+		"onCommand:selection-utilities.splitByRegex",
+		"onCommand:selection-utilities.createBy",
+		"onCommand:selection-utilities.createByRegex",
+		"onCommand:selection-utilities.alignSelectionsLeft",
+		"onCommand:selection-utilities.alignSelectionsRight",
+		"onCommand:selection-utilities.includeBy",
+		"onCommand:selection-utilities.excludeBy",
+		"onCommand:selection-utilities.includeByRegex",
+		"onCommand:selection-utilities.excludeByRegex"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -48,14 +48,14 @@
 			{
 				"title": "Selection Utilities",
 				"properties": {
-					"selection-utilities.primary-selection-color": {
+					"selection-utilities.primarySelectionColor": {
 						"type": "string",
 						"default": "rgba(150,50,50,0.6)",
 						"pattern": "^(?![\\s\\S])|rgba(\\([0-9]+,[0-9]+,[0-9]+,[0-9.]+\\)|#[0-9a-fA-F]{3,6})",
 						"patternErrorMessage": "Must be empty (for default), a hex color (#ff0000 for red) or rgba function (rgba(255,0,0,1) for red).",
 						"description": "A CSS-like color styling for the primary selection color."
 					},
-					"selection-utilities.saved-selection-color": {
+					"selection-utilities.savedSelectionColor": {
 						"type": "string",
 						"default": "rgba(150,50,150,0.6)",
 						"pattern": "^(?![\\s\\S])|rgba(\\([0-9]+,[0-9]+,[0-9]+,[0-9.]+\\)|#[0-9a-fA-F]{3,6})",
@@ -67,147 +67,147 @@
 		],
 		"commands": [
 			{
-				"command": "selection-utilities.exchange-anchor-active",
+				"command": "selection-utilities.exchangeAnchorActive",
 				"title": "Exchange active and anchor",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.active-at-end",
+				"command": "selection-utilities.activeAtEnd",
 				"title": "Active to end",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.active-at-start",
+				"command": "selection-utilities.activeAtStart",
 				"title": "Active to start",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.move-primary-left",
+				"command": "selection-utilities.movePrimaryLeft",
 				"title": "Move primary selection left",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.move-primary-right",
+				"command": "selection-utilities.movePrimaryRight",
 				"title": "Move primary selection right",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.focus-primary-selection",
+				"command": "selection-utilities.focusPrimarySelection",
 				"title": "Focus view on primary selection",
 				"category": "Selection Utilitiese"
 			},
 			{
-				"command": "selection-utilities.append-to-memory",
+				"command": "selection-utilities.appendToMemory",
 				"title": "Save to selection memory",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.restore-and-clear",
+				"command": "selection-utilities.restoreAndClear",
 				"title": "Restore from selection memory",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.swap-with-memory",
+				"command": "selection-utilities.swapWithMemory",
 				"title": "Swap current selections with saved selections (or save current selections)",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.cancel-selection",
+				"command": "selection-utilities.cancelSelection",
 				"title": "Cancel Selection (end on primary)",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.delete-last-saved",
+				"command": "selection-utilities.deleteLastSaved",
 				"title": "Delete last saved selection",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.delete-primary",
+				"command": "selection-utilities.deletePrimary",
 				"title": "Delete primary selection",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.add-next",
+				"command": "selection-utilities.addNext",
 				"title": "Add next match",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.skip-next",
+				"command": "selection-utilities.skipNext",
 				"title": "Skip to next match",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.add-prev",
+				"command": "selection-utilities.addPrev",
 				"title": "Add previous match",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.skip-prev",
+				"command": "selection-utilities.skipPrev",
 				"title": "Skip to previous match",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.trim-whitespace",
+				"command": "selection-utilities.trimWhitespace",
 				"title": "Trim whitespace at start/end of selection",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.trim-selection-whitespace",
+				"command": "selection-utilities.trimSelectionWhitespace",
 				"title": "Trim selection to exclude whitespace at start/end",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.split-by",
+				"command": "selection-utilities.splitBy",
 				"title": "Split selection(s) by string",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.split-by-newline",
+				"command": "selection-utilities.splitByNewline",
 				"title": "Split selection(s) by newline",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.split-by-regex",
+				"command": "selection-utilities.splitByRegex",
 				"title": "Split selection(s) by regular expression",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.create-by",
+				"command": "selection-utilities.createBy",
 				"title": "Create selections by string",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.create-by-regex",
+				"command": "selection-utilities.createByRegex",
 				"title": "Create selections by regex",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.align-selections-left",
+				"command": "selection-utilities.alignSelectionsLeft",
 				"title": "Left align selections (using spaces)",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.align-selections-right",
+				"command": "selection-utilities.alignSelectionsRight",
 				"title": "Right align selections (using spaces)",
 				"category": "Selection Utilities"
 			},
 			{
-				"command": "selection-utilities.include-by",
+				"command": "selection-utilities.includeBy",
 				"title": "Include selections by...",
 				"category": "Selcetion Utilities"
 			},
 			{
-				"command": "selection-utilities.exclude-by",
+				"command": "selection-utilities.excludeBy",
 				"title": "Exclude selections by...",
 				"category": "Selcetion Utilities"
 			},
 			{
-				"command": "selection-utilities.include-by-regex",
+				"command": "selection-utilities.includeByRegex",
 				"title": "Include selections by... (regex)",
 				"category": "Selcetion Utilities"
 			},
 			{
-				"command": "selection-utilities.exclude-by-regex",
+				"command": "selection-utilities.excludeByRegex",
 				"title": "Exclude selections by... (regex)",
 				"category": "Selcetion Utilities"
 			}

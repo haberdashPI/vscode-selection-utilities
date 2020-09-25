@@ -1,6 +1,6 @@
 # Selection Utilities
 
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://img.shields.io/badge/Project%20Status-WIP-yellow)](https://www.repostatus.org/#wip)
 
 This provides a series of utilities for manipulating, saving and creating both single and
 multiple selections, inspired by [Kakoune](http://kakoune.org/). This is an extension that I
@@ -20,9 +20,9 @@ These commands enable each cursors' position to be changed relative to the assoc
 selection. The cursor is the "active" position and the other end of a selection is the
 "anchor".
 
-- "Exchange active and anchor" (`selection-utilities.exchange-anchor-active`)
-- "Active to end" (`selection-utilities.active-at-end`)
-- "Active to start" (`selection-utilities.active-at-start`)
+- "Exchange active and anchor" (`selection-utilities.exchangeAnchorActive`)
+- "Active to end" (`selection-utilities.activeAtEnd`)
+- "Active to start" (`selection-utilities.activeAtStart`)
 
 ### Saving selections
 
@@ -35,20 +35,20 @@ All of the commands that recall or store from memory take an optional argument, 
 which is a string that names a specific memory register. If not specified, the "default"
 memory register is used. Only the default register is displayed.
 
-- "Save to selection memory" (`selection-utilities.append-to-memory`): this appends the
+- "Save to selection memory" (`selection-utilities.appendToMemory`): this appends the
   current word under the cursor or the current selection(s) to a memory of past selections.
-- "Swap current selections with saved selections (or save current selections)" (`selection-utilities.swap-with-memory`): this can be used to quickly exchange text; if no selections are
+- "Swap current selections with saved selections (or save current selections)" (`selection-utilities.swapWithMemory`): this can be used to quickly exchange text; if no selections are
   currently saved, this will have the same effect as "Save to selection memory". Otherwise,
   it will swap the currently selected text (or word under the cursor) with the text
   of the save selection. In the case of multiple selections there must be as many saved
   selections as current selections.
-- "Cancel Selection (end on primary)" (`selection-utilities.cancel-selection`):
+- "Cancel Selection (end on primary)" (`selection-utilities.cancelSelection`):
   This behaves much like the default `cancelSelection` command, but it saves the
   cancled selection to a memory named "cancel" which can be restored using "Restore from selection memory". It also ends on the primary selection (see below).
-- "Restore from selection memory" (`selection-utilities.restore-and-clear`): This
+- "Restore from selection memory" (`selection-utilities.restoreAndClear`): This
   sets the current selection to the set of selections saved in memory. It also clears
   the memory.
-- "Delete last saved selection" (`selection-utilities.delete-last-saved`): This removes
+- "Delete last saved selection" (`selection-utilities.deleteLastSaved`): This removes
   the last selection added to memory (a way to undo saving a selection to memory).
 
 ### Adding and removing selections
@@ -62,62 +62,62 @@ The primary selection also changes how selections are canceled and restored from
 a restore the primary selection is always the selection closest to the current cursor
 position. On a cancel, the cursor is placed at the location of the primary selection.
 
-- "Move primary selection left" (`selection-utilities.move-primary-left`): Make the
+- "Move primary selection left" (`selection-utilities.movePrimaryLeft`): Make the
   selection to the left (or above) primary.
-- "Move primary selection right" (`selection-utilities.move-primary-right`): Make the
+- "Move primary selection right" (`selection-utilities.movePrimaryRight`): Make the
   selection to the right (or below) primary.
-- "Focus view on primary selection" (`selection-utilities.focus-primary-selection`): Change
+- "Focus view on primary selection" (`selection-utilities.focusPrimarySelection`): Change
   the view of the current editor so that the active position of the primary selection is
   visible.
-- "Delete primary selection" (`selection-utilities.delete-primary`): Delete the primary
+- "Delete primary selection" (`selection-utilities.deletePrimary`): Delete the primary
   selection.
-- "Add next match" (`selection-utilities.add-next`): Add the next text which matches the
+- "Add next match" (`selection-utilities.addNext`): Add the next text which matches the
   primary selection
-- "Skip to next match" (`selection-utilities.skip-next`): Move the primary selection to the
+- "Skip to next match" (`selection-utilities.skipNext`): Move the primary selection to the
   next match.
-- "Add previous match" (`selection-utilities.add-prev`): Add the previous text which matches
+- "Add previous match" (`selection-utilities.addPrev`): Add the previous text which matches
   the primary selection
-- "Skip to previous match" (`selection-utilities.skip-prev`): Move the primary selection to
+- "Skip to previous match" (`selection-utilities.skipPrev`): Move the primary selection to
   the previous match.
 
 ### Splitting/filtering selections
 
 These commands split, create or filter selections according to tokens.
 
-- "Split selection(s) by string" (`selection-utilities.split-by`): Splits each selection,
+- "Split selection(s) by string" (`selection-utilities.splitBy`): Splits each selection,
   creating a new selection before and after each given string.
-- "Split selection(s) by newline" (`selection-utilities.split-by-newline`): Like the default
+- "Split selection(s) by newline" (`selection-utilities.splitByNewline`): Like the default
   command in VSCode to split selections by lines, but maintains a selection for each line.
-- "Split selection(s) by regular expression" (`selection-utilities.split-by-regex`): Splits
+- "Split selection(s) by regular expression" (`selection-utilities.splitByRegex`): Splits
   each selection creating a new selection before and after each given string.
-- "Create selections by string" (`selection-utilities.create-by`): For each existing selection
+- "Create selections by string" (`selection-utilities.createBy`): For each existing selection
   create a new selection for each instance of the given string.
-- "Create selections by regex" (`selection-utilities.create-by-regex`): For each existing
+- "Create selections by regex" (`selection-utilities.createByRegex`): For each existing
   selection create a new selection for each instance of the given regular expression.
-- "Include selections by..." (`selection-utilities.include-by`): Remove any selections that
+- "Include selections by..." (`selection-utilities.includeBy`): Remove any selections that
 do not contain a match of the given string.
-- "Exclude selections by..." (`selection-utilities.exclude-by`): Remove any
+- "Exclude selections by..." (`selection-utilities.excludeBy`): Remove any
   selections that contain a match of the given string.
-- "Include selections by... (regex)" (`selection-utilities.include-by-regex`): Remove any
+- "Include selections by... (regex)" (`selection-utilities.includeByRegex`): Remove any
   selections that do not contain a match of the given regular expression.
-- "Exclude selections by... (regex)" (`selection-utilities.exclude-by-regex`): Remove any
+- "Exclude selections by... (regex)" (`selection-utilities.excludeByRegex`): Remove any
   selections that contain a match of the given regular expression.
 
 ### Shrinking selections
 
 These commands modify the start and end of selections.
 
-- "Trim selection to exclude whitespace at start/end" (`selection-utilities.trim-selection-whitespace`): Self explanatory
+- "Trim selection to exclude whitespace at start/end" (`selection-utilities.trimSelectionWhitespace`): Self explanatory
 
 ### Editing Text by Selection
 
 These commands modify selected text in various ways
 
-- "Left align selections (using spaces)" (`selection-utilities.align-selections-left`):
+- "Left align selections (using spaces)" (`selection-utilities.alignSelectionsLeft`):
   Insert spaces to the left of a selection so that the left side of the selections align.
-- "Right align selections (using spaces)" (`selection-utilities.align-selections-right`):
+- "Right align selections (using spaces)" (`selection-utilities.alignSelectionsRight`):
   Insert spaces to the left of a selection so that the right side of the selections align.
-- "Trim whitespace at start/end of selection" (`selection-utilities.trim-whitespace`)
+- "Trim whitespace at start/end of selection" (`selection-utilities.trimWhitespace`)
 
 ## Related projects
 
