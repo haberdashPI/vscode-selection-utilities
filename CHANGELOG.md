@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.0]
+***BREAKING CHANGES***
+- **Renamed Commands/Preferences**: switched to camel case
+- **Preformance**: now using parcel to bundle the extension
+
 ## [0.0.12]
 - **Bugfix**: correct command names for regex filters
 

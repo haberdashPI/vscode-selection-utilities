@@ -215,7 +215,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"compile": "tsc --noEmit && npx parcel build src/extension.ts -t node -d out",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
@@ -232,6 +232,7 @@
 		"glob": "^7.1.6",
 		"mocha": "^7.1.1",
 		"typescript": "^3.9.6",
-		"vscode-test": "^1.3.0"
+		"vscode-test": "^1.3.0",
+		"parcel": "^1.12.4"
 	}
 }
