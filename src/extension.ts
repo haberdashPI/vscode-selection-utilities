@@ -35,9 +35,9 @@ interface MultiUnitDef {
 let units: IHash<RegExp | MultiLineUnit> = {};
 
 function updateUnits(event?: vscode.ConfigurationChangeEvent){
-    if(!event || event.affectsConfiguration("vscode-custom-word-motions")){
-        let config = vscode.workspace.getConfiguration("vscode-custom-word-motions");
-        let newUnits = config.get<Array<UnitDef | MultiUnitDef>>("units");
+    if(!event || event.affectsConfiguration("selection-utilities")){
+        let config = vscode.workspace.getConfiguration("selection-utilities");
+        let newUnits = config.get<Array<UnitDef | MultiUnitDef>>("motionUnits");
         units = {};
         if(newUnits){
             for(let unit of newUnits){
@@ -265,7 +265,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.alignSelectionsRight', () => alignSelections(false)));
 
-    let command = vscode.commands.registerCommand('selection-utilities.moveby',
+    let command = vscode.commands.registerCommand('selection-utilities.moveBy',
         (args: MoveByArgs) => {
             let editor = vscode.window.activeTextEditor;
             if(editor){
@@ -276,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(command);
 
-    command = vscode.commands.registerCommand('selection-utilities.narrowto',
+    command = vscode.commands.registerCommand('selection-utilities.narrowTo',
         (args: NarrowByArgs) => {
             let editor = vscode.window.activeTextEditor;
             if(editor){

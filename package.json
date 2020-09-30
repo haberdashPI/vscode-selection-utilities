@@ -40,7 +40,9 @@
 		"onCommand:selection-utilities.includeBy",
 		"onCommand:selection-utilities.excludeBy",
 		"onCommand:selection-utilities.includeByRegex",
-		"onCommand:selection-utilities.excludeByRegex"
+		"onCommand:selection-utilities.excludeByRegex",
+		"onCommand:selection-utilities.moveBy",
+		"onCommand:selection-utilities.narrowTo"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -61,11 +63,25 @@
 						"pattern": "^(?![\\s\\S])|rgba(\\([0-9]+,[0-9]+,[0-9]+,[0-9.]+\\)|#[0-9a-fA-F]{3,6})",
 						"patternErrorMessage": "Must be empty (for default), a hex color (#ff0000 for red) or rgba function (rgba(255,0,0,1) for red).",
 						"description": "A CSS-like color styling for the saved selection color."
+					},
+					"selection-utilities.motionUnits": {
+						"type": "array",
+						"description": "Defines a set of named regular expressions to move the cursor by"
 					}
 				}
 			}
 		],
 		"commands": [
+			{
+				"command": "selection-utilities.moveBy",
+				"title": "Move cursor by a given custom unit",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.narrowTo",
+				"title": "Narrows selections to fall at given word boundaries.",
+				"category": "Selection Utilities"
+			},
 			{
 				"command": "selection-utilities.exchangeAnchorActive",
 				"title": "Exchange active and anchor",
