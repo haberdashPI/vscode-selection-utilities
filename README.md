@@ -14,7 +14,7 @@ There are many commands, and they are designed to work in conjunction with one a
 
 ## Commands
 
-### Cursor Position
+### Changing the Active and Anchor positions of a Selection
 
 These commands enable each cursors' position to be changed relative to the associated
 selection. The cursor is the "active" position and the other end of a selection is the
@@ -24,32 +24,211 @@ selection. The cursor is the "active" position and the other end of a selection 
 - "Active to end" (`selection-utilities.activeAtEnd`)
 - "Active to start" (`selection-utilities.activeAtStart`)
 
+### Selection Motions
+
+These commands allow the active selection to moved by or extend by particular units (word,
+paragrpah etc...).
+
+There are two advantages to these motions over the built-in motions
+
+- They are highly customizable via regex
+- They allow for kakoune-like workflows, because both the end and start of a selection
+can move by a given unit (e.g. move selection so it surrounds *just* the next word).
+
+Below are the built-in motions, but all of these can be customized. The "Move Selection"
+commands adjust both the start and end of the selection while the "Select to" commands only
+change the end or start of the selection, depending on the location of the anchor. The units
+are defined by regex's (listed below).
+
+- "Move Selection to Next Subword": `selection-utilities.moveToNextSubword`
+- "Select to Next Subword": `selection-utilities.selectToNextSubword`
+- "Move Selection to Next Word": `selection-utilities.moveToNextWord`
+- "Select to Next Word": `selection-utilities.selectToNextWord`
+- "Move Selection to Next non-whitespace characters": `selection-utilities.moveToNextWORD`
+- "Select to Next non-whitespace characters": `selection-utilities.selectToNextWORD`
+- "Move Selection to Next Paragraph": `selection-utilities.moveToNextParagraph`
+- "Select to Next Paragraph": `selection-utilities.selectToNextParagraph`
+- "Move Selection to Next Subsection": `selection-utilities.moveToNextSubsection`
+- "Select to Next Subsection": `selection-utilities.selectToNextSubsection`
+- "Move Selection to Next Section": `selection-utilities.moveToNextSection`
+- "Select to Next Section": `selection-utilities.selectToNextSection`
+- "Move Selection to Previous Subword": `selection-utilities.moveToPreviousSubword`
+- "Select to Subword": `selection-utilities.selectToPreviousSubword`
+- "Move Selection to Previous Word": `selection-utilities.moveToPreviousWord`
+- "Select to Word": `selection-utilities.selectToPreviousWord`
+- "Move Selection to Previous non-whitespace characters": `selection-utilities.moveToPreviousWORD`
+- "Select to non-whitespace characters": `selection-utilities.selectToPreviousWORD`
+- "Move Selection to Previous Paragraph": `selection-utilities.moveToPreviousParagraph`
+- "Select to Paragraph": `selection-utilities.selectToPreviousParagraph`
+- "Move Selection to Previous Subsection": `selection-utilities.moveToPreviousSubsection`
+- "Select to Subsection": `selection-utilities.selectToPreviousSubsection`
+- "Move Selection to Previous Section": `selection-utilities.moveToPreviousSection`
+- "Select to Section": `selection-utilities.selectToPreviousSection`
+
+
+#### Custom Motions
+
+First you have to define the units you wish to move the cursor by using `motionUnits`.
+
+These are defined in your settings file (open with the command `Preferences:
+Open Settings (JSON)`), using `selection-utilities.motionUnits`. This setting
+is an array with entries containing a `name` and a `regex` value. Each regex is
+compiled with the g and u flags (global search and unicode support). The default units are
+listed below.
+
+```json
+
+"selection-utilities-motionUnits": [
+    { "name": "WORD", "regex": "[^\\s]+" },
+    { "name": "word", "regex": ":?(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))" },
+    { "name": "subword", "regex": ":?(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)" },
+    { "name": "number", "regex": "[0-9][0-9.]*" },
+    { "name": "integer", "regex": "[0-9]+" }
+    { "name": "paragraph", "regexs": "\\S+" },
+    { "name": "section", "regexs": [ ".+", "^.*========+.*$" ] },
+    { "name": "subsection", "regexs": [ ".+", "^.*(========+|--------+).*$" ] },
+],
+```
+
+For the built-in motions to work, all of these motions have to be defined, but you can also
+define your own custom units.
+
+Note that some of the units employ multi-line matches using `regexs` instead of `regex`. For
+more on how to define multi-line units, see the final subsection below.
+
+##### The custom `moveBy` command
+
+The `moveby` command moves the cursor according to one of the regular expressions
+you defined in your settings. It takes five optional arguments.
+
+- `unit`: The name of the regex to move by. If not specified
+the regex `\p{L}+` is used.
+- `select`: Set to true if you want the motion to expand the current selection.
+- `value`: The number of boundaries to move by. Negative values move left,
+  positive move right. Defaults to 1.
+- `boundary`: The boundaries to stop at when moving: this can be the `start`,
+  `end` or `both` boundaries of the regex. Defaults to `start`.
+- `selectWhole`: If specified, the behavior of this command changes. Instead of
+  moving the cursor, it will create a selection at the specified
+  boundaries of the regex currently under the cursor, unless it is already
+  selected. If it is, the next such regex is selected.
+
+For example to move the cursor to the start of the next number, (using the regex
+definitions provided above), using `ctrl+#` you could define the following
+command in your `keybindings.json` file.
+
+```json
+{
+    "command": "vscode-custom-word-motions.moveby",
+    "args": { "unit": "number" },
+    "key": "ctrl+shift+3"
+}
+```
+
+##### The `narrowTo` command
+
+The `narrowto` command shrinks the current boundaries of the current selection
+until it is directly at the given boundaries of the regular expression. It
+takes four optional arguments.
+
+- `unit`: The name of the regex to move by. If not specified
+  the regex `\p{L}+` is used.
+- `boundary`: The boundaries to consider when moving: this can be the `start`,
+  `end` or `both` boundaries of the regex. Defaults to `start`.
+- `then`: If the selection is already at the boundaries of `unit`, you can
+  specify a second regex to narrow the selection by here.
+- `thenBoundary`: The boundaries to use for `then` if different
+from those specified for `boundary`.
+
+For example, to narrow the boundaries of the selection to lie at non-white-space characters by
+pressing `cmd+(` you could add the following to `keybindings.json`.
+
+```json
+{
+    "command": "vscode-custom-word-motions.narrowto",
+    "args": { "unit": "WORD" },
+    "key": "shift+cmd+9",
+}
+```
+
+#### Multi-line units
+
+The units can work for multi-line matches. To use this feature, change the unit entry to use `regexs` instead of `regex`.
+
+If a single regular expression is provided, the match will occur to a contiguous series of
+lines which all match that expression. If multiple expressions are provided, the match will
+occur to a sequence of lines that match those expressions.
+
+For instance, to select a group of contiguous non-whitespace lines with "cmd+shift+[" you
+could add the following definition to preferences.
+
+```json
+"vscode-custom-word-motions.units": [
+    {"name": "paragraph", "regexs": "\\S+"},
+]
+```
+
+Then add the following definition to keybindings.json
+
+```json
+{
+    "command": "vscode-custom-word-motions.moveby",
+    "args": { "unit": "paragraph", "selectWhole": true },
+    "key": "shift+cmd+9",
+}
+```
+
+Or, for instance, you could select sections of code separated by comment headers
+
+```json
+"vscode-custom-word-motions.units": [
+    {"name": "section", "regexs": [".+", "^.*------.*$"]}
+]"
+```
+
+Where a section header looks like this
+
+```javascript
+// My section
+// -----------------------------------------------------------------
+```
+
+You could then select all code in the section using a keybinding like follows.
+
+```json
+{
+    "command": "vscode-custom-word-motions.moveby",
+    "args": { "unit": "section", "boundary": "start", "selectWhole": true },
+    "key": "shift+cmd+0",
+}
+```
+
 ### Saving selections
 
-Sometimes it can be helpful to save a selection for later, or add any arbitrary selection to
-a list of soon-to-be multiple selections. Saved selections can also be used to exchange the
-position of two regions of text. The following commands manipulate or recall from a memory
-a set of selections. Saved selections are displayed in the editor using a distinct color.
+These commands save a selection for later, or add any arbitrary selection to a list of
+soon-to-be multiple selections. Saved selections can also be used to exchange the position
+of two regions of text. Saved selections are displayed in the editor using a distinct color.
 
 All of the commands that recall or store from memory take an optional argument, `register`,
 which is a string that names a specific memory register. If not specified, the "default"
-memory register is used. Only the default register is displayed.
+memory register is used. Only the default register is displayed on screen.
 
 - "Save to selection memory" (`selection-utilities.appendToMemory`): this appends the
   current word under the cursor or the current selection(s) to a memory of past selections.
-- "Swap current selections with saved selections (or save current selections)" (`selection-utilities.swapWithMemory`): this can be used to quickly exchange text; if no selections are
-  currently saved, this will have the same effect as "Save to selection memory". Otherwise,
-  it will swap the currently selected text (or word under the cursor) with the text
-  of the save selection. In the case of multiple selections there must be as many saved
-  selections as current selections.
-- "Cancel Selection (end on primary)" (`selection-utilities.cancelSelection`):
-  This behaves much like the default `cancelSelection` command, but it saves the
-  cancled selection to a memory named "cancel" which can be restored using "Restore from selection memory". It also ends on the primary selection (see below).
-- "Restore from selection memory" (`selection-utilities.restoreAndClear`): This
-  sets the current selection to the set of selections saved in memory. It also clears
-  the memory.
-- "Delete last saved selection" (`selection-utilities.deleteLastSaved`): This removes
-  the last selection added to memory (a way to undo saving a selection to memory).
+- "Swap current selections with saved selections (or save current selections)"
+  (`selection-utilities.swapWithMemory`): this can be used to quickly exchange text; if no
+  selections are currently saved, this will have the same effect as "Save to selection
+  memory". Otherwise, it will swap the currently selected text (or word under the cursor)
+  with the text of the save selection. In the case of multiple selections there must be as
+  many saved selections as current selections.
+- "Cancel Selection (end on primary)" (`selection-utilities.cancelSelection`): This behaves
+  much like the default `cancelSelection` command, but it saves the cancled selection to a
+  memory named "cancel" which can be restored using "Restore from selection memory". It also
+  ends on the primary selection (see below).
+- "Restore from selection memory" (`selection-utilities.restoreAndClear`): This sets the
+  current selection to the set of selections saved in memory. It also clears the memory.
+- "Delete last saved selection" (`selection-utilities.deleteLastSaved`): This removes the
+  last selection added to memory (a way to undo saving a selection to memory).
 
 ### Adding and removing selections
 
@@ -118,147 +297,6 @@ These commands modify selected text in various ways
 - "Right align selections (using spaces)" (`selection-utilities.alignSelectionsRight`):
   Insert spaces to the left of a selection so that the right side of the selections align.
 - "Trim whitespace at start/end of selection" (`selection-utilities.trimWhitespace`)
-
-### Selection Motions
-
-These commands allow the active selection to move by a particular unit (word, paragrpah
-etc...). The advantage of using these motions over the built-in motions is that they move
-the cursor *and* select the current unit. This allows kakaune-style sequencing of motion and
-action commands.
-
-First you have to define the units you wish to move the cursor by using `motionUnits`.
-
-These are defined in your settings file (open with the command `Preferences:
-Open Settings (JSON)`), using `selection-utilities-motionUnits`. This setting
-is an array with entries containing a `name` and a `regex` value. Each regex is
-compiled with the g and u flags (global search and unicode support). For
-example, my settings include the following.
-
-```json
-
-"selection-utilities-motionUnits": [
-    {"name": "WORD", "regex": "[^\\s]+"},
-    {"name": "word", "regex": "([/\\p{L}][_\\p{L}0-9]*)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))"},
-    {"name": "subword", "regex": "(\\p{L}[0-9\\p{Ll}]+)|(\\p{Lu}[\\p{Lu}0-9]+(?!\\p{Ll}))|(\\p{L})|(_+)|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)"},
-    {"name": "subident", "regex": "(\\p{L}[0-9\\p{Ll}]+)|(\\p{Lu}[\\p{Lu}0-9]+(?!\\p{Ll}))|(\\p{L})|([0-9][0-9.]*)"},
-    {"name": "number", "regex": "[0-9][0-9.]*"},
-    {"name": "space", "regex": "\\s+"},
-    {"name": "punctuation", "regex": "[^\\p{L}\\s]+"}
-],
-
-```
-
-You can also define multi-line units; see below.
-
-
-#### The `moveBy` command
-
-The `moveby` command moves the cursor according to one of the regular expressions
-you defined in your settings. It takes five optional arguments.
-
-- `unit`: The name of the regex to move by. If not specified
-the regex `\p{L}+` is used.
-- `select`: Set to true if you want the motion to expand the current selection.
-- `value`: The number of boundaries to move by. Negative values move left,
-  positive move right. Defaults to 1.
-- `boundary`: The boundaries to stop at when moving: this can be the `start`,
-  `end` or `both` boundaries of the regex. Defaults to `start`.
-- `selectWhole`: If specified, the behavior of this command changes. Instead of
-  moving the cursor, it will create a selection at the specified
-  boundaries of the regex currently under the cursor, unless it is already
-  selected. If it is, the next such regex is selected.
-
-For example to move the cursor to the start of the next number, (using the regex
-definitions provided above), using `ctrl+#` you could define the following
-command in your `keybindings.json` file.
-
-```json
-{
-    "command": "vscode-custom-word-motions.moveby",
-    "args": { "unit": "number" },
-    "key": "ctrl+shift+3"
-}
-```
-
-#### The `narrowTo` command
-
-The `narrowto` command shrinks the current boundaries of the current selection
-until it is directly at the given boundaries of the regular expression. It
-takes four optional arguments.
-
-- `unit`: The name of the regex to move by. If not specified
-  the regex `\p{L}+` is used.
-- `boundary`: The boundaries to consider when moving: this can be the `start`,
-  `end` or `both` boundaries of the regex. Defaults to `start`.
-- `then`: If the selection is already at the boundaries of `unit`, you can
-  specify a second regex to narrow the selection by here.
-- `thenBoundary`: The boundaries to use for `then` if different
-from those specified for `boundary`.
-
-For example, to narrow the boundaries of the selection to lie at non-white-space characters by
-pressing `cmd+(` you could add the following to `keybindings.json`.
-
-```json
-{
-    "command": "vscode-custom-word-motions.narrowto",
-    "args": { "unit": "WORD" },
-    "key": "shift+cmd+9",
-}
-```
-
-#### Multi-line units
-
-This extension now supports defining units for multi-line matches.
-
-To use this feature change the unit entry to use `regexs` instead of `regex`.
-
-If a single regular expression is provided, the match will occur to a contiguous series of
-lines which all match that expression. If multiple expressions are provided, the match will
-occur to a sequence of lines that match those expressions.
-
-For instance, to select a group of contiguous non-whitespace lines with "cmd+shift+[" you
-could add the following definition to preferences.
-
-```json
-"vscode-custom-word-motions.units": [
-    {"name": "paragraph", "regexs": "\\S+"},
-]
-```
-
-Then add the following definition to keybindings.json
-
-```json
-{
-    "command": "vscode-custom-word-motions.moveby",
-    "args": { "unit": "paragraph", "selectWhole": true },
-    "key": "shift+cmd+9",
-}
-```
-
-Or, for instance, you could selection sections of code separated by comment headers
-
-```json
-"vscode-custom-word-motions.units": [
-    {"name": "section", "regexs": [".+", "^.*------.*$"]}
-]"
-```
-
-Where a section header looks like this
-
-```javascript
-// My section
-// -----------------------------------------------------------------
-```
-
-You could then select all code in the section using a keybinding like follows.
-
-```json
-{
-    "command": "vscode-custom-word-motions.moveby",
-    "args": { "unit": "section", "boundary": "start", "selectWhole": true },
-    "key": "shift+cmd+0",
-}
-```
 
 ## Related projects
 

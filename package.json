@@ -42,6 +42,18 @@
 		"onCommand:selection-utilities.includeByRegex",
 		"onCommand:selection-utilities.excludeByRegex",
 		"onCommand:selection-utilities.moveBy",
+		"onCommand:selection-utilities.moveBySubword",
+		"onCommand:selection-utilities.selectBySubword",
+		"onCommand:selection-utilities.moveByWord",
+		"onCommand:selection-utilities.selectByWord",
+		"onCommand:selection-utilities.moveByWORD",
+		"onCommand:selection-utilities.selectByWORD",
+		"onCommand:selection-utilities.moveByParagraph",
+		"onCommand:selection-utilities.selectByParagraph",
+		"onCommand:selection-utilities.moveBySubsection",
+		"onCommand:selection-utilities.selectBySubsection",
+		"onCommand:selection-utilities.moveBySection",
+		"onCommand:selection-utilities.selectBySection",
 		"onCommand:selection-utilities.narrowTo"
 	],
 	"main": "./out/extension.js",
@@ -216,6 +228,126 @@
 				"command": "selection-utilities.excludeBy",
 				"title": "Exclude selections by...",
 				"category": "Selcetion Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextSubword",
+				"title": "Move Selection to Next Subword",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextSubword",
+				"title": "Select to Next Subword",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextWord",
+				"title": "Move Selection to Next Word",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextWord",
+				"title": "Select to Next Word",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextWORD",
+				"title": "Move Selection to Next non-whitespace characters",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextWORD",
+				"title": "Select to Next non-whitespace characters",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextParagraph",
+				"title": "Move Selection to Next Paragraph",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextParagraph",
+				"title": "Select to Next Paragraph",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextSubsection",
+				"title": "Move Selection to Next Subsection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextSubsection",
+				"title": "Select to Next Subsection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToNextSection",
+				"title": "Move Selection to Next Section",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToNextSection",
+				"title": "Select to Next Section",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousSubword",
+				"title": "Move Selection to Previous Subword",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousSubword",
+				"title": "Select to Subword",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousWord",
+				"title": "Move Selection to Previous Word",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousWord",
+				"title": "Select to Word",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousWORD",
+				"title": "Move Selection to Previous non-whitespace characters",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousWORD",
+				"title": "Select to non-whitespace characters",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousParagraph",
+				"title": "Move Selection to Previous Paragraph",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousParagraph",
+				"title": "Select to Paragraph",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousSubsection",
+				"title": "Move Selection to Previous Subsection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousSubsection",
+				"title": "Select to Subsection",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.moveToPreviousSection",
+				"title": "Move Selection to Previous Section",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.selectToPreviousSection",
+				"title": "Select to Section",
+				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.includeByRegex",
