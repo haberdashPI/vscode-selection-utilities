@@ -80,13 +80,11 @@ listed below.
 
 "selection-utilities-motionUnits": [
     { "name": "WORD", "regex": "[^\\s]+" },
-    { "name": "word", "regex": ":?(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))" },
-    { "name": "subword", "regex": ":?(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)" },
-    { "name": "number", "regex": "[0-9][0-9.]*" },
-    { "name": "integer", "regex": "[0-9]+" }
+    { "name": "word", "regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))" },
+    { "name": "subword", "regex": "(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)" },
     { "name": "paragraph", "regexs": "\\S+" },
     { "name": "section", "regexs": [ ".+", "^.*========+.*$" ] },
-    { "name": "subsection", "regexs": [ ".+", "^.*(========+|--------+).*$" ] },
+    { "name": "subsection", "regexs": [ ".+", "^.*(========+|--------+).*$" ] }
 ],
 ```
 

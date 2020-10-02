@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"engines": {
 		"vscode": "^1.47.0"
 	},
@@ -78,7 +78,15 @@
 					},
 					"selection-utilities.motionUnits": {
 						"type": "array",
-						"description": "Defines a set of named regular expressions to move the cursor by"
+						"description": "Defines a set of named regular expressions to move the cursor by",
+						"default": [
+							{ "name": "WORD", "regex": "[^\\s]+" },
+							{ "name": "word", "regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))" },
+							{ "name": "subword", "regex": "(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)" },
+							{ "name": "paragraph", "regexs": "\\S+" },
+							{ "name": "section", "regexs": [ ".+", "^.*========+.*$" ] },
+							{ "name": "subsection", "regexs": [ ".+", "^.*(========+|--------+).*$" ] }
+						]
 					}
 				}
 			}

@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.1]
+- **Feature**: Added selection motions (taken from custom word motion extension).
+
 ## [0.1.0]
 ***BREAKING CHANGES***
 - **Renamed Commands/Preferences**: switched to camel case
