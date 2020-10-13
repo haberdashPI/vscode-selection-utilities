@@ -33,6 +33,9 @@ interface MultiUnitDef {
 }
 
 let units: IHash<RegExp | MultiLineUnit> = {};
+let pairs: Array<[RegExp, RegExp]> = [];
+let quotes: Array<[RegExp]> = [];
+let comments: Array<[RegExp, RegExp]> = [];
 
 function updateUnits(event?: vscode.ConfigurationChangeEvent){
     if(!event || event.affectsConfiguration("selection-utilities")){
@@ -59,6 +62,10 @@ function updateUnits(event?: vscode.ConfigurationChangeEvent){
                 }
             }
         }
+
+        pairs = config.get<Array<[RegExp, RegExp]>>("pairs") || [];
+        quotes = config.get<Array<[RegExp, RegExp]>>("quotes") || [];
+        comments = config.get<Array<[RegExp, RegExp]>>("comments") || [];
     }
 }
 
@@ -1073,4 +1080,8 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
             return new vscode.Selection(pos,pos);
         }
     };
+}
+
+function nextPairing(pairIndex: number, dir: number){
+
 }

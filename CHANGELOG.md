@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.2]
+- **Feature**: custom motions are language-overridable
+
 ## [0.1.1]
 - **Feature**: Added selection motions (taken from custom word motion extension).
 

@@ -76,6 +76,23 @@
 						"patternErrorMessage": "Must be empty (for default), a hex color (#ff0000 for red) or rgba function (rgba(255,0,0,1) for red).",
 						"description": "A CSS-like color styling for the saved selection color."
 					},
+					"selection-utilities.brackets": {
+						"type": "array",
+						"descrption": "Defines pairs of regular expressions that serve as brackets.",
+						"scope": "language-overridable",
+						"default": [["\\(", "\\)"], ["\\{", "\\}"], ["\\[", "\\]"]]
+					},
+					"selection-utilities.quotes": {
+						"type": "array",
+						"description": "Defines quote symbols that are paired to surround text.",
+						"scope": "language-overridable",
+						"default": ["`", "'", "\""]
+					},
+					"selection-utilities.comments": {
+						"type": "array",
+						"description": "Defines commenting symbols that are paired to surround text.",
+						"scope": "language-overridable"
+					},
 					"selection-utilities.motionUnits": {
 						"type": "array",
 						"description": "Defines a set of named regular expressions to move the cursor by",
