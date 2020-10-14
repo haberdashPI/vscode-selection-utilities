@@ -32,10 +32,21 @@ interface MultiUnitDef {
     regexs: string | string[],
 }
 
+const defaultAnyPair = [/[\(\{\[]/gu, /[\)\}\]]/gu];
+const defaultAnyQuote = /'"`/gu;
+const defaultAllTokens = /[\(\{\[\)\}'"`]/gu;
+const defaultAnyComments = /a^/g;
+
 let units: IHash<RegExp | MultiLineUnit> = {};
 let pairs: Array<[RegExp, RegExp]> = [];
+let anyPair = defaultAnyPair;
+let closePair = defaultClosePair;
+let openPair = defaultOpenPair;
 let quotes: Array<RegExp> = [];
-let comments: Array<[RegExp, RegExp]> = [];
+let anyQuotes = defaultAnyQuote;
+let comments: Array<RegExp> = [];
+let anyComments = defaultAnyComments;
+let allTokens = defaultAllTokens;
 
 function updateUnits(event?: vscode.ConfigurationChangeEvent){
     if(!event || event.affectsConfiguration("selection-utilities")){
@@ -68,9 +79,22 @@ function updateUnits(event?: vscode.ConfigurationChangeEvent){
                 [RegExp(pairs[0], "gu"), RegExp(pairs[1], "gu")]) || [];
         quotes = config.get<Array<string>>("quotes")?.map((quote: string) =>
             RegExp(quote, "gu")) || [];
-        comments = config.get<Array<[string, string]>>("comments")?.
-            map((pairs: [string,string]) =>
-                [RegExp(pairs[0], "gu"), RegExp(pairs[1], "gu")]) || [];
+        comments = config.get<Array<string>>("comments")?.
+            map((comment: string) => RegExp(comment, "gu")) || [];
+        anyPair = pairs ? [
+            RegExp(pairs.map(p => "(" + p[0].source + ")").join("|"), "gu"),
+            RegExp(pairs.map(p => "(" + p[1].source + ")").join("|"), "gu")
+        ] : defaultAnyPair;
+        anyQuotes = quotes ? RegExp(quotes.map(q => "(" + q.source + ")").join("|"), "gu") :
+            defaultAnyQuote;
+        anyComments = comments ? RegExp(comments.map(q => "(" + q.source + ")").join("|"), "gu") :
+            defaultAnyComments;
+
+        let all: Array<string> = [];
+        pairs.forEach(pairs => all.push(...pairs.map(x => x.source)));
+        quotes.forEach(q => all.push(q.source));
+        comments.forEach(c => all.push(c.source));
+        allTokens = RegExp(all.map(str => "(" + str + ")").join("|"), "gu");
     }
 }
 
@@ -1087,6 +1111,44 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
     };
 }
 
-function nextPairing(pairIndex: number, dir: number){
-
+enum PairSearchType{ Bracket, Quote }
+interface PairState {
+    line: string,
+    pos: vscode.Position,
+    type: PairSearchType,
+    tokenIndex: number,
+    forward: boolean
 }
+
+// NOTE: for now, just forward direction
+function nextPair(doc: vscode.TextDocument, state: PairState){
+
+    // find next relevant token
+    let [token, state] = nextToken(doc, state);
+
+    if(state.type === PairSearchType.Bracket){
+        // skip past quoted region
+        if(token.test(anyQuotes)){
+            let quoteIndex = quotes.findIndex(x => token.test(x));
+            [token, state] = nextPair(doc, {...state, type: PairSearchType.Quote, tokenIndex: quoteIndex});
+            return nextPair(doc, {...state, pos: state.pos.translate(0,1)});
+        }
+        // skip past commented region
+        else if(token.test(anyComments)){
+            return nextPair(doc, {...state, pos: state.pos.translate(1,0)})
+        }
+        // is it a matching pair?
+        else if(token.test(pairs[state.tokenIndex][1])){
+            return [token, state];
+        // is it a unmatching pair?
+        }else if(token.test(closePair)){
+            return undefined;
+        }else{ // other opening pair
+            let pairIndex = pairs.findIndex(x => token.test(x[0]));
+            let [_, otherState] = nextPair(doc, {...state, tokenIndex: pairIndex})
+            return nextPair(doc, {...state, pos: otherState.pos.translate(0,1)});
+        }
+    }
+    // TODO: quotes
+}
+// TODO: handle other direction
