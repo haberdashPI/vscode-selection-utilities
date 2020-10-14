@@ -34,7 +34,7 @@ interface MultiUnitDef {
 
 let units: IHash<RegExp | MultiLineUnit> = {};
 let pairs: Array<[RegExp, RegExp]> = [];
-let quotes: Array<[RegExp]> = [];
+let quotes: Array<RegExp> = [];
 let comments: Array<[RegExp, RegExp]> = [];
 
 function updateUnits(event?: vscode.ConfigurationChangeEvent){
@@ -63,9 +63,14 @@ function updateUnits(event?: vscode.ConfigurationChangeEvent){
             }
         }
 
-        pairs = config.get<Array<[RegExp, RegExp]>>("pairs") || [];
-        quotes = config.get<Array<[RegExp, RegExp]>>("quotes") || [];
-        comments = config.get<Array<[RegExp, RegExp]>>("comments") || [];
+        pairs = config.get<Array<[string, string]>>("pairs")?.
+            map((pairs: [string,string]) =>
+                [RegExp(pairs[0], "gu"), RegExp(pairs[1], "gu")]) || [];
+        quotes = config.get<Array<string>>("quotes")?.map((quote: string) =>
+            RegExp(quote, "gu")) || [];
+        comments = config.get<Array<[string, string]>>("comments")?.
+            map((pairs: [string,string]) =>
+                [RegExp(pairs[0], "gu"), RegExp(pairs[1], "gu")]) || [];
     }
 }
 
