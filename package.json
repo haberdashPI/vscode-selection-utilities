@@ -372,7 +372,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc --noEmit && npx parcel build src/extension.ts -t node -d out",
+		"compile": "tsc --noEmit && npx parcel build src/extension.ts --dist-dir out",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
