@@ -1117,105 +1117,104 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
 }
 
 enum PairSearchType{ Bracket, Quote }
-interface PairState {
-    line: string | undefined,
-    pos: vscode.Position,
-    type: PairSearchType,
-    tokenIndex: number,
-    tokenState: RegExp | undefined
-    tokenPositions: number[] | undefined
-    tokens: string[] | undefined
-    tokenPosIndex: number | undefined
-    forward: boolean
-}
+class PairState {
+    pairType: PairSearchType;
+    tokenState: Generator<[string, number]>;
+    tokenType: number;
+    forward: boolean;
+    pos: vscode.Position;
 
-function nextLine(state: PairState){
-    return {
-        ...state,
-        line: undefined,
-        pos: state.pos.translate(1, 0),
-        tokenState: undefined,
-        tokenPositions: undefined,
-        tokens: undefined,
-        tokenPosIndex: undefined
-    }
-}
-
-// TODO: we can create to pair state types and use method dispatch
-// to handle the different directions; that should clean things up below
-function nextToken(doc: vscode.TextDocument, state: PairState){
-    if(state.pos.line >= doc.lineCount || state.pos.line < 0){
-        return [undefined, state];
+    constructor(doc: vscode.TextDocument, pos: vscode.Position, forward: boolean,
+            pairType: PairSearchType, tokenType: number = -1){
+        let line = doc.lineAt(pos.line).text;
+        this.pos = pos;
+        this.pairType = pairType;
+        this.tokenType = tokenType;
+        this.forward = forward;
+        this.tokenState = forward ?
+            forwardTokens(line, pos, selectTokenUnit(pairType, tokenType)) :
+            backwardTokens(line, pos, selectTokenUnit(pairType, tokenType));
     }
 
-    let line = state.line === undefined ? doc.lineAt(state.pos.line).text : state.line;
-    let tokenState = state.tokenState === undefined ? newregex(selectTokenUnit(state)) :
-        state.tokenState;
-    let tokenPositions: number[] | undefined = undefined;
-    let tokens: string[] | undefined = undefined;
-    let tokenPosIndex: number | undefined = undefined;
-    if(!state.forward){
-        if(state.tokenPositions === undefined){
-            let match = tokenState.exec(line);
-            tokenPositions = [];
-            tokens = [];
-            while(match !== null){
-                tokenPositions.push(match.index);
-                tokens.push(match.toString());
-                match = tokenState.exec(line);
+    nextLine(doc: vscode.TextDocument){
+        // TODO: need to check for start and end of document
+        if(this.forward){
+            if(this.pos.line === doc.lineCount-1){
+                return undefined
+            }else {
+                return new PairState(doc, new vscode.Position(this.pos.line+1, 0),
+                    this.forward, this.pairType, this.tokenType);
             }
-            tokenPositions.reverse();
-            tokenPosIndex = -1;
         }else{
-            tokenPosIndex = state.tokenPosIndex;
+            if(this.pos.line === 0){
+                return undefined
+            }else{
+                return new PairState(doc, doc.lineAt(this.pos.line-1).range.end,
+                    this.forward, this.pairType, this.tokenType);
+            }
         }
     }
-    let newState: PairState = {
-        ...state,
-        line,
-        tokenState,
-        tokenPositions,
-        tokenPosIndex
-    };
 
-    if(state.forward){
-        let match = tokenState.exec(line);
-        if(match === null){
-            return nextToken(doc, {...newState, pos: state.pos.translate(1, 0)});
-        }else{
-            let pos = new vscode.Position(state.pos.line, match.index);
-            return [match.toString(), {...newState, pos: pos}];
+    nextToken(doc: vscode.TextDocument): [string, PairState] {
+        let {value, done} = this.tokenState.next();
+        if(done){
+            let newline = this.nextLine(doc);
+            if(newline === undefined){
+                [undefined, undefined]
+            }else{
+                return newline.nextToken(doc);
+            }
         }
-    }else{
-        if(++tokenPosIndex < tokenPositions.length){
-            let pos = new vscode.Position(state.pos.line, tokenPositions[tokenPosIndex]);
-            return [tokens[tokenPosIndex], {..newState, pos: pos, tokenPosIndex: tokenPosIndex}];
-        }else{
-            return nextToken(doc, nextLine(newState));
-        }
+        let [str, index] = value;
+        this.pos = new vscode.Position(this.pos.line, index);
+        return [str, this];
+    }
+
+    switchTypes(doc: vscode.TextDocument, pairType: PairSearchType, tokenType: number){
+        return new PairState(doc, this.pos, this.forward, pairType, tokenType);
     }
 }
 
-// NOTE: for now, just forward direction
+// TODO: need to check the value of pos to fliter out tokens
+// that shouldn't be included
+function* forwardTokens(line: string, pos: vscode.Position, re: RegExp): Generator<[string, number]>{
+    re = newregex(re);
+    let match = re.exec(line);
+    while(match !== null){
+        yield [match.toString(), match.index];
+    }
+    return;
+}
+
+function* backwardTokens(line: string, pos: vscode.Position, re: RegExp){
+    let tokens = Array.from(forwardTokens(line, re));
+    tokens.reverse();
+    yield *tokens
+}
+
+// TODO: make it return a position
 function nextPair(doc: vscode.TextDocument, state: PairState){
 
     // if we're searching for a bracket
-    if(state.type === PairSearchType.Bracket){
+    if(state.tokenType === PairSearchType.Bracket){
         // find next token
-        let [token, state] = nextToken(doc, state);
+        let token: string
+        [token, state] = state.nextToken(doc);
         if(token === undefined){
             return undefined;
         }else{
             // skip past it, if its a quoted region
             if(token.test(anyQuotes)){
                 let quoteIndex = quotes.findIndex(x => token.test(x));
-                [token, state] = nextPair(doc, {...state, type: PairSearchType.Quote, tokenIndex: quoteIndex});
-                return nextPair(doc, {...state, pos: state.pos.translate(0,1)});
+                [token, state] = nextPair(doc,
+                    state.switchTypes(doc, PairSearchType.Quote, quoteIndex));
+                return nextPair(doc, state);
             }
             // skip past commented region
             else if(token.test(anyComments)){
                 if(state.forward){
-                    return nextPair(doc, {...state, pos: state.pos.translate(1,0)})
+                    let [token, state] = state.nextLine();
+                    return nextPair(doc, )
                 }else{
                     return undefined
                 }
