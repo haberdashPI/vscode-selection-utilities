@@ -81,12 +81,36 @@
 						"description": "Defines a set of named regular expressions to move the cursor by",
 						"scope": "language-overridable",
 						"default": [
-							{ "name": "WORD", "regex": "[^\\s]+" },
-							{ "name": "word", "regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))" },
-							{ "name": "subword", "regex": "(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)" },
-							{ "name": "paragraph", "regexs": "\\S+" },
-							{ "name": "section", "regexs": [ ".+", "^.*========+.*$" ] },
-							{ "name": "subsection", "regexs": [ ".+", "^.*(========+|--------+).*$" ] }
+							{
+								"name": "WORD",
+								"regex": "[^\\s]+"
+							},
+							{
+								"name": "word",
+								"regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))"
+							},
+							{
+								"name": "subword",
+								"regex": "(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)"
+							},
+							{
+								"name": "paragraph",
+								"regexs": "\\S+"
+							},
+							{
+								"name": "section",
+								"regexs": [
+									".+",
+									"^.*========+.*$"
+								]
+							},
+							{
+								"name": "subsection",
+								"regexs": [
+									".+",
+									"^.*(========+|--------+).*$"
+								]
+							}
 						]
 					}
 				}
