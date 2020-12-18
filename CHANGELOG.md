@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.3]
+- **Bugfix**: edge case for multi-line "both" boundaries
+
 ## [0.1.2]
 - **Feature**: word motions are now customizable per-langauge
 
