@@ -395,9 +395,10 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "webpack --mode production",
-		"compile": "webpack --mode development",
-		"watch": "tsc -watch -p ./",
+		"vscode:prepublish": "npm run clean && webpack --mode production",
+		"compile": "npm run clean && webpack --mode development",
+		"watch": "npm run clean && tsc -watch -p ./",
+		"clean": "rm -rf out",
 		"test-compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"pretest": "npm run compile && npm run lint",
