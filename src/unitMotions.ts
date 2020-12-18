@@ -28,32 +28,40 @@ interface MultiUnitDef {
     regexs: string | string[],
 }
 
-let units: IHash<RegExp | MultiLineUnit> = {};
+let allUnits: IHash<IHash<RegExp | MultiLineUnit>> = {};
 
-export function updateUnits(event?: vscode.ConfigurationChangeEvent){
+export function updateUnits(event?: vscode.ConfigurationChangeEvent, newid?: string){
     if(!event || event.affectsConfiguration("selection-utilities")){
-        let config = vscode.workspace.getConfiguration("selection-utilities");
-        let newUnits = config.get<Array<UnitDef | MultiUnitDef>>("motionUnits");
-        units = {};
-        if(newUnits){
-            for(let unit of newUnits){
-                if((unit as UnitDef).regex){
-                    units[unit.name] = RegExp((unit as UnitDef).regex,"gu");
-                }else if((unit as MultiUnitDef).regexs){
-                    let unitdef = (unit as MultiUnitDef);
-                    let regexs: string[];
-                    if(unitdef.regexs instanceof Array){
-                        regexs = (unitdef.regexs as string[]);
+        let ids = Object.keys(allUnits);
+        ids.push('[GENERIC]');
+        newid !== undefined && ids.push(newid);
+        for(let id of ids){
+            let config = id !== '[GENERIC]' ?
+                vscode.workspace.getConfiguration("selection-utilities", {languageId: id}) :
+                vscode.workspace.getConfiguration("selection-utilities");
+            let newUnits = config.get<Array<UnitDef | MultiUnitDef>>("motionUnits");
+            let units: IHash<RegExp | MultiLineUnit> = {};
+            if(newUnits){
+                for(let unit of newUnits){
+                    if((unit as UnitDef).regex){
+                        units[unit.name] = RegExp((unit as UnitDef).regex,"gu");
+                    }else if((unit as MultiUnitDef).regexs){
+                        let unitdef = (unit as MultiUnitDef);
+                        let regexs: string[];
+                        if(unitdef.regexs instanceof Array){
+                            regexs = (unitdef.regexs as string[]);
+                        }else{
+                            regexs = [(unitdef.regexs as string)];
+                        }
+                        units[unit.name] = {
+                            regexs: regexs.map(x => RegExp(x,"u"))
+                        };
                     }else{
-                        regexs = [(unitdef.regexs as string)];
+                        vscode.window.showErrorMessage("Malformed unit definition");
                     }
-                    units[unit.name] = {
-                        regexs: regexs.map(x => RegExp(x,"u"))
-                    };
-                }else{
-                    vscode.window.showErrorMessage("Malformed unit definition");
                 }
             }
+            allUnits[id] = units;
         }
     }
 }
@@ -230,8 +238,17 @@ function* multiLineUnitsForDoc(document: vscode.TextDocument, from: vscode.Posit
     return;
 }
 
+function unitNameToRegex(editor: vscode.TextEditor, name?: string){
+    let id = editor.document?.languageId || "[GENERIC]";
+    if(allUnits[id] === undefined){
+        updateUnits(undefined, id);
+    }
+    return name === undefined ? /\p{L}+/gu :
+        allUnits[id] === undefined ? allUnits['[GENERIC]'][name] :
+        allUnits[id][name] || allUnits['[GENERIC]'][name];
+}
 function narrowTo(editor: vscode.TextEditor, args: NarrowByArgs): (select: vscode.Selection) => vscode.Selection {
-    let unit = args.unit === undefined ? /\p{L}+/gu : units[args.unit];
+    let unit = unitNameToRegex(editor, args.unit);
     let thenNarrow = args.then === undefined ? undefined :
         narrowTo(editor, {
             unit: args.then,
@@ -285,7 +302,7 @@ function narrowTo(editor: vscode.TextEditor, args: NarrowByArgs): (select: vscod
 }
 
 function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
-    let unit = args.unit === undefined ? /\p{L}+/gu : units[args.unit];
+    let unit = unitNameToRegex(editor, args.unit);
     let forward = args.value === undefined ? true : args.value > 0;
     let holdSelect = args.select === undefined ? false : args.select;
     let selectWholeUnit = args.selectWhole === undefined ? false : args.selectWhole;
