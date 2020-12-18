@@ -206,15 +206,18 @@ function* multiLineUnitsForDoc(document: vscode.TextDocument, from: vscode.Posit
             lastTest = ismatch;
             let pos;
             if(ismatch === forward && boundary !== Boundary.End){
-                pos = new vscode.Position(forward ? lineNum - 1 : lineNum + 1,0);
+                pos = new vscode.Position(forward ?
+                    (boundary === Boundary.Both ? lineNum : lineNum-1) :
+                    lineNum + 1,0);
                 finalBoundary = Boundary.End;
                 if(forward ? pos.line >= from.line : pos.line <= from.line){
                     yield [pos, Boundary.Start];
                 }
             }
             if(ismatch !== forward && boundary !== Boundary.Start){
-                let line = forward ? lineNum-unit.regexs.length :
-                    lineNum+unit.regexs.length;
+                let line = forward ?
+                    (boundary === Boundary.Both ? lineNum-unit.regexs.length : lineNum-unit.regexs.length+1) :
+                    lineNum+unit.regexs.length-1;
                 let endchar = document.lineAt(line).range.end.character;
                 pos = new vscode.Position(line,endchar);
                 finalBoundary = Boundary.Start;
