@@ -88,6 +88,8 @@ listed below.
 ],
 ```
 
+Motion units can be customized on a per-langauge basis, if desired.
+
 For the built-in motions to work, all of these motions have to be defined, but you can also
 define your own custom units.
 
