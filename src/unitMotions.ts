@@ -190,6 +190,9 @@ function* multiLineUnitsForDoc(document: vscode.TextDocument, from: vscode.Posit
     let lines: string[] = [];
     let lastTest: boolean | undefined = undefined;
     let finalBoundary = forward ? Boundary.End : Boundary.Start;
+    if(lineNum >= document.lineCount && !forward){
+        lineNum = document.lineCount-1;
+    }
     while(forward ? lineNum < document.lineCount : lineNum >= 0){
         let line = document.lineAt(lineNum).text;
         curLinesToMatch.push(line);
