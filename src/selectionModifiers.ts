@@ -137,7 +137,9 @@ async function splitBy(useRegex: boolean = false, into: boolean = false){
 function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range){
     let doc = editor.document;
     let line = range.start.line;
-    let text = doc.getText(new vscode.Range(range.start,doc.lineAt(line).range.end));
+    let getLineText = (pos: vscode.Position, limit: vscode.Position) =>
+        doc.getText(new vscode.Range(pos, limit).intersection(doc.lineAt(pos.line).range));
+    let text = getLineText(range.start, range.end);
     let offset = range.start.character;
     while(line <= range.end.line){
         regex.lastIndex = 0;
@@ -157,8 +159,7 @@ function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range
         if(line >= editor.document.lineCount){
             return;
         }else{
-            text = doc.getText(new vscode.Range(new vscode.Position(line,0),
-                doc.lineAt(line).range.end));
+            text = getLineText(new vscode.Position(line,0), range.end);
         }
     }
     return;
