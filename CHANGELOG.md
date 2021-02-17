@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.4]
+- **Bugfix**: overextended split-by selections
+- **Bugfix**: unit selection near the end of a file
+
 ## [0.1.3]
 - **Bugfix**: edge case for multi-line "both" boundaries
 
