@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.5]
+- **Bugfix**: updates to fix downstream vulnerabilities
+
 ## [0.1.4]
 - **Bugfix**: overextended split-by selections
 - **Bugfix**: unit selection near the end of a file
