@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.6]
+- **Feature**: Command to clear a given memory (without restoring it).
+
 ## [0.1.5]
 - **Bugfix**: updates to fix downstream vulnerabilities
 

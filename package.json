@@ -167,6 +167,12 @@
 				"title": "Restore from selection memory",
 				"category": "Selection Utilities"
 			},
+
+			{
+				"command": "selection-utilities.clearMemory",
+				"title": "Remove all selection from memory",
+				"category": "Selection Utilities"
+			},
 			{
 				"command": "selection-utilities.swapWithMemory",
 				"title": "Swap current selections with saved selections (or save current selections)",

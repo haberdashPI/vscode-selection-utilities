@@ -122,6 +122,8 @@ export function registerSelectionMemoryCommands(context: vscode.ExtensionContext
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.restoreAndClear',restoreAndClear));
     context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.clearMemory',clearMemory));
+    context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.swapWithMemory',swapWithMemory));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.cancelSelection',cancelSelection));
@@ -191,6 +193,16 @@ function restoreAndClear(args: SelectMemoryArgs){
             primarySelectionIndex = findClosestIndex(memory,prim);
             editor.selections = memory;
             updateView(editor);
+            saveSelectMemory([],args,editor);
+        }
+    }
+}
+
+function clearMemory(args: SelectMemoryArgs){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let memory = getSelectMemory(args);
+        if(memory !== undefined && memory.length > 0){
             saveSelectMemory([],args,editor);
         }
     }
