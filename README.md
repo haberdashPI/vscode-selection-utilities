@@ -287,6 +287,7 @@ do not contain a match of the given string.
 These commands modify the start and end of selections.
 
 - "Trim selection to exclude whitespace at start/end" (`selection-utilities.trimSelectionWhitespace`): Self explanatory
+- "Adjust selection boundaries inwards or outwards" (`selection-utilities.adjustSelections`): Expands or shrinks the selection by individual characters. Takes two arguments, dir ("forward" or "backward") and count (how many characters to adjust).
 
 ### Editing Text by Selection
 
@@ -297,6 +298,8 @@ These commands modify selected text in various ways
 - "Right align selections (using spaces)" (`selection-utilities.alignSelectionsRight`):
   Insert spaces to the left of a selection so that the right side of the selections align.
 - "Trim whitespace at start/end of selection" (`selection-utilities.trimWhitespace`)
+- "Delete characters at start end of selections" (`selection-utilities.deleteAround).
+- "Insert characters around selections" (`selection-utilities.insertAround`), takes two arguments: `before` and `after` which should include the characters that should be placed before and after each selection
 
 ## Related projects
 

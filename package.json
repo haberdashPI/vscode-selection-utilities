@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"engines": {
 		"vscode": "^1.55.0"
 	},
@@ -54,7 +54,10 @@
 		"onCommand:selection-utilities.selectBySubsection",
 		"onCommand:selection-utilities.moveBySection",
 		"onCommand:selection-utilities.selectBySection",
-		"onCommand:selection-utilities.narrowTo"
+		"onCommand:selection-utilities.narrowTo",
+		"onCommand:selection-utilities.insertAround",
+		"onCommand:selection-utilities.deleteAround",
+		"onCommand:selection-utilities.adjustSelections"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -397,6 +400,21 @@
 				"command": "selection-utilities.excludeByRegex",
 				"title": "Exclude selections by... (regex)",
 				"category": "Selcetion Utilities"
+			},
+			{
+				"command": "selection-utilities.insertAround",
+				"title": "Insert characters around selections",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.deleteAround",
+				"title": "Delete characters at start end of selections",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.adjustSelections",
+				"title": "Adjust selections inwards or outwards",
+				"category": "Selection Utilities"
 			}
 		]
 	},

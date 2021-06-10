@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.8]
+- **Feature**: New symmetric (start/end of selection) commands:
+    - Add a character before/after selections
+    - Remove characters before/after selections
+    - Adjust selection ends both inwards/outwards
+
 ## [0.1.7]
 - **Bugfix**: downstream vulnerabilities fixed
 
