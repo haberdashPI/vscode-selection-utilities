@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.1.9]
+- **Bufx**: downstream vulnerabilities
+
 ## [0.1.8]
 - **Feature**: New symmetric (start/end of selection) commands:
     - Add a character before/after selections
