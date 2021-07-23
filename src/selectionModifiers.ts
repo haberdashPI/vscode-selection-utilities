@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
+import { TokenArgs, getInput } from './inputCapture';
 
 export function registerSelectionModifiers(context: vscode.ExtensionContext){
     context.subscriptions.push(vscode.commands.
@@ -79,22 +80,7 @@ async function splitByNewline(){
     }
 }
 
-interface SplitByArgs {
-    text?: string
-}
-
-function getInput(args: SplitByArgs | undefined, message: string, validate: (str: string) => string | undefined){
-    if (!args || !args.text){
-        return vscode.window.showInputBox({
-            prompt: message,
-            validateInput: validate
-        })
-    }else{
-        return Promise.resolve(args.text);
-    }
-}
-
-async function splitBy(args: SplitByArgs | undefined, useRegex: boolean = false, into: boolean = false){
+async function splitBy(args: TokenArgs | undefined, useRegex: boolean = false, into: boolean = false){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let ed = editor;
@@ -114,7 +100,7 @@ async function splitBy(args: SplitByArgs | undefined, useRegex: boolean = false,
             }else{
                 return undefined;
             }
-        }
+        };
 
         getInput(args,message,validateInput).then((by?: string) => {
             if(by !== undefined){
