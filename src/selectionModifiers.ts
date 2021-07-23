@@ -11,11 +11,11 @@ export function registerSelectionModifiers(context: vscode.ExtensionContext){
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.splitBy', splitBy));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.splitByRegex', () => splitBy(true)));
+        registerCommand('selection-utilities.splitByRegex', args => splitBy(args, true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.createBy', () => splitBy(false, true)));
+        registerCommand('selection-utilities.createBy', args => splitBy(args, false, true)));
     context.subscriptions.push(vscode.commands.
-        registerCommand('selection-utilities.createByRegex', () => splitBy(true, true)));
+        registerCommand('selection-utilities.createByRegex', args => splitBy(args, true, true)));
 }
 
 
@@ -79,29 +79,44 @@ async function splitByNewline(){
     }
 }
 
-async function splitBy(useRegex: boolean = false, into: boolean = false){
+interface SplitByArgs {
+    text?: string
+}
+
+function getInput(args: SplitByArgs | undefined, message: string, validate: (str: string) => string | undefined){
+    if (!args || !args.text){
+        return vscode.window.showInputBox({
+            prompt: message,
+            validateInput: validate
+        })
+    }else{
+        return Promise.resolve(args.text);
+    }
+}
+
+async function splitBy(args: SplitByArgs | undefined, useRegex: boolean = false, into: boolean = false){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let ed = editor;
         if(editor.selection.isEmpty && editor.selections.length <= 1){
             return;
         }
-        vscode.window.showInputBox({
-            prompt: `Enter a ${useRegex ? 'regular expression' : 'string'} to split `+
-                (into ? "into." : "by."),
-            validateInput: (str: string) => {
-                if(useRegex){
-                    try{
-                        new RegExp(str);
-                        return undefined;
-                    }catch{
-                        return "Invalid regular expression";
-                    }
-                }else{
+        let message = `Enter a ${useRegex ? 'regular expression' : 'string'} to split `+
+            (into ? "into." : "by.")
+        let validateInput = (str: string) => {
+            if(useRegex){
+                try{
+                    new RegExp(str);
                     return undefined;
+                }catch{
+                    return "Invalid regular expression";
                 }
+            }else{
+                return undefined;
             }
-          }).then((by?: string) => {
+        }
+
+        getInput(args,message,validateInput).then((by?: string) => {
             if(by !== undefined){
                 let newSelections = ed.selections.map(sel => {
                     let lastEnd = sel.start;
