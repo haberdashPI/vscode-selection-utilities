@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.10]
+- **Feature**: Splitting / creating / filtering commands now accept
+a command argument `text` as an alternative to opening an input dialog.
+
 ## [0.1.9]
 - **Bufx**: downstream vulnerabilities
 

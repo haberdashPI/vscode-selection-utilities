@@ -261,10 +261,10 @@ position. On a cancel, the cursor is placed at the location of the primary selec
 
 ### Splitting/filtering selections
 
-These commands split, create or filter selections according to tokens.
+These commands split, create or filter selections according to tokens. The tokens to use can be provided by the user via an input box, or you can pass it in the argument `text` when defining the command to call.
 
 - "Split selection(s) by string" (`selection-utilities.splitBy`): Splits each selection,
-  creating a new selection before and after each given string.
+  creating a new selection before and after each given string. 
 - "Split selection(s) by newline" (`selection-utilities.splitByNewline`): Like the default
   command in VSCode to split selections by lines, but maintains a selection for each line.
 - "Split selection(s) by regular expression" (`selection-utilities.splitByRegex`): Splits
