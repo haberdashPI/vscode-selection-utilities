@@ -1,7 +1,10 @@
 .vscode/**
 .vscode-test/**
-out/test/**
+docs/**
+doc_dist/**
 src/**
+.parcel-cache/*
+images/**
 .gitignore
 vsc-extension-quickstart.md
 **/tsconfig.json
@@ -9,4 +12,3 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 node_modules
-webpack.config.js

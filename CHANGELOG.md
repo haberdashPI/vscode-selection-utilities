@@ -1,11 +1,14 @@
 # Change Log
 
+## [0.1.11]
+- **Bugfix**: failure in symmetric motion across lines 
+
 ## [0.1.10]
 - **Feature**: Splitting / creating / filtering commands now accept
 a command argument `text` as an alternative to opening an input dialog.
 
 ## [0.1.9]
-- **Bufx**: downstream vulnerabilities
+- **Bufix**: downstream vulnerabilities
 
 ## [0.1.8]
 - **Feature**: New symmetric (start/end of selection) commands:
