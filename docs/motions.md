@@ -6,7 +6,7 @@ There are two advantages to these motions over the built-in motions
 - They allow for kakoune-like workflows, because both the end and start of a selection
 can move by a given unit (e.g. move selection so it surrounds *just* the next word).
 
-Below are the built-in motions, but all of these can be customized. The "Move Selection"
+Below are the pre-defined motions, all of which can be customized. For ultimate flexiblity, you can use the generic [`moveby`](#the-custom-moveby-command) command. Below, the "Move Selection"
 commands adjust both the start and end of the selection while the "Select to" commands only
 change the end or start of the selection, depending on the location of the anchor. The units
 are defined by regex's (listed below).

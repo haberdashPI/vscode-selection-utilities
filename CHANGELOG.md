@@ -1,7 +1,8 @@
 # Change Log
 
-## [0.1.11]
-- **Bugfix**: failure in symmetric motion across lines 
+## [0.2.0]
+- **Docs**: gif examples, and published content on gh-pages; command names are now stable.
+- **Bugfix**: failure in symmetric motion across lines
 
 ## [0.1.10]
 - **Feature**: Splitting / creating / filtering commands now accept

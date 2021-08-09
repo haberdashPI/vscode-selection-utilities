@@ -13,7 +13,7 @@ There are many commands, and they are designed to work together. They work well 
 Because there are so many commands, and any given set of keybindings for this
 extension could easily overwrite existing bindings, there are no default
 keybindings; you will need to learn about commands you want to use and then
-customize them yourself.
+customize them yourself for your own purpose.
 
 ## Commands
 
@@ -39,7 +39,7 @@ soon-to-be multiple selections.
 
 ![Saved Selection Animation](./docs/images/save_selection.gif)
 
-[Read more](https://haberdashpi.github.io/vscode-selection-utilities/stable/motions.html)
+[Read more](https://haberdashpi.github.io/vscode-selection-utilities/stable/saving.html)
 
 ### Adding and removing selections
 
