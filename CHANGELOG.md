@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.2.1]
+
+- **Docs**: Fix broken link
+
 ## [0.2.0]
 - **Docs**: gif examples, and published content on gh-pages; command names are now stable.
 - **Bugfix**: failure in symmetric motion across lines
