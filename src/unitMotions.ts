@@ -269,26 +269,30 @@ function unitNameToRegex(editor: vscode.TextEditor, name?: string){
         allUnits[id][name] || allUnits['[GENERIC]'][name];
 }
 
+function toBoundary(args: {boundary?: string}) {
+    if(args.boundary === undefined){
+        return Boundary.Start;
+    }else if(args.boundary === 'start'){
+        return Boundary.Start;
+    }else if(args.boundary === 'end'){
+        return Boundary.End;
+    }else if(args.boundary === 'both'){
+        return Boundary.Both;
+    }else{
+        vscode.window.showErrorMessage("Unexpected value for boundary argument: '"+
+            args.boundary+"'.");
+        return undefined
+    }
+}
+
 function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
     let unit = unitNameToRegex(editor, args.unit);
     let forward = args.value === undefined ? true : args.value > 0;
     let holdSelect = args.select === undefined ? false : args.select;
     let selectWholeUnit = args.selectWhole === undefined ? false : args.selectWhole;
 
-    let boundary: Boundary;
-    if(args.boundary === undefined){
-        boundary = Boundary.Start;
-    }else if(args.boundary === 'start'){
-        boundary = Boundary.Start;
-    }else if(args.boundary === 'end'){
-        boundary = Boundary.End;
-    }else if(args.boundary === 'both'){
-        boundary = Boundary.Both;
-    }else{
-        vscode.window.showErrorMessage("Unexpected value for boundary argument: '"+
-            args.boundary+"'.");
-        return (select: vscode.Selection) => select;
-    }
+    let boundary = toBoundary(args);
+    if(boundary === undefined){ return (sel: vscode.Selection) => sel; }
     let steps = args.value === undefined ? 1 : Math.abs(args.value);
     if(steps === 0) { return (select: vscode.Selection) => select; }
 
@@ -322,18 +326,26 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
 
     return (select: vscode.Selection) => {
         let units = unitsForDoc(editor.document, select.active, unit, forward);
+        let count = 0;
+        let result;
         for(let curUnit of units){
-            let result = unitToResult(select, curUnit)
-            if(!boundsMatch(result, select)){
-                return result;
+            result = unitToResult(select, curUnit)
+            if(!boundsMatch(result, select) || count > 0){
+                count += 1;
+                if(count >= steps){
+                    return result;
+                }
             }else if(boundary === Boundary.Both && !selectWholeUnit){
                 result = unitToResult(select, curUnit, forward ? curUnit.end : curUnit.start);
                 if(!boundsMatch(result, select)){
-                    return result
+                    count += 1;
+                    if(count >= steps){
+                        return result;
+                    }
                 }
             }
         }
-        return select;
+        return result || select;
     };
 }
 
@@ -342,7 +354,6 @@ function boundsMatch(x: vscode.Selection, y: vscode.Selection){
         (x.end.isEqual(y.start) && x.start.isEqual(y.end))
 }
 
-// TODO: refactor this function
 function narrowTo(editor: vscode.TextEditor, args: NarrowByArgs): (select: vscode.Selection) => vscode.Selection {
     let unit = unitNameToRegex(editor, args.unit);
     let thenNarrow = args.then === undefined ? undefined :
@@ -352,47 +363,31 @@ function narrowTo(editor: vscode.TextEditor, args: NarrowByArgs): (select: vscod
                 args.thenBoundary
         });
 
-    let boundary: Boundary;
-    if(args.boundary === undefined){
-        boundary = Boundary.Both;
-    }else if(args.boundary === 'start'){
-        boundary = Boundary.Start;
-    }else if(args.boundary === 'end'){
-        boundary = Boundary.End;
-    }else if(args.boundary === 'both'){
-        boundary = Boundary.Both;
-    }else{
-        vscode.window.showErrorMessage("Unexpected value for boundary argument: '"+args.boundary+"'.");
-        return (select: vscode.Selection) => select;
-    }
+    let boundary = toBoundary(args);
+    if(boundary === undefined){ return (sel: vscode.Selection) => sel; }
 
     return (select: vscode.Selection) => {
         if(select.anchor.isEqual(select.active)){
             return select;
         }
-        let starts = unitsForDoc(editor.document,select.start,
-            boundary === Boundary.Both ? Boundary.Start : boundary,
-            unit,true);
-        let step = first(starts);
-        let start = step === undefined ? select.start : step[0];
-
-        let stops = unitsForDoc(editor.document,select.end,
-            boundary === Boundary.Both ? Boundary.End : boundary,
-            unit,false);
-        step = first(stops);
-        let stop = step === undefined ? select.end : step[0];
-
-        if(stop.isEqual(select.end) && start.isEqual(select.start)){
-            if(thenNarrow){ return thenNarrow(select); }
+        let starts = unitsForDoc(editor.document,select.start,unit,true);
+        let stops = unitsForDoc(editor.document,select.end,unit,false);
+        let stop = first(starts)?.start;
+        let start = first(stops)?.end;
+        if(!stop || !start){
+            return select;
         }
-        if(stop.isBefore(select.start) || start.isAfter(select.end)){
+        let result;
+        if(select.anchor.isBefore(select.active)){
+            result = new vscode.Selection(start,stop);
+        }else{
+            result = new vscode.Selection(stop,start);
+        }
+
+        if(boundsMatch(result, select) || stop.isBefore(select.start) || start.isAfter(select.end)){
             if(thenNarrow){ return thenNarrow(select); }
             else{ return select; }
         }
-        if(select.anchor.isBefore(select.active)){
-            return new vscode.Selection(start,stop);
-        }else{
-            return new vscode.Selection(stop,start);
-        }
+        return result;
     };
 }
