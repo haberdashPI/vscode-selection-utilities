@@ -128,8 +128,8 @@ function* regexMatches(matcher: RegExp, line: string, forward: boolean, offset: 
     matcher.lastIndex = 0
     let match = matcher.exec(line)
     while(match){
-        if(offset && !forward && match.index > offset){ return }
-        if(offset === undefined || !forward || match.index > offset)
+        if(offset !== undefined && !forward && match.index > offset){ return }
+        if(offset === undefined || !forward || match.index+match[0].length > offset)
             yield [match.index, match[0].length]
         let newmatch = matcher.exec(line)
         if(newmatch && newmatch.index > match.index){
@@ -201,17 +201,32 @@ function* singleRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Pos
             )
         }
     }
+    // if the first line is a match we have to find the first place where 
+    // it starts being a match (could be before start)
+    let first = true
     for(let [line, text] of docLines(document, from, forward)){
         if(unit.regexs[0].test(text)){
+            // if the first line we see is a match we have to look in the reverse 
+            // direction to find the first line that's a match
+            if(first){
+                first = false;
+                for(let [line, text] of docLines(document, from, !forward)){
+                    if(!unit.regexs[0].test(text)){ break; }
+                    first_match = line;
+                }
+            }
             if(first_match === undefined){
                 first_match = line;
             }
         }else{
             let result = closeMatch(line)
-            if(result !== undefined) yield result
+            if(result !== undefined){
+                first_match = undefined
+                yield result
+            } 
         }
     }
-    let result = closeMatch(forward ? document.lineCount : 1);
+    let result = closeMatch(forward ? document.lineCount : -1);
     if(result !== undefined) yield result;
 }
 
@@ -296,58 +311,85 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
     let steps = args.value === undefined ? 1 : Math.abs(args.value);
     if(steps === 0) { return (select: vscode.Selection) => select; }
 
-    function unitToResult(fromSel: vscode.Selection, unit: vscode.Range, start: vscode.Position = fromSel.active){
-        let land: vscode.Position
-        if(boundary === Boundary.End){
-            land = unit.end
-        }else if(boundary === Boundary.Start){
-            land = unit.start
-        }else { // Both
-            if(forward){
-                if(start.isAfter(unit.start)) land = unit.end
-                else land = unit.start
+    function lastPosition(){
+        let last = editor.document.lineCount-1;
+        let endCol = editor.document.lineAt(last).range.end.character;
+        return new vscode.Position(last, endCol);
+    }
+    function firstPosition(){
+        return new vscode.Position(0, 0);
+    }
+    function* selectedBoundaries(xs: Generator<vscode.Range>, start: vscode.Position | undefined){
+        function withStart(x: vscode.Position){
+            if(start) return new vscode.Selection(start, x);
+            else return new vscode.Selection(x, x);
+        }
+        for(let x of xs){
+            if(boundary === Boundary.Start){
+                yield withStart(x.start)
+            }else if(boundary === Boundary.End){
+                yield withStart(x.end);
             }else{
-                if(start.isBefore(unit.end)) land = unit.start
-                else land = unit.end
+                yield withStart(x.start);
+                yield withStart(x.end);
             }
         }
-        if(holdSelect){
-            return new vscode.Selection(fromSel.anchor, land);
-        }else if(selectWholeUnit){
-            if(land = unit.start){
-                return new vscode.Selection(unit.end, land);
-            }else{
-                return new vscode.Selection(unit.start, land);
-            }
+        if(forward){
+            yield withStart(lastPosition());
         }else{
-            return new vscode.Selection(land, land)
+            yield withStart(firstPosition());
+        }
+    }
+
+    function* selectUnits(xs: Generator<vscode.Range>, forward: boolean){
+        let last: vscode.Position | undefined;
+        let current: vscode.Position | undefined;
+        for(let x of xs){
+            if(boundary !== Boundary.Both){
+                if(boundary === Boundary.Start){
+                    last = current;
+                    current = boundary === Boundary.Start ? x.start : x.end;
+                }
+                if(current && last){
+                    yield new vscode.Selection(last, current);
+                }
+            }else{
+                if(forward) yield new vscode.Selection(x.start, x.end);
+                else yield new vscode.Selection(x.end, x.start)
+            }
+        }
+        if(boundary !== Boundary.Both){
+            if(forward){
+                if(current !== undefined)
+                    yield new vscode.Selection(current, lastPosition());
+            }else{
+                if(current !== undefined)
+                    yield new vscode.Selection(current, firstPosition());
+            }
         }
     }
 
     return (select: vscode.Selection) => {
         let units = unitsForDoc(editor.document, select.active, unit, forward);
+        let selections
+        if(selectWholeUnit){
+            selections = selectUnits(units, forward)
+        }else{
+            selections = selectedBoundaries(units, holdSelect ? select.anchor : undefined);
+        }
         let count = 0;
-        let result;
-        for(let curUnit of units){
-            result = unitToResult(select, curUnit)
-            if(!boundsMatch(result, select) || count > 0){
-                count += 1;
-                if(count >= steps){
-                    return result;
-                }
-            }else if(boundary === Boundary.Both && !selectWholeUnit){
-                result = unitToResult(select, curUnit, forward ? curUnit.end : curUnit.start);
-                if(!boundsMatch(result, select)){
+        for(let sel of selections){
+            if(!boundsMatch(sel, select) || count > 0){
+                if(forward ? sel.end.isAfter(select.active) : sel.start.isBefore(select.active))
                     count += 1;
-                    if(count >= steps){
-                        return result;
-                    }
-                }
+            }
+            if (count >= steps){
+                return sel;
             }
         }
-        return result || select;
+        return select;
     };
-}
+};
 
 function boundsMatch(x: vscode.Selection, y: vscode.Selection){
     return (x.start.isEqual(y.start) && x.end.isEqual(y.end)) ||

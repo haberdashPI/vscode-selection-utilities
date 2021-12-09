@@ -6,8 +6,12 @@
 		{
 			"type": "npm",
 			"script": "watch",
-			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
+			"background": {
+				"activeOnStart": true,
+				"beginPattern": ".*Built in [0-9]+.*",
+				"endsPattern": ".*Build failed."
+			},
 			"presentation": {
 				"reveal": "never"
 			},
