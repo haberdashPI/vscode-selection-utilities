@@ -201,6 +201,10 @@ function* singleRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Pos
             )
         }
     }
+    // TODO: instead of handle this within singleRegexUnits
+    // this should apply to both types of regexs, and we should
+    // only look back when we need to (a.k.a when we want both boundaries)
+
     // if the first line is a match we have to find the first place where 
     // it starts being a match (could be before start)
     let first = true
@@ -245,6 +249,7 @@ function* multiRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Posi
         }
     }
 
+    let first = true
     for(let [line, text] of docLines(document, from, forward)){
         buffer.push([line, text])
         if(buffer.length > unit.regexs.length){
@@ -252,8 +257,8 @@ function* multiRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Posi
         }
         if(buffer.length === unit.regexs.length){
             if(doesMatch(unit, buffer)){
-                let startLine = forward ? buffer[0][0] : buffer[buffer.length][0]
-                let endLine =  !forward ? buffer[0][0] : buffer[buffer.length][0]
+                let startLine = forward ? buffer[0][0] : buffer[buffer.length-1][0]
+                let endLine =  !forward ? buffer[0][0] : buffer[buffer.length-1][0]
                 let endCol = document.lineAt(endLine).range.end.character
                 yield new vscode.Range(
                     new vscode.Position(startLine, 0),
