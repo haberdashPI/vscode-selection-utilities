@@ -1,8 +1,8 @@
 import { utimes } from 'fs';
-import { matches } from 'lodash';
+import { matches, range } from 'lodash';
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
-import { IHash } from './util';
+import { clampedLineTranslate, IHash } from './util';
 
 interface MoveByArgs{
     unit?: string,
@@ -98,10 +98,10 @@ function* singleLineUnitsForDoc(doc: vscode.TextDocument, start: vscode.Position
         let matchesItr = regexMatches(unit, line, forwards, offset)
         let matches = forwards ? matchesItr : Array.from(matchesItr).reverse()
 
-        yield* mapIter(matches, ([start, len]) => new vscode.Range(
-            new vscode.Position(i, start),
-            new vscode.Position(i, start+len)
-        ))
+        yield* mapIter(matches, ([start, len]) => {return {
+            start: new vscode.Position(i, start),
+            end: new vscode.Position(i, start+len)
+        }})
         offset = undefined
     }
 }
@@ -146,8 +146,9 @@ function* mapIter<T, R>(iter: Iterable<T>, fn: (x: T) => R){
     }
 }
 
+type Unit = RegExp | MultiLineUnit | string[]
 function unitsForDoc(document: vscode.TextDocument, from: vscode.Position,
-    unit: RegExp | MultiLineUnit | string[], forward: boolean){
+    unit: Unit, forward: boolean){
 
     if(unit instanceof RegExp){
         return singleLineUnitsForDoc(document, from, unit, false, forward);
@@ -186,19 +187,24 @@ function* docLines(document: vscode.TextDocument, from: vscode.Position, forward
     }
 }
 
+interface Range {
+    start?: vscode.Position,
+    end?: vscode.Position
+}
+
 function* singleRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Position,
     unit: MultiLineUnit, forward: boolean){
     
-    let first_match: undefined | number = undefined;
+    let first_match: undefined | null | number = undefined;
     function closeMatch(line: number){
         if(first_match !== undefined){
-            let startLine = forward ? first_match : line+1;
-            let endLine =   forward ? line-1 : first_match;
-            let endCol = document.lineAt(new vscode.Position(endLine, 0)).range.end.character;
-            return new vscode.Range(
-                new vscode.Position(startLine, 0),
-                new vscode.Position(endLine, endCol)
-            )
+            let startLine: null | number = forward ? first_match : line+1;
+            let endLine: null | number = forward ? line-1 : first_match;
+            let endCol = endLine === null ? null : document.lineAt(new vscode.Position(endLine, 0)).range.end.character;
+            return {
+                start: startLine !== null ? new vscode.Position(startLine, 0) : undefined,
+                end: endLine !== null && endCol !== null ? new vscode.Position(endLine, endCol) : undefined,
+            };
         }
     }
     // TODO: instead of handle this within singleRegexUnits
@@ -213,13 +219,8 @@ function* singleRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Pos
             // if the first line we see is a match we have to look in the reverse 
             // direction to find the first line that's a match
             if(first){
-                first = false;
-                for(let [line, text] of docLines(document, from, !forward)){
-                    if(!unit.regexs[0].test(text)){ break; }
-                    first_match = line;
-                }
-            }
-            if(first_match === undefined){
+                first_match = null;
+            }else if(first_match === undefined){
                 first_match = line;
             }
         }else{
@@ -249,33 +250,33 @@ function* multiRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Posi
         }
     }
 
-    let first = true
-    for(let [line, text] of docLines(document, from, forward)){
+    let start_from = clampedLineTranslate(from, document, -unit.regexs.length+1);
+    for(let [line, text] of docLines(document, start_from, forward)){
         buffer.push([line, text])
         if(buffer.length > unit.regexs.length){
-            buffer.shift()
+            buffer.shift();
         }
         if(buffer.length === unit.regexs.length){
             if(doesMatch(unit, buffer)){
                 let startLine = forward ? buffer[0][0] : buffer[buffer.length-1][0]
                 let endLine =  !forward ? buffer[0][0] : buffer[buffer.length-1][0]
                 let endCol = document.lineAt(endLine).range.end.character
-                yield new vscode.Range(
-                    new vscode.Position(startLine, 0),
-                    new vscode.Position(endLine, endCol)
-                )
+                yield {
+                    start: new vscode.Position(startLine, 0),
+                    end: new vscode.Position(endLine, endCol)
+                }
             }
         }
     }
 }
 
 function* multiLineUnitsForDoc(document: vscode.TextDocument, from: vscode.Position,
-    unit: MultiLineUnit, forward: boolean): Generator<vscode.Range>{
+    unit: MultiLineUnit, forward: boolean): Generator<Range>{
 
     if(unit.regexs.length > 1){
         yield* multiRegexUnitsForDoc(document, from, unit, forward);
     }else{
-        yield* singleRegexUnitsForDoc(document, from, unit, forward)
+        yield* singleRegexUnitsForDoc(document, from, unit, forward);
     }
 }
 
@@ -324,19 +325,19 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
     function firstPosition(){
         return new vscode.Position(0, 0);
     }
-    function* selectedBoundaries(xs: Generator<vscode.Range>, start: vscode.Position | undefined){
+    function* selectedBoundaries(xs: Generator<Range>, start: vscode.Position | undefined){
         function withStart(x: vscode.Position){
             if(start) return new vscode.Selection(start, x);
             else return new vscode.Selection(x, x);
         }
         for(let x of xs){
             if(boundary === Boundary.Start){
-                yield withStart(x.start)
+                if(x.start) yield withStart(x.start)
             }else if(boundary === Boundary.End){
-                yield withStart(x.end);
+                if(x.end) yield withStart(x.end);
             }else{
-                yield withStart(x.start);
-                yield withStart(x.end);
+                if(x.start) yield withStart(x.start);
+                if(x.end) yield withStart(x.end);
             }
         }
         if(forward){
@@ -346,21 +347,56 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
         }
     }
 
-    function* selectUnits(xs: Generator<vscode.Range>, forward: boolean){
+    function resolveStart(range: Range, unit: Unit, forward: boolean){
+        if(range.start) return range.start;
+        // go in the other direction to find the start of the unit
+        if(range.end){
+            let match = first(unitsForDoc(editor.document, range.end, unit, !forward))
+            if(match?.start){
+                return match.start;
+            }
+        }else{
+            throw new Error("Expected range to have either start or end");
+        }
+    }
+    function resolveEnd(range: Range, unit: Unit, forward: boolean){
+        if(range.end) return range.end;
+        if(range.start){
+            // go in other direction to find the end of the unit
+            let match = first(unitsForDoc(editor.document, range.start, unit, !forward))
+            if(match?.end){
+                return match.end
+            }
+        }else{
+            throw new Error("Expected range to have either start or end");
+        }
+    }
+
+    function* selectUnits(xs: Generator<Range>, unit: Unit, forward: boolean){
         let last: vscode.Position | undefined;
         let current: vscode.Position | undefined;
         for(let x of xs){
             if(boundary !== Boundary.Both){
                 if(boundary === Boundary.Start){
                     last = current;
-                    current = boundary === Boundary.Start ? x.start : x.end;
+                    // TODO: even if start is defined, we might want to go backwards here
+                    current = boundary === Boundary.Start ? 
+                        resolveStart(x, unit, forward) : 
+                        resolveEnd(x, unit, forward)
                 }
                 if(current && last){
                     yield new vscode.Selection(last, current);
                 }
             }else{
-                if(forward) yield new vscode.Selection(x.start, x.end);
-                else yield new vscode.Selection(x.end, x.start)
+                if(forward){
+                    // TODO: even if start is defined, we might want to go backwards here
+                    if(!x.start) x.start = resolveStart(x, unit, forward);
+                    if(x.start && x.end) yield new vscode.Selection(x.start, x.end);
+                }
+                else{
+                    if(!x.end) x.end = resolveEnd(x, unit, forward);
+                    if(x.start && x.end) yield new vscode.Selection(x.start, x.end);
+                } 
             }
         }
         if(boundary !== Boundary.Both){
@@ -378,7 +414,7 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
         let units = unitsForDoc(editor.document, select.active, unit, forward);
         let selections
         if(selectWholeUnit){
-            selections = selectUnits(units, forward)
+            selections = selectUnits(units, unit, forward)
         }else{
             selections = selectedBoundaries(units, holdSelect ? select.anchor : undefined);
         }
