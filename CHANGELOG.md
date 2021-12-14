@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.3.0]
+
+- **Feature**: `selectOneUnit` can be used to change behavior of unit motions
+that use `selectWhole`.
+- **Bugfix**: fixed some `narrowTo` edge cases
+- **Refactor**: cleaned-up code for unit motions (hopefully less buggy and slow in general)
+- **Buffix**: resolved some upstream vulnerabilities
+
 ## [0.2.1]
 
 - **Docs**: Fix broken link

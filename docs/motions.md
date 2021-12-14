@@ -82,7 +82,9 @@ the regex `\p{L}+` is used.
 - `selectWhole`: If specified, the behavior of this command changes. Instead of
   moving the cursor, it will create a selection at the specified
   boundaries of the regex currently under the cursor, unless it is already
-  selected. If it is, the next such regex is selected.
+  selected. If it is, the next such regex is selected. If abs(value) > 1
+  it will select multiple units.
+- `selectOneUnit`: When `selectWhole` is true, this changes the behavior of `value`. When set to true, only one unit is ever selected and abs(value) > 1 changes the location of the unit that gets selected, rather than how many units are selected.
 
 For example to move the cursor to the start of the next number, (using the regex
 definitions provided above), using `ctrl+#` you could define the following

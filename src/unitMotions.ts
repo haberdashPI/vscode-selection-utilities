@@ -1,8 +1,3 @@
-import { utimes } from 'fs';
-import { last, matches, range } from 'lodash';
-import { endianness } from 'os';
-import { nextTick } from 'process';
-import { start } from 'repl';
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
 import { clampedLineTranslate, IHash } from './util';
@@ -11,6 +6,7 @@ interface MoveByArgs{
     unit?: string,
     select?: boolean,
     selectWhole?: boolean,
+    selectOneUnit?: boolean,
     value?: number
     boundary?: string,
 }
@@ -211,16 +207,14 @@ function* singleRegexUnitsForDoc(document: vscode.TextDocument, from: vscode.Pos
             };
         }
     }
-    // TODO: instead of handle this within singleRegexUnits
-    // this should apply to both types of regexs, and we should
-    // only look back when we need to (a.k.a when we want both boundaries)
-
-    // if the first line is a match we have to find the first place where 
-    // it starts being a match (could be before start)
     let first = true
     for(let [line, text] of docLines(document, from, forward)){
         if(unit.regexs[0].test(text)){
             if(first){
+                // if the very first line matches, the `from` position could
+                // fall in the middle of a sequence of matching lines we
+                // represent the fact that we dont' know where this sequence
+                // starts using `null`
                 first_match = null;
             }else if(first_match === undefined){
                 first_match = line;
@@ -312,12 +306,13 @@ function toBoundary(args: {boundary?: string}) {
 // this handles unit cleanup when looking for two boundaries, it handles two
 // problesm:
 // 1. when you look for units in one direction sometime you miss the start (or
-//    end) of a unit your in the middle of (for multi-line units in particular)
-//    this double back in the opposite direction to find the missing boundary
+//    end) of a unit you're in the middle of (for multi-line units in particular).
+//    If we want to resolve the boundaries of a unit, we need to look 
+//    backwards from the starting position.
 // 2. when you get to the end of the document you need to treat the edge of the
 //    document as unit boundaries to make things work out cleanly for
 //    'start-only' and `end-only` boundary resolution
-function* resolvedUnitsForDoc(resolve: Boundary | undefined,
+function* resolveUnitBoundaries(resolve: Boundary | undefined,
     units: Generator<Range>, document: vscode.TextDocument,
     from: vscode.Position, unit: Unit,
     forward: boolean): Generator<Range> {
@@ -422,13 +417,17 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
     let forward = args.value === undefined ? true : args.value > 0;
     let holdSelect = args.select === undefined ? false : args.select;
     let selectWholeUnit = args.selectWhole === undefined ? false : args.selectWhole;
+    let selectOneUnit = args.selectOneUnit;
 
     let boundary = toBoundary(args);
     if(boundary === undefined){ return (sel: vscode.Selection) => sel; }
     let steps = args.value === undefined ? 1 : Math.abs(args.value);
     if(steps === 0) { return (select: vscode.Selection) => select; }
 
-    function* selectedBoundaries(xs: Generator<Range>, start: vscode.Position | undefined){
+    // translate a sequence of units (regex start and stop boundaries)
+    // to a sequence of selection points (where we extend the active selection
+    // point to a new unit boundary at each step)
+    function* selectBoundaries(xs: Generator<Range>, start: vscode.Position | undefined){
         function withStart(x: vscode.Position){
             if(start) return new vscode.Selection(start, x);
             else return new vscode.Selection(x, x);
@@ -443,6 +442,7 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
                 if(x.end) yield withStart(x.end);
             }
         }
+        // treat the edge of the document as a boundary as well
         if(forward){
             yield withStart(lastPosition(editor.document));
         }else{
@@ -450,6 +450,9 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
         }
     }
 
+    // translate a sequence of units (regex start and stop boundaries)
+    // to a sequence of selections: the selections surround a single
+    // unit around from start-to-start, end-to-end or start-to-end
     function* selectUnits(xs: Generator<Range>, forward: boolean){
         let last: vscode.Position | undefined | null = null;
         let current: vscode.Position | undefined | null;
@@ -479,28 +482,45 @@ function moveBy(editor: vscode.TextEditor,args: MoveByArgs){
         }
     }
 
+    // return a function that modifies each selection in turn
+    // (it will be applied to all selections)
     return (select: vscode.Selection) => {
         let units = unitsForDoc(editor.document, select.active, unit, forward);
         let selections
         if(selectWholeUnit){
-            let resolved = resolvedUnitsForDoc(boundary, units, editor.document, select.active, unit, forward);
+            // if we are selecting whole units we need to use `resolveUnitBoundaries`
+            // to look possibly backwards from the starting position to resolve
+            // the start of a unit
+            let resolved = resolveUnitBoundaries(boundary, units, editor.document, select.active, unit, forward);
             selections = selectUnits(resolved, forward);
         }else{
-            selections = selectedBoundaries(units, holdSelect ? select.anchor : undefined);
+            selections = selectBoundaries(units, holdSelect ? select.anchor : undefined);
         }
         let count = 0;
         let lastsel;
+        let startSel: vscode.Position | undefined = undefined
         for(let sel of selections){
             if(count > 0 || !boundsMatch(sel, select)){
                 if(forward ? sel.end.isAfter(select.active) : sel.start.isBefore(select.active))
                     count += 1;
+                if(count === 1){ startSel = sel.anchor; }
             }
             if (count >= steps){
-                return sel;
+                if(!selectOneUnit && startSel && selectWholeUnit){
+                    return new vscode.Selection(startSel, sel.active);
+                }else{
+                    return sel;
+                }
             }
             lastsel = sel;
         }
-        if(count > 0 && lastsel){ return lastsel; }
+        if(count > 0 && lastsel){ 
+            if(!selectOneUnit && startSel){
+                return new vscode.Selection(startSel, lastsel.active);
+            }else{
+                return lastsel; 
+            }
+        }
         return select;
     };
 };
@@ -527,23 +547,32 @@ function narrowTo(editor: vscode.TextEditor, args: NarrowByArgs): (select: vscod
             return select;
         }
         let starts = unitsForDoc(editor.document,select.start,unit,true);
+        let start: vscode.Position | undefined;
+        for(let s of starts){
+            if(s.start?.isAfterOrEqual(select.end)) break;
+            if(s.start?.isAfterOrEqual(select.start)){
+                start = s.start
+                break;
+            }
+        }
         let stops = unitsForDoc(editor.document,select.end,unit,false);
-        let stop = first(starts)?.start;
-        let start = first(stops)?.end;
+        let stop: vscode.Position | undefined;
+        for(let s of stops){
+            if(s.end?.isBeforeOrEqual(select.start)) break;
+            if(s.end?.isBeforeOrEqual(select.end)){
+                stop = s.end;
+                break;
+            } 
+        }
         if(!stop || !start){
+            if(thenNarrow){ return thenNarrow(select);}
             return select;
         }
         let result;
         if(select.anchor.isBefore(select.active)){
-            result = new vscode.Selection(start,stop);
+            return new vscode.Selection(start,stop);
         }else{
-            result = new vscode.Selection(stop,start);
+            return new vscode.Selection(stop,start);
         }
-
-        if(boundsMatch(result, select) || stop.isBefore(select.start) || start.isAfter(select.end)){
-            if(thenNarrow){ return thenNarrow(select); }
-            else{ return select; }
-        }
-        return result;
     };
 }
