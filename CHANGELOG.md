@@ -5,11 +5,11 @@
 - **Feature**: `selectOneUnit` can be used to change behavior of unit motions
 that use `selectWhole`.
 - **Bugfix**: fixed some `narrowTo` edge cases
-- **Refactor**: cleaned-up code for unit motions (hopefully less buggy and slow in general)
-- **Buffix**: resolved some upstream vulnerabilities
+- **Bugfix**: fixed `selectWhole` issues when unit is multi-line and multi-regex (boundaries were not correctly identified)
+- **Bugfix**: resolved some upstream vulnerabilities
+- **Refactor**: cleaned-up code for unit motions (hopefully architecture will be less buggy and slow more generally)
 
 ## [0.2.1]
-
 - **Docs**: Fix broken link
 
 ## [0.2.0]
