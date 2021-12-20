@@ -8,7 +8,7 @@ This extension provides a series of utilities for manipulating, saving and creat
 multiple selections, inspired by [Kakoune](http://kakoune.org/).
 
 There are many commands, and they are designed to work together. They work well in conjunction with
-[vscode-modal-keys](https://github.com/haberdashPI/vscode-modal-keys).
+[ModalKeys](https://github.com/haberdashPI/vscode-modal-keys). In particular the [Larkin](https://haberdashpi.github.io/vscode-modal-keys/stable/presets/larkin.html) presets available in ModalKeys make extensive use of all features from this extension.
 
 Because there are so many commands, and any given set of keybindings for this
 extension could easily overwrite existing bindings, there are no default
