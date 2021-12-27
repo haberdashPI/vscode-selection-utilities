@@ -2,7 +2,6 @@ out
 node_modules
 docs/build/*
 dist/*
-doc_dist/*
 .vscode-test/
 *.vsix
 .DS_Store

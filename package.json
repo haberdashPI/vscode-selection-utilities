@@ -464,10 +464,10 @@
 			"delay": 1000
 		}
 	},
-	// TODO: add build scripts for the web version of the extension
 	"scripts": {
 		"vscode:prepublish": "npm run package",
-		"watch": "npx parcel src/extension.ts --target main",
+		"watch": "npx parcel src/extension.ts --target main --dist-dir dist/main",
+		"watch-web": "npx parcel src/extension.ts --target browser --dist-dir dist/browser",
 		"build-html-docs": "node docs/build.js",
 		"watch-html-docs": "npx npm-watch build-html-docs",
 		"parcel-docs": "npx parcel docs/build/README.html --target docs",
@@ -478,7 +478,8 @@
 		"build-docs": "npm-run-all --serial build-html-docs parcel-build-docs",
 		"build-dev-docs": "npm-run-all --serial build-html-docs parcel-build-dev-docs",
 		"prepackage": "rm -rf dist/main",
-		"package": "npx parcel build src/extension.ts --target main",
+		"package": "npx parcel build src/extension.ts --target main --dist-dir dist/main",
+		"package-web": "npx parcel build src/extension.ts --target browser --dist-dir dist/browser",
 		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
