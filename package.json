@@ -60,8 +60,9 @@
 		"onCommand:selection-utilities.deleteAround",
 		"onCommand:selection-utilities.adjustSelections"
 	],
-	"main": "./dist/extension.js",
-	"docs": "./docs_dist/README.html",
+	"main": "./dist/main/extension.js",
+	"browser": "./dist/web/extension.js",
+	"docs": "./dist/doc/README.html",
 	"targets": {
 		"main": {
 			"includeNodeModules": {
@@ -72,14 +73,26 @@
 			},
 			"outputFormat": "commonjs",
 			"isLibrary": true,
-			"distDir": "dist"
+			"distDir": "dist/main"
 		},
 		"docs": {
 			"engines": {
 				"browsers": "> 90%"
 			},
 			"context": "browser",
-			"distDir": "doc_dist"
+			"distDir": "dist/doc"
+		},
+		"browser": {
+			"includeNodeModules": {
+				"vscode": false
+			},
+			"context": "web-worker",
+			"outputFormat": "commonjs",
+			"isLibrary": true,
+			"engines": {
+				"browsers": "> 90%"
+			},
+			"distDir": "dist/web"
 		}
 	},
 	"contributes": {
@@ -451,19 +464,20 @@
 			"delay": 1000
 		}
 	},
+	// TODO: add build scripts for the web version of the extension
 	"scripts": {
 		"vscode:prepublish": "npm run package",
 		"watch": "npx parcel src/extension.ts --target main",
 		"build-html-docs": "node docs/build.js",
 		"watch-html-docs": "npx npm-watch build-html-docs",
 		"parcel-docs": "npx parcel docs/build/README.html --target docs",
-		"parcel-build-docs": "npx parcel build docs/build/README.html --dist-dir doc_dist --public-url https://haberdashpi.github.io/vscode-selection-utilities/stable/ --target docs",
-		"parcel-build-dev-docs": "npx parcel build docs/build/README.html --dist-dir doc_dist --public-url https://haberdashpi.github.io/vscode-selection-utilities/dev/ --target docs",
+		"parcel-build-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/stable/ --target docs",
+		"parcel-build-dev-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/dev/ --target docs",
 		"keep-watching-docs": "npm-run-all --parallel parcel-docs watch-html-docs",
 		"watch-docs": "npm-run-all --serial build-html-docs keep-watching-docs",
 		"build-docs": "npm-run-all --serial build-html-docs parcel-build-docs",
 		"build-dev-docs": "npm-run-all --serial build-html-docs parcel-build-dev-docs",
-		"prepackage": "rm -rf dist",
+		"prepackage": "rm -rf dist/main",
 		"package": "npx parcel build src/extension.ts --target main",
 		"lint": "eslint src --ext ts"
 	},
