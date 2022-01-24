@@ -60,7 +60,6 @@
 		"onCommand:selection-utilities.deleteAround",
 		"onCommand:selection-utilities.adjustSelections"
 	],
-	"main": "./dist/main/extension.js",
 	"browser": "./dist/web/extension.js",
 	"docs": "./dist/doc/README.html",
 	"targets": {
@@ -466,20 +465,9 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
-		"watch": "npx parcel src/extension.ts --target main --dist-dir dist/main",
-		"watch-web": "npx parcel src/extension.ts --target browser --dist-dir dist/browser",
-		"build-html-docs": "node docs/build.js",
-		"watch-html-docs": "npx npm-watch build-html-docs",
-		"parcel-docs": "npx parcel docs/build/README.html --target docs",
-		"parcel-build-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/stable/ --target docs",
-		"parcel-build-dev-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/dev/ --target docs",
-		"keep-watching-docs": "npm-run-all --parallel parcel-docs watch-html-docs",
-		"watch-docs": "npm-run-all --serial build-html-docs keep-watching-docs",
-		"build-docs": "npm-run-all --serial build-html-docs parcel-build-docs",
-		"build-dev-docs": "npm-run-all --serial build-html-docs parcel-build-dev-docs",
-		"prepackage": "rm -rf dist/main",
-		"package": "npx parcel build src/extension.ts --target main --dist-dir dist/main",
-		"package-web": "npx parcel build src/extension.ts --target browser --dist-dir dist/browser",
+		"compile": "npx webpack --mode development",
+		"watch": "npx webpack --watch --mode development",
+		"package": "npx webpack --mode production --devtool hidden-source-map",
 		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
@@ -497,16 +485,16 @@
 		"ts-loader": "^8.3.0",
 		"typescript": "^3.9.9",
 		"vscode-test": "^1.5.2",
-		"webpack": "^5.30.0",
-		"webpack-cli": "^4.6.0"
+		"webpack": "^5.65.0",
+		"webpack-cli": "^4.9.1"
 	},
 	"dependencies": {
+		"@vscode/test-web": "^0.0.15",
 		"highlight.js": "^11.3.1",
 		"jdi": "^1.1.3",
 		"mkdirp": "^0.5.5",
 		"npm-run-all": "^4.1.5",
 		"npm-watch": "^0.11.0",
-		"parcel": "*",
 		"remarkable": "^2.0.1",
 		"remarkable-header-ids": "^0.2.0",
 		"tailwindcss": "^2.2.7"
