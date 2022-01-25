@@ -7,7 +7,11 @@
 			"type": "npm",
 			"script": "watch-web",
 			"isBackground": true,
-			"problemMatcher": ["$ts-webpack-watch"],
+			"background": {
+				"activeOnStart": true,
+				"beginPattern": ".*Built in [0-9]+.*",
+				"endsPattern": ".*Build failed."
+			},
 			"presentation": {
 				"reveal": "never"
 			},
