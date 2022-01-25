@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.4.0]
+- **Feature**: Selection Utilities now supports vscode.dev
+
 ## [0.3.0]
 
 - **Feature**: `selectOneUnit` can be used to change behavior of unit motions
