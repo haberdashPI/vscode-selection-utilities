@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"icon": "logo.png",
 	"engines": {
 		"vscode": "^1.55.0"
@@ -60,7 +60,11 @@
 		"onCommand:selection-utilities.deleteAround",
 		"onCommand:selection-utilities.adjustSelections"
 	],
+<<<<<<< HEAD
 	"browser": "./dist/web/main.js",
+=======
+	"browser": "./dist/web/extension.js",
+>>>>>>> ba35fb5 (update version and changelog)
 	"docs": "./dist/doc/README.html",
 	"targets": {
 		"main": {
@@ -468,6 +472,16 @@
 		"compile": "npx webpack --mode development",
 		"watch": "npx webpack --watch --mode development",
 		"package": "npx webpack --mode production --devtool hidden-source-map",
+		"build-html-docs": "node docs/build.js",
+		"watch-html-docs": "npx npm-watch build-html-docs",
+		"parcel-docs": "npx parcel docs/build/README.html --target docs",
+		"parcel-build-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/stable/ --target docs",
+		"parcel-build-dev-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/dev/ --target docs",
+		"keep-watching-docs": "npm-run-all --parallel parcel-docs watch-html-docs",
+		"watch-docs": "npm-run-all --serial build-html-docs keep-watching-docs",
+		"build-docs": "npm-run-all --serial build-html-docs parcel-build-docs",
+		"build-dev-docs": "npm-run-all --serial build-html-docs parcel-build-dev-docs",
+		"prepackage": "rm -rf dist/main",
 		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
