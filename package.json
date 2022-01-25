@@ -60,7 +60,7 @@
 		"onCommand:selection-utilities.deleteAround",
 		"onCommand:selection-utilities.adjustSelections"
 	],
-	"browser": "./dist/web/extension.js",
+	"browser": "./dist/web/main.js",
 	"docs": "./dist/doc/README.html",
 	"targets": {
 		"main": {

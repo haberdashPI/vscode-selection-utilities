@@ -3,6 +3,7 @@ node_modules
 docs/build/*
 dist/*
 .vscode-test/
+.vscode-test-web/
 *.vsix
 .DS_Store
 .cache/
