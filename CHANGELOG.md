@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.4.1]
+- **Bugfix**: package was poorly compimled in 0.4.0 for web, which could lead to weird errors about gargabe functions not existing; revised build environment.
+
 ## [0.4.0]
 - **Feature**: Selection Utilities now supports vscode.dev
 
