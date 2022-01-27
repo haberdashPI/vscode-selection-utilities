@@ -6,46 +6,70 @@ There are two advantages to these motions over the built-in motions
 - They allow for kakoune-like workflows, because both the end and start of a selection
 can move by a given unit (e.g. move selection so it surrounds *just* the next word).
 
-Below are the pre-defined motions, all of which can be customized. For ultimate flexiblity, you can use the generic [`moveby`](#the-custom-moveby-command) command. Below, the "Move Selection"
-commands adjust both the start and end of the selection while the "Select to" commands only
-change the end or start of the selection, depending on the location of the anchor. The units
-are defined by regex's (listed below).
+Below are the pre-defined motions, all of which can be customized. For ultimate
+flexiblity, you can use the generic [`moveby`](#the-custom-moveby-command)
+command. The units are defined by regex's (listed in the next section).
+
+## Move cursor
+
+These commands move the cursor, without selecting.
+
+- "Move Cursor to Next Paragraph": `selection-utilities.moveToNextParagraph`
+- "Move Cursor to Next Subsection": `selection-utilities.moveToNextSubsection`
+- "Move Cursor to Next Section": `selection-utilities.moveToNextSection`
+- "Move Cursor to Previous Subword": `selection-utilities.moveToPreviousSubword`
+- "Move Cursor to Previous Word": `selection-utilities.moveToPreviousWord`
+- "Move Cursor to Previous non-whitespace characters": `selection-utilities.moveToPreviousWORD`
+- "Move Cursor to Previous Paragraph": `selection-utilities.moveToPreviousParagraph`
+- "Move Cursor to Previous Subsection": `selection-utilities.moveToPreviousSubsection`
+- "Move Cursor to Previous Section": `selection-utilities.moveToPreviousSection`
+
+## Move selection
+
+These commands adjust both the start and end of the selection, so that it surrounds the given unit.
 
 - "Move Selection to Next Subword": `selection-utilities.moveToNextSubword`
-- "Select to Next Subword": `selection-utilities.selectToNextSubword`
 - "Move Selection to Next Word": `selection-utilities.moveToNextWord`
-- "Select to Next Word": `selection-utilities.selectToNextWord`
 - "Move Selection to Next non-whitespace characters": `selection-utilities.moveToNextWORD`
-- "Select to Next non-whitespace characters": `selection-utilities.selectToNextWORD`
 - "Move Selection to Next Paragraph": `selection-utilities.moveToNextParagraph`
-- "Select to Next Paragraph": `selection-utilities.selectToNextParagraph`
 - "Move Selection to Next Subsection": `selection-utilities.moveToNextSubsection`
-- "Select to Next Subsection": `selection-utilities.selectToNextSubsection`
 - "Move Selection to Next Section": `selection-utilities.moveToNextSection`
-- "Select to Next Section": `selection-utilities.selectToNextSection`
 - "Move Selection to Previous Subword": `selection-utilities.moveToPreviousSubword`
-- "Select to Subword": `selection-utilities.selectToPreviousSubword`
 - "Move Selection to Previous Word": `selection-utilities.moveToPreviousWord`
-- "Select to Word": `selection-utilities.selectToPreviousWord`
 - "Move Selection to Previous non-whitespace characters": `selection-utilities.moveToPreviousWORD`
-- "Select to non-whitespace characters": `selection-utilities.selectToPreviousWORD`
 - "Move Selection to Previous Paragraph": `selection-utilities.moveToPreviousParagraph`
-- "Select to Paragraph": `selection-utilities.selectToPreviousParagraph`
 - "Move Selection to Previous Subsection": `selection-utilities.moveToPreviousSubsection`
-- "Select to Subsection": `selection-utilities.selectToPreviousSubsection`
 - "Move Selection to Previous Section": `selection-utilities.moveToPreviousSection`
-- "Select to Section": `selection-utilities.selectToPreviousSection`
 
+## Select to unit
+
+These commands adjust one end of the selection by the given unit.
+
+- "Select to Next Subword": `selection-utilities.selectToNextSubword`
+- "Select to Next Word": `selection-utilities.selectToNextWord`
+- "Select to Next non-whitespace characters": `selection-utilities.selectToNextWORD`
+- "Select to Next Paragraph": `selection-utilities.selectToNextParagraph`
+- "Select to Next Subsection": `selection-utilities.selectToNextSubsection`
+- "Select to Next Section": `selection-utilities.selectToNextSection`
+- "Select to Subword": `selection-utilities.selectToPreviousSubword`
+- "Select to Word": `selection-utilities.selectToPreviousWord`
+- "Select to non-whitespace characters": `selection-utilities.selectToPreviousWORD`
+- "Select to Paragraph": `selection-utilities.selectToPreviousParagraph`
+- "Select to Subsection": `selection-utilities.selectToPreviousSubsection`
+- "Select to Section": `selection-utilities.selectToPreviousSection`
+- "Move Cursor to Next Subword": `selection-utilities.moveToNextSubword`
+- "Move Cursor to Next Word": `selection-utilities.moveToNextWord`
+- "Move Cursor to Next non-whitespace characters": `selection-utilities.moveToNextWORD`
 
 ## Custom Motions
 
-First you have to define the units you wish to move the cursor by using `motionUnits`.
+You can define any units you wish to move the cursor by using `motionUnits`.
 
 These are defined in your settings file (open with the command `Preferences:
-Open Settings (JSON)`), using `selection-utilities.motionUnits`. This setting
-is an array with entries containing a `name` and a `regex` value. Each regex is
-compiled with the g and u flags (global search and unicode support). The default units are
-listed below.
+Open Settings (JSON)`), using `selection-utilities.motionUnits`. This setting is
+an array with entries containing a `name` and a `regex` value. Each regex is
+compiled with the g and u flags (global search and unicode support). The default
+units are listed below.
 
 ```json
 
@@ -61,11 +85,12 @@ listed below.
 
 Motion units can be customized on a per-langauge basis, if desired.
 
-For the built-in motions to work, all of these motions have to be defined, but you can also
-define your own custom units.
+For the built-in motions to work, all of the above units have to be defined,
+but you can always add more units types if you want to use the `moveBy` command (describe below).
 
-Note that some of the units employ multi-line matches using `regexs` instead of `regex`. For
-more on how to define multi-line units, see the final subsection below.
+Note that some of the units employ multi-line matches using `regexs` instead of
+`regex`. For more on how to define multi-line units, see the final subsection
+below.
 
 ### The custom `moveBy` command
 
