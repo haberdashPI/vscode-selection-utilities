@@ -29,7 +29,11 @@ interface MultiUnitDef {
     regexs: string | string[],
 }
 
+interface MultiLineUnit { regexs: RegExp[] }
+
 let allUnits: IHash<IHash<RegExp | MultiLineUnit>> = {};
+
+const defaultUnits = ["subword", "word", "WORD", "paragraph", "section", "subsection"];
 
 export function updateUnits(event?: vscode.ConfigurationChangeEvent, newid?: string){
     if(!event || event.affectsConfiguration("selection-utilities")){
@@ -89,6 +93,32 @@ export function registerUnitMotions(context: vscode.ExtensionContext){
     }
     );
     context.subscriptions.push(command);
+
+    for(let unit of defaultUnits){
+        for(let dir of ['Next','Previous']){
+            for(let selType of ['moveCursorTo', 'moveTo', 'selectTo']){
+                let unitLabel = unit.charAt(0).toUpperCase() + unit.slice(1)
+                console.log("unitLabel: ")
+                console.log(unitLabel)
+                let args = {
+                    unit: unit,
+                    select: selType !== 'moveCursorTo',
+                    selectWhole: selType === 'moveTo',
+                    value: dir === 'Next' ? 1 : -1,
+                    boundary: 'start',
+                }
+                let commandName = selType+dir+unitLabel
+                command = vscode.commands.registerCommand('selection-utilities.'+commandName, (dont_use) => {
+                    let editor = vscode.window.activeTextEditor;
+                    if(editor){
+                        editor.selections = editor.selections.map(moveBy(editor, args))
+                        updateView(editor);
+                    }
+                })
+                context.subscriptions.push(command);
+            }
+        }
+    }
 }
 
 
@@ -174,8 +204,6 @@ export function first<T>(x: Iterable<T>): T | undefined {
 }
 
 enum Boundary { Start, End, Both }
-
-interface MultiLineUnit { regexs: RegExp[] }
 
 function* docLines(document: vscode.TextDocument, from: vscode.Position, forward: boolean): Generator<[number, string]>{
     yield [from.line, document.lineAt(from).text];
