@@ -31,6 +31,16 @@ function activeAtStart(){
     }
 }
 
+function shrinkToActive(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        editor.selections = editor.selections.map(sel =>
+            new vscode.Selection(sel.active, sel.active)
+        );
+        updateView(editor);
+    }
+}
+
 export function registerActiveMotions(context: vscode.ExtensionContext){
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.exchangeAnchorActive', exchangeAnchorActive));
@@ -38,4 +48,6 @@ export function registerActiveMotions(context: vscode.ExtensionContext){
         registerCommand('selection-utilities.activeAtEnd', activeAtEnd));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.activeAtStart', activeAtStart));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.shrinkToActive', shrinkToActive));
 }

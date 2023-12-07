@@ -98,8 +98,8 @@ export function registerUnitMotions(context: vscode.ExtensionContext){
         for(let dir of ['Next','Previous']){
             for(let selType of ['moveCursorTo', 'moveTo', 'selectTo']){
                 let unitLabel = unit.charAt(0).toUpperCase() + unit.slice(1)
-                console.log("unitLabel: ")
-                console.log(unitLabel)
+                // console.log("unitLabel: ")
+                // console.log(unitLabel)
                 let args = {
                     unit: unit,
                     select: selType !== 'moveCursorTo',
