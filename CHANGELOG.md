@@ -1,7 +1,12 @@
 # Change Log
 
+## [0.5.0]
+- **Feature**: `shrinkToActive` shrinks selections to the active cursor position
+- **Feature**: `expandWithinBrackets` expands selection to be within the next widest brackets
+- **Feature**: `expandAroundBrackets` expands selection to be around the next widest brackets
+
 ## [0.4.2]
-- **Bugfix**: default motion commands did not previously errored (only custom `moveBy` commands worked correctly); the commands are now functional
+- **Bugfix**: default motion commands previously errored (only custom `moveBy` commands worked correctly); the commands are now functional
 
 ## [0.4.1]
 - **Bugfix**: package was poorly compimled in 0.4.0 for web, which could lead to weird errors about gargabe functions not existing; revised build environment.
