@@ -18,6 +18,9 @@
 		"onCommand:selection-utilities.activeAtStart",
 		"onCommand:selection-utilities.movePrimaryLeft",
 		"onCommand:selection-utilities.movePrimaryRight",
+		"onCommand:selection-utilities.shrinkToActive",
+		"onCommand:selection-utilities.expandWithinBrackets",
+		"onCommand:selection-utilities.expandAroundBrackets",
 		"onCommand:selection-utilities.focusPrimarySelection",
 		"onCommand:selection-utilities.appendToMemory",
 		"onCommand:selection-utilities.restoreAndClear",
@@ -167,6 +170,21 @@
 			{
 				"command": "selection-utilities.exchangeAnchorActive",
 				"title": "Exchange active and anchor",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.shrinkToActive",
+				"title": "Shrink selection to active",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.expandWithinBrackets",
+				"title": "Expand selection to be within next surrounding brackets",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.expandAroundBrackets",
+				"title": "Expand selection to be around next surrounding brackets",
 				"category": "Selection Utilities"
 			},
 			{

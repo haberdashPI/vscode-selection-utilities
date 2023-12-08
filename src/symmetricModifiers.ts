@@ -1,13 +1,17 @@
 import * as vscode from 'vscode';
 import { wrappedTranslate } from './util'
 
-export function registerSymmetricModifiers(context: vscode.ExtensionContext){
+export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.insertAround', insertAround));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.deleteAround', deleteAround));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.adjustSelections', adjustSelections));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.expandWithinBrackets', expandWithinBrackets));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.expandAroundBrackets', expandAroundBrackets));
 }
 
 interface InsertAroundArgs{
@@ -77,5 +81,41 @@ function adjustSelections(args: {dir: string, count: number}){
                 wrappedTranslate(sel.active, ed.document,  sign*step)
             );
         });
+    }
+}
+
+function expandWithinBrackets(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        editor.selections = editor.selections.map(sel => {
+            if(!sel.isEmpty){
+                return new vscode.Selection(
+                    wrappedTranslate(sel.start, ed.document, -2),
+                    wrappedTranslate(sel.end, ed.document, 2),
+                );
+            }else{
+                return sel
+            }
+        })
+        vscode.commands.executeCommand('editor.action.selectToBracket', {"selectBrackets": false})
+    }
+}
+
+function expandAroundBrackets(){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        editor.selections = editor.selections.map(sel => {
+            if(!sel.isEmpty){
+                return new vscode.Selection(
+                    wrappedTranslate(sel.start, ed.document, -1),
+                    wrappedTranslate(sel.end, ed.document, 1),
+                );
+            }else{
+                return sel
+            }
+        })
+        vscode.commands.executeCommand('editor.action.selectToBracket', {"selectBrackets": true})
     }
 }
