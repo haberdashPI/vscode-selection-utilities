@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.5.1]
+- **Feature**: `revealActive` reveal the active position of the primary cursor
+
 ## [0.5.0]
 - **Feature**: `shrinkToActive` shrinks selections to the active cursor position
 - **Feature**: `expandWithinBrackets` expands selection to be within the next widest brackets
