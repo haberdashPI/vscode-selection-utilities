@@ -7,7 +7,7 @@ There are two advantages to these motions over the built-in motions
 can move by a given unit (e.g. move selection so it surrounds *just* the next word).
 
 Below are the pre-defined motions, all of which can be customized. For ultimate
-flexiblity, you can use the generic [`moveby`](#the-custom-moveby-command)
+flexibility, you can use the generic [`moveby`](#the-custom-moveby-command)
 command. The units are defined by regex's (listed in the next section).
 
 ## Move cursor
@@ -83,7 +83,7 @@ units are listed below.
 ],
 ```
 
-Motion units can be customized on a per-langauge basis, if desired.
+Motion units can be customized on a per-language basis, if desired.
 
 For the built-in motions to work, all of the above units have to be defined,
 but you can always add more units types if you want to use the `moveBy` command (describe below).

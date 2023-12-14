@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { IHash, compareSels } from './util';
 
+
 let activeSelectDecorator: vscode.TextEditorDecorationType;
 let savedSelectDecorator: vscode.TextEditorDecorationType;
 let primarySelectionIndex = 0;
@@ -12,13 +13,13 @@ function getPrimarySelectionIndex(editor: vscode.TextEditor){
     return primarySelectionIndex;
 }
 
-function getPrimarySelection(editor: vscode.TextEditor){
+export function getPrimarySelection(editor: vscode.TextEditor){
     return editor.selections[getPrimarySelectionIndex(editor)];
 }
 
 export function updateView(editor: vscode.TextEditor){
     let pos = getPrimarySelection(editor).active;
-    editor.revealRange(new vscode.Range(pos,pos));
+    editor.revealRange(new vscode.Range(pos,pos), );
 }
 
 function updateActiveSelection(editor: vscode.TextEditor, sel: ReadonlyArray<vscode.Selection>){

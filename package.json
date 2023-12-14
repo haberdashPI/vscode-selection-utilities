@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"icon": "logo.png",
 	"engines": {
 		"vscode": "^1.55.0"
@@ -19,6 +19,7 @@
 		"onCommand:selection-utilities.movePrimaryLeft",
 		"onCommand:selection-utilities.movePrimaryRight",
 		"onCommand:selection-utilities.shrinkToActive",
+		"onCommand:selection-utilities.revealActive",
 		"onCommand:selection-utilities.expandWithinBrackets",
 		"onCommand:selection-utilities.expandAroundBrackets",
 		"onCommand:selection-utilities.focusPrimarySelection",
@@ -178,6 +179,11 @@
 				"category": "Selection Utilities"
 			},
 			{
+				"command": "selection-utilities.revealActive",
+				"title": "Reveal the line of the primary cursor's active position",
+				"category": "Selection Utilities"
+			},
+			{
 				"command": "selection-utilities.expandWithinBrackets",
 				"title": "Expand selection to be within next surrounding brackets",
 				"category": "Selection Utilities"
@@ -315,12 +321,12 @@
 			{
 				"command": "selection-utilities.includeBy",
 				"title": "Include selections by...",
-				"category": "Selcetion Utilities"
+				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.excludeBy",
 				"title": "Exclude selections by...",
-				"category": "Selcetion Utilities"
+				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.moveToNextSubword",
@@ -445,12 +451,12 @@
 			{
 				"command": "selection-utilities.includeByRegex",
 				"title": "Include selections by... (regex)",
-				"category": "Selcetion Utilities"
+				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.excludeByRegex",
 				"title": "Exclude selections by... (regex)",
-				"category": "Selcetion Utilities"
+				"category": "Selection Utilities"
 			},
 			{
 				"command": "selection-utilities.insertAround",

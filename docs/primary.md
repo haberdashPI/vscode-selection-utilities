@@ -26,4 +26,7 @@ position. On a cancel, the cursor is placed at the location of the primary selec
   the primary selection
 - "Skip to previous match" (`selection-utilities.skipPrev`): Move the primary selection to
   the previous match.
+- "Reveal active" (`selection-utilities.revealActive`): Show the line of the active 
+  position of the primary selection you can use the arg `at` to specify the position
+  as "top", "center" or "bottom; "center" is the default.
 

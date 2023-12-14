@@ -6,8 +6,6 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-    "typescript.tsc.autoDetect": "off",
     "workbench.colorCustomizations": {
         "editorBracketHighlight.foreground1": "#1b9e77",
         "editorBracketHighlight.foreground2": "#d95f02",
@@ -16,18 +14,18 @@
         "editorBracketHighlight.foreground5": "#66a61e",
         "editorBracketHighlight.foreground6": "#e6ab02",
         "editorBracketHighlight.unexpectedBracket.foreground": "#ff0000",
-        "titleBar.activeBackground": "#768aed",
-        "titleBar.activeForeground": "#FFFFFF",
-        "titleBar.inactiveBackground": "#768aed",
-        "titleBar.inactiveForeground": "#FFFFFF",
-        "titleBar.border": "#768aed",
-        "activityBar.background": "#768aed",
-        "activityBar.foreground": "#FFFFFF",
-        "statusBar.background": "#768aed",
-        "statusBar.foreground": "#FFFFFF",
-        "statusBar.debuggingBackground": "#768aed",
-        "statusBar.debuggingForeground": "#FFFFFF",
-        "tab.activeBorder": "#768aed",
+        "titleBar.activeBackground": "#1add6f",
+        "titleBar.activeForeground": "#000000",
+        "titleBar.inactiveBackground": "#1add6f",
+        "titleBar.inactiveForeground": "#000000",
+        "titleBar.border": "#1add6f",
+        "activityBar.background": "#1add6f",
+        "activityBar.foreground": "#000000",
+        "statusBar.background": "#1add6f",
+        "statusBar.foreground": "#000000",
+        "statusBar.debuggingBackground": "#1add6f",
+        "statusBar.debuggingForeground": "#000000",
+        "tab.activeBorder": "#1add6f",
         "iLoveWorkSpaceColors": true,
         "iLoveWorkSpaceRandom": false
     }

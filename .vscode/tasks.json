@@ -4,30 +4,28 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "watch-web",
-			"isBackground": true,
-			"problemMatcher": ["$ts-webpack-watch"],
-			"presentation": {
-				"reveal": "never"
-			},
-		},
-		{
-			"type": "npm",
-			"script": "watch",
-			"isBackground": true,
-			"background": {
-				"activeOnStart": true,
-				"beginPattern": ".*Built in [0-9]+.*",
-				"endsPattern": ".*Build failed."
-			},
-			"presentation": {
-				"reveal": "never"
-			},
+			"label": "npm: compile-web",
+			"type": "shell",
+			"command": "bash ./npm-run.sh compile",
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
+			},
+			"problemMatcher": [
+				"$ts-webpack",
+				"$tslint-webpack"
+			]
+		},
+		{
+			"label": "npm: watch-web",
+			"type": "shell",
+			"command": "bash ./npm-run.sh watch",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$ts-webpack-watch",
+				"$tslint-webpack-watch"
+			]
 		}
 	]
 }
