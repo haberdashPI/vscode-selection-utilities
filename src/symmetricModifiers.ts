@@ -23,7 +23,7 @@ async function insertAround(args: InsertAroundArgs){
     let editor = vscode.window.activeTextEditor;
     if(editor){
         let ed = editor;
-        let ranges = editor.selections.map(sel => 
+        let ranges = editor.selections.map(sel =>
         new vscode.Range(sel.start, sel.end));
 
         await editor.edit(builder => {
@@ -56,13 +56,40 @@ function deleteAround(args: {count?: number }){
         editor.edit(builder => {
             for(const sel of ed.selections){
                 builder.delete(new vscode.Range(
-                    wrappedTranslate(sel.start, ed.document, -(args.count || 1)), 
+                    wrappedTranslate(sel.start, ed.document, -(args.count || 1)),
                     sel.start)
                 );
                 builder.delete(new vscode.Range(
-                    sel.end, 
+                    sel.end,
                     wrappedTranslate(sel.end, ed.document, (args.count || 1)))
                 );
+            }
+        });
+    }
+}
+
+function selectBetween(args: {str?: string, between?: {from: string, to: string}, inclusive: false}){
+    let editor = vscode.window.activeTextEditor;
+    if(editor){
+        let ed = editor;
+        ed.selections = ed.selections.map(sel => {
+            let seekStart = args.str || args?.between?.from;
+            let seekEnd = args.str || args?.between?.to;
+            if(!seekStart || !seekEnd){
+                vscode.window.showErrorMessage("Expected either `str` or `between = {from, to}` field for `selectBetween`")
+            }else{
+                let start = new vscode.Range(wrappedTranslate(sel.start, ed.document, -seekStart.length), sel.start);
+                let end = new vscode.Range(sel.end, wrappedTranslate(sel.start, ed.document, seekEnd.length));
+                let startStr = ed.document.getText(start);
+                while(startStr.length == seekStart.length)
+                    if(startStr === seekStart){ break; }
+                    let startFrom = wrappedTranslate(start.end, ed.document, -1);
+                    let startTo = wrappedTranslate(start.start, ed.document, -1);
+                    start = new vscode.Range(startTo, startFrom);
+                    startStr = ed.document.getText(start)
+                }
+                // TODO: reeat the same for end
+                // TODO: more thought here
             }
         });
     }
