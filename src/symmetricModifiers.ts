@@ -12,6 +12,8 @@ export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
         registerCommand('selection-utilities.expandWithinBrackets', expandWithinBrackets));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.expandAroundBrackets', expandAroundBrackets));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.selectBetween', selectBetween));
 }
 
 interface InsertAroundArgs{
@@ -81,16 +83,32 @@ function selectBetween(args: {str?: string, between?: {from: string, to: string}
                 let start = new vscode.Range(wrappedTranslate(sel.start, ed.document, -seekStart.length), sel.start);
                 let end = new vscode.Range(sel.end, wrappedTranslate(sel.start, ed.document, seekEnd.length));
                 let startStr = ed.document.getText(start);
-                while(startStr.length == seekStart.length)
+                while(startStr.length === seekStart.length){
                     if(startStr === seekStart){ break; }
                     let startFrom = wrappedTranslate(start.end, ed.document, -1);
                     let startTo = wrappedTranslate(start.start, ed.document, -1);
                     start = new vscode.Range(startTo, startFrom);
                     startStr = ed.document.getText(start)
                 }
-                // TODO: reeat the same for end
-                // TODO: more thought here
+
+                let endStr = ed.document.getText(end);
+                while(endStr.length === seekStart?.length){
+                    if(endStr === seekEnd){ break; }
+                    let endFrom = wrappedTranslate(end.end, ed.document, -1);
+                    let endTo = wrappedTranslate(end.start, ed.document, -1);
+                    end = new vscode.Range(endTo, endFrom);
+                    endStr = ed.document.getText(end)
+                }
+
+                if(startStr === seekStart && endStr === seekEnd){
+                    if(args.inclusive){
+                        return new vscode.Selection(start.start, end.end);
+                    }else{
+                        return new vscode.Selection(start.end, end.start);
+                    }
+                }
             }
+            return sel;
         });
     }
 }

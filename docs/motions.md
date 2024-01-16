@@ -1,4 +1,4 @@
-# Selection Motions
+## Unit Selection Motions
 
 There are two advantages to these motions over the built-in motions
 
@@ -10,7 +10,7 @@ Below are the pre-defined motions, all of which can be customized. For ultimate
 flexibility, you can use the generic [`moveby`](#the-custom-moveby-command)
 command. The units are defined by regex's (listed in the next section).
 
-## Move cursor
+### Move cursor
 
 These commands move the cursor, without selecting.
 
@@ -24,7 +24,7 @@ These commands move the cursor, without selecting.
 - "Move Cursor to Previous Subsection": `selection-utilities.moveToPreviousSubsection`
 - "Move Cursor to Previous Section": `selection-utilities.moveToPreviousSection`
 
-## Move selection
+### Move selection
 
 These commands adjust both the start and end of the selection, so that it surrounds the given unit.
 
@@ -41,7 +41,7 @@ These commands adjust both the start and end of the selection, so that it surrou
 - "Move Selection to Previous Subsection": `selection-utilities.moveToPreviousSubsection`
 - "Move Selection to Previous Section": `selection-utilities.moveToPreviousSection`
 
-## Select to unit
+### Select to unit
 
 These commands adjust one end of the selection by the given unit.
 
@@ -61,7 +61,7 @@ These commands adjust one end of the selection by the given unit.
 - "Move Cursor to Next Word": `selection-utilities.moveToNextWord`
 - "Move Cursor to Next non-whitespace characters": `selection-utilities.moveToNextWORD`
 
-## Custom Motions
+### Custom Motions
 
 You can define any units you wish to move the cursor by using `motionUnits`.
 
@@ -92,7 +92,7 @@ Note that some of the units employ multi-line matches using `regexs` instead of
 `regex`. For more on how to define multi-line units, see the final subsection
 below.
 
-### The custom `moveBy` command
+#### The custom `moveBy` command
 
 The `moveby` command moves the cursor according to one of the regular expressions
 you defined in your settings. It takes five optional arguments.
@@ -123,7 +123,7 @@ command in your `keybindings.json` file.
 }
 ```
 
-### The `narrowTo` command
+#### The `narrowTo` command
 
 The `narrowto` command shrinks the current boundaries of the current selection
 until it is directly at the given boundaries of the regular expression. It
@@ -149,7 +149,7 @@ pressing `cmd+(` you could add the following to `keybindings.json`.
 }
 ```
 
-## Multi-line units
+### Multi-line units
 
 The units can work for multi-line matches. To use this feature, change the unit entry to use `regexs` instead of `regex`.
 
@@ -200,3 +200,20 @@ You could then select all code in the section using a keybinding like follows.
     "key": "shift+cmd+0",
 }
 ```
+
+## Symmetric Selection Motion
+
+The command `selection-utilities.selectBetween` can be used to select text between two
+given characters. Note that this selection is non-syntactic, so it isn't smart about
+e.g. nested parenthesis. None-the-less, this can be a useful command, e.g. when
+there are no recognized syntactic brackets in a given type of file.
+
+It's arguments are:
+
+- `str`: Select text between pairs of the given string e.g. `str = "*"` would select "bob"
+   in the string "joe*bob*"
+- `between`: An object that lets you select text that starts with `from` and ends with `to`:
+   in the string "joe x bob y", the argument `between = {from: "x", to: "y"}` would select
+   " bob ". (Only one of `str` or `between` should be defined for a given call)
+- `inclusive`: Whether to include the surrounding pair in the selection: e.g. do you select
+   "bob" or "*bob*" in the above example.
