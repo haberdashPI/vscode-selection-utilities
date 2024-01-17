@@ -94,8 +94,8 @@ function selectBetween(args: {str?: string, between?: {from: string, to: string}
                 let endStr = ed.document.getText(end);
                 while(endStr.length === seekStart?.length){
                     if(endStr === seekEnd){ break; }
-                    let endFrom = wrappedTranslate(end.end, ed.document, -1);
-                    let endTo = wrappedTranslate(end.start, ed.document, -1);
+                    let endFrom = wrappedTranslate(end.end, ed.document, 1);
+                    let endTo = wrappedTranslate(end.start, ed.document, 1);
                     end = new vscode.Range(endTo, endFrom);
                     endStr = ed.document.getText(end)
                 }
