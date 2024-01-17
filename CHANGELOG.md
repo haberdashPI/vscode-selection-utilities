@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.6.0]
+- **Feature**: `selectBetween` allows selection between two or more characters.
+
 ## [0.5.1]
 - **Feature**: `revealActive` reveal the active position of the primary cursor
 
