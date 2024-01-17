@@ -5,7 +5,7 @@
 [![Project Documentation](https://img.shields.io/badge/docs-dev-blue)](https://haberdashpi.github.io/vscode-selection-utilities/dev/README.html)
 
 This extension provides a series of utilities for manipulating, saving and creating both single and
-multiple selections, inspired by [Kakoune](http://kakoune.org/).
+multiple selections, many of which are inspired by [Kakoune](http://kakoune.org/).
 
 There are many commands, and they are designed to work together. They work well in conjunction with
 [ModalKeys](https://github.com/haberdashPI/vscode-modal-keys). In particular the [Larkin](https://haberdashpi.github.io/vscode-modal-keys/stable/presets/larkin.html) presets available in ModalKeys make extensive use of all features from this extension.
@@ -35,7 +35,7 @@ paragrpah etc...).
 ### Saving selections
 
 These commands save a selection for later, or add any arbitrary selection to a list of
-soon-to-be multiple selections. 
+soon-to-be multiple selections.
 
 ![Saved Selection Animation](./docs/images/save_selection.gif)
 
