@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"icon": "logo.png",
 	"engines": {
 		"vscode": "^1.55.0"
@@ -22,6 +22,7 @@
 		"onCommand:selection-utilities.revealActive",
 		"onCommand:selection-utilities.expandWithinBrackets",
 		"onCommand:selection-utilities.expandAroundBrackets",
+		"onCommand:selection-utilities.selectBetween",
 		"onCommand:selection-utilities.focusPrimarySelection",
 		"onCommand:selection-utilities.appendToMemory",
 		"onCommand:selection-utilities.restoreAndClear",

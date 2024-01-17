@@ -16,7 +16,7 @@ export function compareSels(a: vscode.Selection, b: vscode.Selection){
 export function wrappedTranslate(x: vscode.Position, doc: vscode.TextDocument, val: number){
     if(val < 0){
         let result = x
-        while(result.character + val < 0){
+        while(result.character + val < 0 && result.line >= 0){
             val += 1;
             result = result.translate(-1, 0);
             result = result.translate(0, doc.lineAt(result).range.end.character)
@@ -24,7 +24,7 @@ export function wrappedTranslate(x: vscode.Position, doc: vscode.TextDocument, v
         return result.translate(0, val);
     }else{
         let result = x;
-        while(result.character + val > doc.lineAt(result).range.end.character){
+        while(result.character + val > doc.lineAt(result).range.end.character && result.line <= doc.lineCount+1){
             val -= 1;
             result = new vscode.Position(result.line+1, 0)
         }
@@ -38,4 +38,3 @@ export function clampedLineTranslate(x: vscode.Position, doc: vscode.TextDocumen
     else if(newline < 0) newline = 0;
     return new vscode.Position(newline, 0);
 }
-
