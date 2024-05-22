@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.1]
+- **Bugfix**: `adjustSelections` fixed bug in meaning of "forward" / "backward"
+- **Feature**: added "inward" / "outward" values to `adjustSelections` that implements
+  the old behavior (with more appropriate names)
+- **Feature**: added "expandWith" to `insertAround`
+
 ## [0.6.0]
 - **Feature**: `selectBetween` allows selection between two or more characters.
 
