@@ -7,99 +7,13 @@
 	"version": "0.6.3",
 	"icon": "logo.png",
 	"engines": {
-		"vscode": "^1.55.0"
+		"vscode": "^1.92.0"
 	},
 	"categories": [
 		"Other"
 	],
-	"activationEvents": [
-		"onCommand:selection-utilities.exchangeAnchorActive",
-		"onCommand:selection-utilities.activeAtEnd",
-		"onCommand:selection-utilities.activeAtStart",
-		"onCommand:selection-utilities.movePrimaryLeft",
-		"onCommand:selection-utilities.movePrimaryRight",
-		"onCommand:selection-utilities.shrinkToActive",
-		"onCommand:selection-utilities.revealActive",
-		"onCommand:selection-utilities.activePageMove",
-		"onCommand:selection-utilities.expandWithinBrackets",
-		"onCommand:selection-utilities.expandAroundBrackets",
-		"onCommand:selection-utilities.selectBetween",
-		"onCommand:selection-utilities.focusPrimarySelection",
-		"onCommand:selection-utilities.appendToMemory",
-		"onCommand:selection-utilities.restoreAndClear",
-		"onCommand:selection-utilities.swapWithMemory",
-		"onCommand:selection-utilities.cancelSelection",
-		"onCommand:selection-utilities.deleteLastSaved",
-		"onCommand:selection-utilities.deletePrimary",
-		"onCommand:selection-utilities.addNext",
-		"onCommand:selection-utilities.skipNext",
-		"onCommand:selection-utilities.addPrev",
-		"onCommand:selection-utilities.skipPrev",
-		"onCommand:selection-utilities.trimWhitespace",
-		"onCommand:selection-utilities.trimSelectionWhitespace",
-		"onCommand:selection-utilities.splitBy",
-		"onCommand:selection-utilities.splitByNewline",
-		"onCommand:selection-utilities.splitByRegex",
-		"onCommand:selection-utilities.createBy",
-		"onCommand:selection-utilities.createByRegex",
-		"onCommand:selection-utilities.alignSelectionsLeft",
-		"onCommand:selection-utilities.alignSelectionsRight",
-		"onCommand:selection-utilities.includeBy",
-		"onCommand:selection-utilities.excludeBy",
-		"onCommand:selection-utilities.includeByRegex",
-		"onCommand:selection-utilities.excludeByRegex",
-		"onCommand:selection-utilities.moveBy",
-		"onCommand:selection-utilities.moveBySubword",
-		"onCommand:selection-utilities.selectBySubword",
-		"onCommand:selection-utilities.moveByWord",
-		"onCommand:selection-utilities.selectByWord",
-		"onCommand:selection-utilities.moveByWORD",
-		"onCommand:selection-utilities.selectByWORD",
-		"onCommand:selection-utilities.moveByParagraph",
-		"onCommand:selection-utilities.selectByParagraph",
-		"onCommand:selection-utilities.moveBySubsection",
-		"onCommand:selection-utilities.selectBySubsection",
-		"onCommand:selection-utilities.moveBySection",
-		"onCommand:selection-utilities.selectBySection",
-		"onCommand:selection-utilities.narrowTo",
-		"onCommand:selection-utilities.insertAround",
-		"onCommand:selection-utilities.deleteAround",
-		"onCommand:selection-utilities.adjustSelections"
-	],
-	"browser": "./dist/web/main.js",
-	"docs": "./dist/doc/README.html",
-	"targets": {
-		"main": {
-			"includeNodeModules": {
-				"vscode": false
-			},
-			"engines": {
-				"node": ">= 14"
-			},
-			"outputFormat": "commonjs",
-			"isLibrary": true,
-			"distDir": "dist/main"
-		},
-		"docs": {
-			"engines": {
-				"browsers": "> 90%"
-			},
-			"context": "browser",
-			"distDir": "dist/doc"
-		},
-		"browser": {
-			"includeNodeModules": {
-				"vscode": false
-			},
-			"context": "web-worker",
-			"outputFormat": "commonjs",
-			"isLibrary": true,
-			"engines": {
-				"browsers": "> 90%"
-			},
-			"distDir": "dist/web"
-		}
-	},
+	"activationEvents": [],
+	"browser": "./dist/web/extension.js",
 	"contributes": {
 		"configuration": [
 			{
@@ -482,64 +396,31 @@
 			}
 		]
 	},
-	"watch": {
-		"build-html-docs": {
-			"patterns": [
-				"docs",
-				"src",
-				"README.md"
-			],
-			"extensions": "js,ts,md,css",
-			"ignore": "docs/build",
-			"delay": 1000
-		}
-	},
 	"scripts": {
-		"vscode:prepublish": "npm run package",
-		"compile": "npx webpack --mode development",
-		"watch": "npx webpack --watch --mode development",
-		"package": "npx webpack --mode production --devtool hidden-source-map",
-		"build-html-docs": "node docs/build.js",
-		"watch-html-docs": "npx npm-watch build-html-docs",
-		"parcel-docs": "npx parcel docs/build/README.html --target docs",
-		"parcel-build-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/stable/ --target docs",
-		"parcel-build-dev-docs": "npx parcel build docs/build/README.html --dist-dir dist/doc --public-url https://haberdashpi.github.io/vscode-selection-utilities/dev/ --target docs",
-		"keep-watching-docs": "npm-run-all --parallel parcel-docs watch-html-docs",
-		"watch-docs": "npm-run-all --serial build-html-docs keep-watching-docs",
-		"build-docs": "npm-run-all --serial build-html-docs parcel-build-docs",
-		"build-dev-docs": "npm-run-all --serial build-html-docs parcel-build-dev-docs",
-		"prepackage": "rm -rf dist/main",
+		"pretest": "npm run compile-web",
+		"vscode:prepublish": "npm run package-web",
+		"compile-web": "webpack",
+		"watch-web": "webpack --watch",
+		"package-web": "webpack --mode production --devtool hidden-source-map",
 		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.3",
-		"@types/lodash": "^4.14.177",
-		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.13.48",
-		"@types/vscode": "^1.55.0",
-		"@typescript-eslint/eslint-plugin": "^2.26.0",
-		"@typescript-eslint/parser": "^2.26.0",
-		"eslint": "^8.4.1",
-		"glob": "^7.1.7",
+		"@types/assert": "^1.5.10",
+		"@types/lodash": "^4.17.7",
+		"@types/mocha": "^10.0.7",
+		"@types/vscode": "^1.92.0",
+		"@types/webpack-env": "^1.18.5",
+		"@typescript-eslint/eslint-plugin": "^7.14.1",
+		"@typescript-eslint/parser": "^7.11.0",
+		"@vscode/test-web": "^0.0.55",
+		"assert": "^2.1.0",
+		"eslint": "^8.57.0",
 		"lodash": "^4.17.21",
-		"mocha": "^9.1.3",
-		"ts-loader": "^8.3.0",
-		"typescript": "^3.9.9",
-		"vscode-test": "^1.5.2",
-		"webpack": "^5.65.0",
-		"webpack-cli": "^4.9.1"
-	},
-	"dependencies": {
-		"@vscode/test-web": "^0.0.15",
-		"highlight.js": "^11.3.1",
-		"jdi": "^1.1.3",
-		"localtunnel": "^2.0.2",
-		"mkdirp": "^0.5.5",
-		"npm-run-all": "^4.1.5",
-		"npm-watch": "^0.11.0",
-		"remarkable": "^2.0.1",
-		"remarkable-header-ids": "^0.2.0",
-		"serve": "^13.0.2",
-		"tailwindcss": "^2.2.7"
+		"mocha": "^10.5.2",
+		"process": "^0.11.10",
+		"ts-loader": "^9.5.1",
+		"typescript": "^5.4.5",
+		"webpack": "^5.92.1",
+		"webpack-cli": "^5.1.4"
 	}
 }
