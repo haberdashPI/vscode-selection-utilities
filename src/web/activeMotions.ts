@@ -58,7 +58,7 @@ function activePageMove(args: { dir?: "up" | "down", count?: number } = {}) {
             return Math.max(1, range.end.line - range.start.line + 1);
         })
         const minHeight = heights.reduceRight((a, b) => Math.min(a, b));
-        let steps = minHeight * (args.count || 1)
+        let steps = Math.ceil(minHeight * (args.count || 1));
         if(args?.dir === 'up'){
             steps *= -1;
         }
