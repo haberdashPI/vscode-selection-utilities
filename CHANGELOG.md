@@ -2,6 +2,7 @@
 
 ## [0.6.3]
 - **Feature**: added "page up/down" for active end of selection
+- **Feature**: updated to a more modern build setup
 
 ## [0.6.1]
 - **Bugfix**: `adjustSelections` fixed bug in meaning of "forward" / "backward"
