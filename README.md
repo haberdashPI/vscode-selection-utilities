@@ -1,8 +1,9 @@
 # Selection Utilities
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Project%20Status-Active-green)](https://www.repostatus.org/#active)
-[![Project Documentation](https://img.shields.io/badge/docs-stable-blue)](https://haberdashpi.github.io/vscode-selection-utilities/stable/README.html)
-[![Project Documentation](https://img.shields.io/badge/docs-dev-blue)](https://haberdashpi.github.io/vscode-selection-utilities/dev/README.html)
+
+> [!WARNING] 🚧 under construction 🚧
+> The documentation for selection utilities is under construction. The [older docs](https://haberdashpi.github.io/vscode-selection-utilities/stable/README.html) are currently accurate, but are missing some new commands, and upcoming updates may change some of the names of commands and their arguments
 
 This extension provides a series of utilities for manipulating, saving and creating both single and
 multiple selections, many of which are inspired by [Kakoune](http://kakoune.org/).
