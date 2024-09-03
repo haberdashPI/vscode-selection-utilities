@@ -4,7 +4,7 @@
 	"publisher": "haberdashPI",
 	"repository": "https://github.com/haberdashPI/vscode-selection-utilities",
 	"description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-	"version": "0.6.2",
+	"version": "0.6.3",
 	"icon": "logo.png",
 	"engines": {
 		"vscode": "^1.55.0"
@@ -20,6 +20,7 @@
 		"onCommand:selection-utilities.movePrimaryRight",
 		"onCommand:selection-utilities.shrinkToActive",
 		"onCommand:selection-utilities.revealActive",
+		"onCommand:selection-utilities.activePageMove",
 		"onCommand:selection-utilities.expandWithinBrackets",
 		"onCommand:selection-utilities.expandAroundBrackets",
 		"onCommand:selection-utilities.selectBetween",
@@ -182,6 +183,11 @@
 			{
 				"command": "selection-utilities.revealActive",
 				"title": "Reveal the line of the primary cursor's active position",
+				"category": "Selection Utilities"
+			},
+			{
+				"command": "selection-utilities.activePageMove",
+				"title": "Move end of selection down a page",
 				"category": "Selection Utilities"
 			},
 			{

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
 import { getPrimarySelection } from './selectionMemory';
+import { clampedLineTranslate } from './util';
 
 function exchangeAnchorActive(){
     let editor = vscode.window.activeTextEditor;
@@ -50,6 +51,26 @@ function revealActive(args: { at: "top" | "center" | "bottom" } = { at: "center"
     }
 }
 
+function activePageMove(args: { dir?: "up" | "down", count?: number } = {}) {
+    let editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const heights = editor.visibleRanges.map(range => {
+            return Math.max(1, range.end.line - range.start.line + 1);
+        })
+        const minHeight = heights.reduceRight((a, b) => Math.min(a, b));
+        let steps = minHeight * (args.count || 1)
+        if(args?.dir === 'up'){
+            steps *= -1;
+        }
+        const ed = editor;
+        editor.selections = editor.selections.map(sel => {
+            const active = clampedLineTranslate(sel.active, ed.document, steps);
+            return new vscode.Selection(sel.anchor, active)
+        });
+        revealActive()
+    }
+}
+
 export function registerActiveMotions(context: vscode.ExtensionContext){
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.exchangeAnchorActive', exchangeAnchorActive));
@@ -61,4 +82,7 @@ export function registerActiveMotions(context: vscode.ExtensionContext){
         registerCommand('selection-utilities.shrinkToActive', shrinkToActive));
     context.subscriptions.push(vscode.commands.
         registerCommand('selection-utilities.revealActive', revealActive));
+    context.subscriptions.push(vscode.commands.
+        registerCommand('selection-utilities.activePageMove', activePageMove)
+    )
 }

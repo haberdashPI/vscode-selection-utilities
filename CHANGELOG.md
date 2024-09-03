@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.6.3]
+- **Feature**: added "page up/down" for active end of selection
+
 ## [0.6.1]
 - **Bugfix**: `adjustSelections` fixed bug in meaning of "forward" / "backward"
 - **Feature**: added "inward" / "outward" values to `adjustSelections` that implements
