@@ -5,16 +5,11 @@
 > [!WARNING] 🚧 under construction 🚧
 > The documentation for selection utilities is under construction. The [older docs](https://haberdashpi.github.io/vscode-selection-utilities/stable/README.html) are currently accurate, but are missing some new commands, and upcoming updates may change some of the names of commands and their arguments
 
-This extension provides a series of utilities for manipulating, saving and creating both single and
-multiple selections, many of which are inspired by [Kakoune](http://kakoune.org/).
+This extension provides a series of utilities for manipulating, saving and creating both single and multiple selections, many of which are inspired by [Kakoune](http://kakoune.org/).
 
-There are many commands, and they are designed to work together. They work well in conjunction with
-[ModalKeys](https://github.com/haberdashPI/vscode-modal-keys). In particular the [Larkin](https://haberdashpi.github.io/vscode-modal-keys/stable/presets/larkin.html) presets available in ModalKeys make extensive use of all features from this extension.
+There are many commands, and they are designed to work together. They work well in conjunction with [Master Key](https://github.com/haberdashPI/vscode-master-key). In particular the Larkin presets available in Master Key make extensive use of all features from this extension.
 
-Because there are so many commands, and any given set of keybindings for this
-extension could easily overwrite existing bindings, there are no default
-keybindings; you will need to learn about commands you want to use and then
-customize them yourself for your own purpose.
+The easiest way to learn about Selection Utilities is to use it in conjection with Master Keys. Otherwise, because there are so many commands, and any given set of keybindings for this extension could easily overwrite existing bindings, there are no default keybindings; you will need to learn about commands you want to use and then customize them yourself for your own purpose.
 
 ## Commands
 

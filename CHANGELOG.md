@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.6.4]
+- **Documentation**: update the readme to reference the newer [Master Key](https://github.com/haberdashPI/vscode-master-key) project.
+
 ## [0.6.3]
 - **Feature**: added "page up/down" for active end of selection
 - **Feature**: updated to a more modern build setup
