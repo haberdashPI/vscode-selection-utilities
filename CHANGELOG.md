@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.6.5]
+
+- **Feature**: add "subident" default motion unit (matches `foo` in `foo_bar` where subword would match `foo_`).
+
 ## [0.6.4]
 - **Documentation**: update the readme to reference the newer [Master Key](https://github.com/haberdashPI/vscode-master-key) project.
 
