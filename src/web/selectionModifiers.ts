@@ -25,9 +25,8 @@ export function registerSelectionModifiers(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('selection-utilities.splitBy', splitBy)
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.splitByRegex',
-            args => splitBy(args, true)
+        vscode.commands.registerCommand('selection-utilities.splitByRegex', args =>
+            splitBy(args, true)
         )
     );
     context.subscriptions.push(
@@ -36,20 +35,14 @@ export function registerSelectionModifiers(context: vscode.ExtensionContext) {
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.createByRegex',
-            args => splitBy(args, true, true)
+        vscode.commands.registerCommand('selection-utilities.createByRegex', args =>
+            splitBy(args, true, true)
         )
     );
 }
 
-function trimOneSelectionWhitespace(
-    sel: vscode.Selection,
-    editor: vscode.TextEditor
-) {
-    const content = editor.document.getText(
-        new vscode.Range(sel.start, sel.end)
-    );
+function trimOneSelectionWhitespace(sel: vscode.Selection, editor: vscode.TextEditor) {
+    const content = editor.document.getText(new vscode.Range(sel.start, sel.end));
 
     const leading = content.match(/^\s+/);
     let leadingPos = sel.start;
@@ -104,11 +97,7 @@ async function splitByNewline() {
             'editor.action.insertCursorAtEndOfEachLineSelected'
         );
         editor.selections = editor.selections.map(
-            sel =>
-                new vscode.Selection(
-                    new vscode.Position(sel.active.line, 0),
-                    sel.active
-                )
+            sel => new vscode.Selection(new vscode.Position(sel.active.line, 0), sel.active)
         );
         updateView(editor);
     }
@@ -147,9 +136,7 @@ async function splitBy(
                     let lastEnd = sel.start;
                     const newSels: vscode.Selection[] = [];
                     const regex = RegExp(
-                        useRegex
-                            ? by
-                            : by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
+                        useRegex ? by : by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
                         'g'
                     );
                     for (const [start, end] of matchPos(
@@ -169,37 +156,24 @@ async function splitBy(
                     }
                     return newSels;
                 });
-                const flattened = newSelections.reduce(
-                    (x, y) => x.concat(y),
-                    []
-                );
+                const flattened = newSelections.reduce((x, y) => x.concat(y), []);
 
                 if (flattened.length > 0) {
                     ed.selections = flattened;
                     updateView(ed);
                 } else {
-                    vscode.window.showErrorMessage(
-                        'No match for search pattern'
-                    );
+                    vscode.window.showErrorMessage('No match for search pattern');
                 }
             }
         });
     }
 }
 
-function* matchPos(
-    editor: vscode.TextEditor,
-    regex: RegExp,
-    range: vscode.Range
-) {
+function* matchPos(editor: vscode.TextEditor, regex: RegExp, range: vscode.Range) {
     const doc = editor.document;
     let line = range.start.line;
     const getLineText = (pos: vscode.Position, limit: vscode.Position) =>
-        doc.getText(
-            new vscode.Range(pos, limit).intersection(
-                doc.lineAt(pos.line).range
-            )
-        );
+        doc.getText(new vscode.Range(pos, limit).intersection(doc.lineAt(pos.line).range));
     let text = getLineText(range.start, range.end);
     let offset = range.start.character;
     while (line <= range.end.line) {
@@ -208,10 +182,7 @@ function* matchPos(
         while (match !== null) {
             yield [
                 new vscode.Position(line, match.index + offset),
-                new vscode.Position(
-                    line,
-                    match.index + offset + match[0].length
-                ),
+                new vscode.Position(line, match.index + offset + match[0].length),
             ];
             const lastIndex = regex.lastIndex;
             match = regex.exec(text);

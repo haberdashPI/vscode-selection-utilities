@@ -84,9 +84,7 @@ function saveSelectMemory(
 
 function curSelectionOrWord(editor: vscode.TextEditor) {
     if (editor.selections.length === 1 && editor.selection.isEmpty) {
-        const range = editor.document.getWordRangeAtPosition(
-            editor.selection.start
-        );
+        const range = editor.document.getWordRangeAtPosition(editor.selection.start);
         if (range !== undefined) {
             return [new vscode.Selection(range.start, range.end)];
         }
@@ -97,9 +95,7 @@ function curSelectionOrWord(editor: vscode.TextEditor) {
 export function updateDecorators(event?: vscode.ConfigurationChangeEvent) {
     if (!event || event.affectsConfiguration('selection-utilities')) {
         const config = vscode.workspace.getConfiguration('selection-utilities');
-        const primarySelectionColor = config.get<string>(
-            'primarySelectionColor'
-        );
+        const primarySelectionColor = config.get<string>('primarySelectionColor');
         const savedSelectionColor = config.get<string>('savedSelectionColor');
 
         activeSelectDecorator = vscode.window.createTextEditorDecorationType({
@@ -112,9 +108,7 @@ export function updateDecorators(event?: vscode.ConfigurationChangeEvent) {
     }
 }
 
-export function registerSelectionMemoryCommands(
-    context: vscode.ExtensionContext
-) {
+export function registerSelectionMemoryCommands(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeTextEditorSelection(e =>
         updateActiveSelection(e.textEditor, e.selections)
     );
@@ -150,10 +144,7 @@ export function registerSelectionMemoryCommands(
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.clearMemory',
-            clearMemory
-        )
+        vscode.commands.registerCommand('selection-utilities.clearMemory', clearMemory)
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(
@@ -174,24 +165,16 @@ export function registerSelectionMemoryCommands(
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.deletePrimary',
-            deletePrimary
-        )
+        vscode.commands.registerCommand('selection-utilities.deletePrimary', deletePrimary)
     );
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.addNext', addNext)
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.skipNext',
-            skipNext
-        )
+        vscode.commands.registerCommand('selection-utilities.skipNext', skipNext)
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.addPrev', () =>
-            addNext(false)
-        )
+        vscode.commands.registerCommand('selection-utilities.addPrev', () => addNext(false))
     );
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.skipPrev', () =>
@@ -289,9 +272,7 @@ function findClosestIndex(sels: vscode.Selection[], x: vscode.Selection) {
         let index = 0;
 
         for (const i of sameLineIndices) {
-            const dist = Math.abs(
-                sels[i].active.character - x.active.character
-            );
+            const dist = Math.abs(sels[i].active.character - x.active.character);
             if (mindist > dist) {
                 mindist = dist;
                 index = i;

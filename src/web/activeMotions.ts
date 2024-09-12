@@ -43,9 +43,7 @@ function shrinkToActive() {
     }
 }
 
-function revealActive(
-    args: {at: 'top' | 'center' | 'bottom'} = {at: 'center'}
-) {
+function revealActive(args: {at: 'top' | 'center' | 'bottom'} = {at: 'center'}) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const pos = getPrimarySelection(editor).active;
@@ -84,16 +82,10 @@ export function registerActiveMotions(context: vscode.ExtensionContext) {
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.activeAtEnd',
-            activeAtEnd
-        )
+        vscode.commands.registerCommand('selection-utilities.activeAtEnd', activeAtEnd)
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.activeAtStart',
-            activeAtStart
-        )
+        vscode.commands.registerCommand('selection-utilities.activeAtStart', activeAtStart)
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(
@@ -102,10 +94,7 @@ export function registerActiveMotions(context: vscode.ExtensionContext) {
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.revealActive',
-            revealActive
-        )
+        vscode.commands.registerCommand('selection-utilities.revealActive', revealActive)
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(

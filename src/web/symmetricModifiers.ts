@@ -3,16 +3,10 @@ import {wrappedTranslate} from './util';
 
 export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.insertAround',
-            insertAround
-        )
+        vscode.commands.registerCommand('selection-utilities.insertAround', insertAround)
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.deleteAround',
-            deleteAround
-        )
+        vscode.commands.registerCommand('selection-utilities.deleteAround', deleteAround)
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(
@@ -33,10 +27,7 @@ export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.selectBetween',
-            selectBetween
-        )
+        vscode.commands.registerCommand('selection-utilities.selectBetween', selectBetween)
     );
 }
 
@@ -51,9 +42,7 @@ async function insertAround(args: InsertAroundArgs) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const ed = editor;
-        const ranges = editor.selections.map(
-            sel => new vscode.Range(sel.start, sel.end)
-        );
+        const ranges = editor.selections.map(sel => new vscode.Range(sel.start, sel.end));
 
         await editor.edit(builder => {
             for (const r of ranges) {
@@ -68,14 +57,12 @@ async function insertAround(args: InsertAroundArgs) {
                     wrappedTranslate(
                         sel.anchor,
                         ed.document,
-                        args.before.length *
-                            (args.expandWith || args.followCursor ? -1 : 0)
+                        args.before.length * (args.expandWith || args.followCursor ? -1 : 0)
                     ),
                     wrappedTranslate(
                         sel.active,
                         ed.document,
-                        args.after.length *
-                            (args.expandWith || args.followCursor ? 0 : -1)
+                        args.after.length * (args.expandWith || args.followCursor ? 0 : -1)
                     )
                 );
             } else {
@@ -89,8 +76,7 @@ async function insertAround(args: InsertAroundArgs) {
                     wrappedTranslate(
                         sel.active,
                         ed.document,
-                        args.after.length *
-                            (args.expandWith && !args.followCursor ? -1 : 0)
+                        args.after.length * (args.expandWith && !args.followCursor ? -1 : 0)
                     )
                 );
             }
@@ -115,20 +101,12 @@ function deleteAround(args: {count?: number; followCursor: boolean}) {
                             ed.document,
                             -(1 - offset) * (args.count || 1)
                         ),
-                        wrappedTranslate(
-                            sel.start,
-                            ed.document,
-                            offset * (args.count || 1)
-                        )
+                        wrappedTranslate(sel.start, ed.document, offset * (args.count || 1))
                     )
                 );
                 builder.delete(
                     new vscode.Range(
-                        wrappedTranslate(
-                            sel.end,
-                            ed.document,
-                            -offset * (args.count || 1)
-                        ),
+                        wrappedTranslate(sel.end, ed.document, -offset * (args.count || 1)),
                         wrappedTranslate(
                             sel.end,
                             ed.document,
