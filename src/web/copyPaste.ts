@@ -17,7 +17,7 @@
 //     return /(\n|\r\n|\n\r)/.test(str);
 // }
 
-// async function pasteFromRegister(args: { register: string, at: "before" | "after" } = 
+// async function pasteFromRegister(args: { register: string, at: "before" | "after" } =
 //                                        { register: "default", at: "after" }){
 //     let editor = vscode.window.activeTextEditor;
 //     let after = args.at === "after";
