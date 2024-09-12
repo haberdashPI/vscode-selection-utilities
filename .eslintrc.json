@@ -36,10 +36,17 @@
             "error",
             {
                 "allowModules": [
-                    "lodash"
+                    "lodash",
+                    "wdio-vscode-service"
                 ]
             }
         ],
+        "n/no-extraneous-import": [
+            "error",
+            {
+                "allowModules": ["vscode-uri", "@wdio/globals", "webdriverio", "@wdio/types"]
+            }
+        ]
     },
     "overrides": [
         {

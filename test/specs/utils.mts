@@ -1,31 +1,19 @@
 import {browser, expect} from '@wdio/globals';
 import 'wdio-vscode-service';
-import {Key, WaitUntilOptions} from 'webdriverio';
-import {InputBox, StatusBar, TextEditor, Workbench, sleep} from 'wdio-vscode-service';
+import {Key} from 'webdriverio';
+import {InputBox, TextEditor, Workbench, sleep} from 'wdio-vscode-service';
 import loadash from 'lodash';
 const {isEqual} = loadash;
 import * as fs from 'fs';
 import * as path from 'path';
-
-const COVERAGE_KEY_COMMAND = `
-[[bind]]
-name = "show coverage"
-key = "ctrl+shift+alt+c"
-mode = []
-prefixes = "<all-prefixes>"
-command = "master-key.writeCoverageToEditor"
-hideInPalette = true
-hideInDocs = true
-`;
 
 export async function storeCoverageStats(name: string) {
     if (!process.env.COVERAGE) {
         return;
     }
     const editor = await setupEditor('');
-    const workbench = browser.getWorkbench();
     await browser.executeWorkbench(vscode => {
-        vscode.commands.executeCommand('selection-utilities.writeCoverageToEditor')
+        vscode.commands.executeCommand('selection-utilities.writeCoverageToEditor');
     });
 
     await sleep(1000);
