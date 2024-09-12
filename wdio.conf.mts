@@ -1,4 +1,4 @@
-import type {Options} from '@wdio/types'
+import type {Options} from '@wdio/types';
 import 'wdio-vscode-service';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
@@ -46,7 +46,7 @@ export const config: Options.Testrunner = {
     // The path of the spec files will be resolved relative from the directory of
     // of the config file unless it's absolute.
     //
-    specs: [ './test/specs/**/*.ux.mts' ],
+    specs: ['./test/specs/**/*.ux.mts'],
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
@@ -73,21 +73,23 @@ export const config: Options.Testrunner = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://saucelabs.com/platform/platform-configurator
     //
-    capabilities: [{
-        browserName: 'vscode',
-        browserVersion: 'stable', // also possible: "insiders" or a specific version e.g. "1.80.0"
-        'wdio:vscodeOptions': {
-            // points to directory where extension package.json is located
-            extensionPath: __dirname,
-            workspacePath: __dirname,
-            vscodeArgs: {
-                profile: 'debug-profile',
-                'enable-features':
-                    'ConversionMeasurement,AttributionReportingCrossAppWeb',
+    capabilities: [
+        {
+            browserName: 'vscode',
+            browserVersion: 'stable', // also possible: "insiders" or a specific version e.g. "1.80.0"
+            'wdio:vscodeOptions': {
+                // points to directory where extension package.json is located
+                extensionPath: __dirname,
+                workspacePath: __dirname,
+                vscodeArgs: {
+                    profile: 'debug-profile',
+                    'enable-features':
+                        'ConversionMeasurement,AttributionReportingCrossAppWeb',
+                },
+                storagePath: __dirname + '/.wdio-vscode-service/storage/',
             },
-            storagePath: __dirname + '/.wdio-vscode-service/storage/',
         },
-    }],
+    ],
 
     //
     // ===================
@@ -165,7 +167,7 @@ export const config: Options.Testrunner = {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 60000,
     },
 
     //
@@ -265,7 +267,6 @@ export const config: Options.Testrunner = {
     // afterTest: function(test, context, { error, result, duration, passed, retries }) {
     // },
 
-
     /**
      * Hook that gets executed after the suite has ended
      * @param {object} suite suite details
@@ -309,22 +310,22 @@ export const config: Options.Testrunner = {
     // onComplete: function(exitCode, config, capabilities, results) {
     // },
     /**
-    * Gets executed when a refresh happens.
-    * @param {string} oldSessionId session ID of the old session
-    * @param {string} newSessionId session ID of the new session
-    */
+     * Gets executed when a refresh happens.
+     * @param {string} oldSessionId session ID of the old session
+     * @param {string} newSessionId session ID of the new session
+     */
     // onReload: function(oldSessionId, newSessionId) {
     // }
     /**
-    * Hook that gets executed before a WebdriverIO assertion happens.
-    * @param {object} params information about the assertion to be executed
-    */
+     * Hook that gets executed before a WebdriverIO assertion happens.
+     * @param {object} params information about the assertion to be executed
+     */
     // beforeAssertion: function(params) {
     // }
     /**
-    * Hook that gets executed after a WebdriverIO assertion happened.
-    * @param {object} params information about the assertion that was executed, including its results
-    */
+     * Hook that gets executed after a WebdriverIO assertion happened.
+     * @param {object} params information about the assertion that was executed, including its results
+     */
     // afterAssertion: function(params) {
     // }
-}
+};

@@ -11,6 +11,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
+// eslint-disable-next-line n/no-unpublished-require
 const ESLintPlugin = require('eslint-webpack-plugin');
 
 /**
@@ -27,6 +28,9 @@ const webExtensionConfig = (env, argv) => ({
         type: 'filesystem',
         name: argv.mode + '-wdio_' + env['wdio'] + '-coverage_' + env['coverage'],
         version: '1',
+    },
+    entry: {
+        extension: './src/web/extension.ts',
     },
     output: {
         filename: '[name].js',
@@ -47,6 +51,7 @@ const webExtensionConfig = (env, argv) => ({
                   // see https://webpack.js.org/configuration/resolve/#resolvefallback
                   // for the list of Node.js core module polyfills.
                   assert: require.resolve('assert'),
+                  // eslint-disable-next-line n/no-unpublished-require
                   'process/browser': require.resolve('process/browser'),
               },
     },
@@ -54,7 +59,7 @@ const webExtensionConfig = (env, argv) => ({
         rules: [
             {
                 test: /\.ts$/,
-                exclude: /node_modules/,
+                exclude: [/node_modules/, /wdio\.conf\.mts/],
                 use: [
                     {
                         loader: 'ts-loader',

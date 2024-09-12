@@ -10,9 +10,5 @@
             "WebWorker"
         ],
     },
-    "include": [
-        "wdio.conf.mts",
-        "src/**/*.ts",
-        "test/**/*.mts"
-    ]
+    "include": ["src/**/*.ts"]
 }
