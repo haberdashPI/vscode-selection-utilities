@@ -136,7 +136,7 @@ async function splitBy(
                     let lastEnd = sel.start;
                     const newSels: vscode.Selection[] = [];
                     const regex = RegExp(
-                        useRegex ? by : by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
+                        useRegex ? by : by.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'),
                         'g'
                     );
                     for (const [start, end] of matchPos(

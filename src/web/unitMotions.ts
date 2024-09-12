@@ -700,7 +700,6 @@ function narrowTo(
             }
             return select;
         }
-        let result;
         if (select.anchor.isBefore(select.active)) {
             return new vscode.Selection(start, stop);
         } else {

@@ -41,7 +41,6 @@ function alignSelections(left: boolean = true) {
         );
         let column = 0;
         let lastLine = -1;
-        const i = 0;
         let totalColumns = 0;
         for (const sel of selections) {
             if (sel.active.line === lastLine) {
@@ -93,7 +92,6 @@ function alignSelections(left: boolean = true) {
         }
 
         editor.edit((edit: vscode.TextEditorEdit) => {
-            const i = 0;
             for (const row of rows) {
                 for (const col of row.columns) {
                     edit.insert(

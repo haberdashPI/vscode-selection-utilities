@@ -54,7 +54,7 @@ function filterBy(
         getInput(args, message, validateInput).then((by?: string) => {
             if (by !== undefined) {
                 const regex = RegExp(
-                    useRegex ? by : by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+                    useRegex ? by : by.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
                 );
                 const getText = (x: vscode.Selection) =>
                     ed.document.getText(new vscode.Range(x.start, x.end));
