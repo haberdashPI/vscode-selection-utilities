@@ -1,4 +1,11 @@
-import type { Options } from '@wdio/types'
+import type {Options} from '@wdio/types'
+import 'wdio-vscode-service';
+import {fileURLToPath} from 'url';
+import {dirname} from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -7,7 +14,7 @@ export const config: Options.Testrunner = {
     // WebdriverIO supports running e2e tests as well as unit and component tests.
     runner: 'local',
     tsConfigPath: './test/tsconfig.json',
-    
+
     //
     // =================
     // Service Providers
@@ -23,7 +30,7 @@ export const config: Options.Testrunner = {
     // in via the `region` property. Available short handles for regions are `us` (default), `eu` and `apac`.
     // These regions are used for the Sauce Labs VM cloud and the Sauce Labs Real Device Cloud.
     // If you don't provide the region it will default for the `us`
-    
+
     //
     // ==================
     // Specify Test Files
@@ -39,9 +46,7 @@ export const config: Options.Testrunner = {
     // The path of the spec files will be resolved relative from the directory of
     // of the config file unless it's absolute.
     //
-    specs: [
-        './test/specs/**/*.ts'
-    ],
+    specs: [ './test/specs/**/*.ux.mts' ],
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
@@ -74,11 +79,14 @@ export const config: Options.Testrunner = {
         'wdio:vscodeOptions': {
             // points to directory where extension package.json is located
             extensionPath: __dirname,
-            // optional VS Code settings
-            userSettings: {
-                "editor.fontSize": 14
-            }
-        }
+            workspacePath: __dirname,
+            vscodeArgs: {
+                profile: 'debug-profile',
+                'enable-features':
+                    'ConversionMeasurement,AttributionReportingCrossAppWeb',
+            },
+            storagePath: __dirname + '/.wdio-vscode-service/storage/',
+        },
     }],
 
     //
@@ -137,7 +145,7 @@ export const config: Options.Testrunner = {
     // Make sure you have the wdio adapter package for the specific framework installed
     // before running any tests.
     framework: 'mocha',
-    
+
     //
     // The number of times to retry the entire specfile when it fails as a whole
     // specFileRetries: 1,

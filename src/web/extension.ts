@@ -12,8 +12,7 @@ import {registerSelectionFilters} from './selectionFilters';
 import {registerSelectionAlignments} from './selectionAlignment';
 import {registerSymmetricModifiers} from './symmetricModifiers';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+declare let __coverage__: object;
 export function activate(context: vscode.ExtensionContext) {
     updateDecorators();
     updateUnits();
@@ -32,6 +31,20 @@ export function activate(context: vscode.ExtensionContext) {
     registerSelectionFilters(context);
     registerSelectionAlignments(context);
     registerSymmetricModifiers(context);
+
+    if (process.env.COVERAGE) {
+        context.subscriptions.push(
+            vscode.commands.registerCommand('selection-utilities.writeCoverageToEditor', () => {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    const coverage = JSON.stringify(__coverage__);
+                    editor.edit(builder => {
+                        builder.insert(new vscode.Position(0, 0), coverage);
+                    });
+                }
+            })
+        );
+    }
 }
 
 // this method is called when your extension is deactivated

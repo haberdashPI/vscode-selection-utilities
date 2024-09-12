@@ -18,60 +18,15 @@ hideInPalette = true
 hideInDocs = true
 `;
 
-export async function setBindings(str: string) {
-    const editor = await setupEditor(str + COVERAGE_KEY_COMMAND);
-    await editor.moveCursor(1, 1);
-
-    console.log('[DEBUG]: select language');
-    const workbench = await browser.getWorkbench();
-    await workbench.executeCommand('Clear Command History');
-    await sleep(200);
-    let input = await workbench.executeCommand('Select Language Mode');
-    await sleep(500);
-    await input.setText('Markdown');
-    await input.confirm();
-
-    console.log('[DEBUG]: activate bindings');
-    await workbench.executeCommand('Clear Command History');
-    await sleep(200);
-    await workbench.executeCommand('Master key: Activate Keybindings');
-    await sleep(500);
-    input = await new InputBox(workbench.locatorMap).wait();
-    await input.setText('Current File');
-    await input.confirm();
-
-    console.log('[DEBUG]: await notification');
-    const messagePattern = /Master keybindings were added to /;
-    const message = await browser.waitUntil(async () => {
-        const notifs = await workbench.getNotifications();
-        if (notifs.length > 0) {
-            for (const not of notifs) {
-                const m = await not.getMessage();
-                console.log('[UTIL]: notification message — ' + m);
-                if (messagePattern.test(m)) {
-                    return m;
-                }
-            }
-        } else {
-            return false;
-        }
-    });
-    expect(message).toBeTruthy();
-    // downstream tests appear to sometimes be flaky by failing to respond
-    // to bindings appropriately, given vscode some time to actually load/
-    // respond to the new bindings
-    await sleep(2000);
-    return;
-}
-
 export async function storeCoverageStats(name: string) {
     if (!process.env.COVERAGE) {
         return;
     }
     const editor = await setupEditor('');
-    // TODO: not sure why the keys don't show up in the status bar here...
-    // (probably a bug)
-    await enterModalKeys({key: ['ctrl', 'shift', 'alt', 'c'], updatesStatus: false});
+    const workbench = browser.getWorkbench();
+    await browser.executeWorkbench(vscode => {
+        vscode.commands.executeCommand('selection-utilities.writeCoverageToEditor')
+    });
 
     await sleep(1000);
     await waitUntilCursorUnmoving(editor);
@@ -154,150 +109,6 @@ export async function setupEditor(str: string) {
     // `setupEditor` before it is responsive again.
     await sleep(1000);
     return editor;
-}
-
-export function prettifyPrefix(str: string) {
-    str = str.toUpperCase();
-    str = str.replace(/shift(\+|$)/gi, '⇧');
-    str = str.replace(/ctrl(\+|$)/gi, '^');
-    str = str.replace(/alt(\+|$)/gi, '⌥');
-    str = str.replace(/meta(\+|$)/gi, '◆');
-    str = str.replace(/win(\+|$)/gi, '⊞');
-    str = str.replace(/cmd(\+|$)/gi, '⌘');
-    str = str.replace(/escape/gi, 'ESC');
-    return str;
-}
-
-// TODO: test out and get this function working
-const MODAL_KEY_MAP: Record<string, string> = {
-    shift: Key.Shift,
-    alt: Key.Alt,
-    tab: Key.Tab,
-    cmd: Key.Command,
-    ctrl: Key.Control,
-    escape: Key.Escape,
-    space: Key.Space,
-};
-
-// TODO: implement count
-interface ModalKeySpec {
-    key: string | string[];
-    count?: number;
-    updatesStatus?: boolean;
-}
-type ModalKey = string | string[] | ModalKeySpec;
-function modalKeyToStringArray(key: ModalKey): string[] {
-    let simpleKey: string | string[];
-    if ((key as ModalKeySpec).key) {
-        simpleKey = (key as ModalKeySpec).key;
-    } else {
-        simpleKey = key as string | string[];
-    }
-    if (Array.isArray(simpleKey)) {
-        return simpleKey;
-    } else {
-        return [simpleKey];
-    }
-}
-
-function modalKeyCount(key: ModalKey) {
-    if ((key as ModalKeySpec).key) {
-        return (key as ModalKeySpec).count;
-    } else {
-        return undefined;
-    }
-}
-
-function modalKeyUpdateStatus(key: ModalKey) {
-    if ((key as ModalKeySpec).key) {
-        const update = (key as ModalKeySpec).updatesStatus;
-        if (update === undefined) {
-            return true;
-        } else {
-            return update;
-        }
-    } else {
-        return true;
-    }
-}
-
-export async function enterModalKeys(...keySeq: ModalKey[]) {
-    const workbench = await browser.getWorkbench();
-    const statusBar = await new StatusBar(workbench.locatorMap);
-    let keySeqString = '';
-    let cleared;
-
-    const waitOpts = {interval: 50, timeout: 5000};
-    cleared = await browser.waitUntil(() => statusBar.getItem('No Keys Typed'), {
-        ...waitOpts,
-        timeoutMsg: `Old keys didn't clear, while trying to press \n${JSON.stringify(keySeq, null, 4)}`,
-    });
-    expect(cleared).toBeTruthy();
-
-    let count = 0;
-    let checkCleared = true;
-    for (const keys_ of keySeq) {
-        checkCleared = true;
-        const keys = modalKeyToStringArray(keys_);
-        if (
-            !isEqual(
-                keys.map(x => x.toLowerCase()),
-                keys
-            )
-        ) {
-            throw Error("Keys must all be lower case (use 'shift')");
-        }
-        const keyCodes = keys.map(k =>
-            MODAL_KEY_MAP[k] !== undefined ? MODAL_KEY_MAP[k] : k
-        );
-        const keyCount = modalKeyCount(keys_);
-        if (keyCount === undefined) {
-            const keyString = keys.map(prettifyPrefix).join('');
-            if (keySeqString) {
-                keySeqString += ', ' + keyString;
-            } else {
-                keySeqString = keyString;
-            }
-        } else {
-            count = count * 10 + keyCount;
-        }
-        const currentKeySeqString = (count ? count + '× ' : '') + keySeqString;
-
-        // we do *NOT* await here, so that we can catch display events that are fast
-        browser.keys(keyCodes);
-        if (modalKeyUpdateStatus(keys_)) {
-            const registered = await browser.waitUntil(
-                () => statusBar.getItem('Keys Typed: ' + currentKeySeqString),
-                {
-                    ...waitOpts,
-                    timeoutMsg: `UI didn't register typed key: \n${JSON.stringify(currentKeySeqString, null, 4)}`,
-                }
-            );
-            expect(registered).toBeTruthy();
-        } else {
-            checkCleared = false;
-        }
-    }
-    if (checkCleared) {
-        cleared = await browser.waitUntil(() => statusBar.getItem('No Keys Typed'), {
-            ...waitOpts,
-            timeoutMsg: `Final keys didn't clear while pressing \n${JSON.stringify(keySeq, null, 4)}`,
-        });
-        expect(cleared).toBeTruthy();
-    }
-
-    return;
-}
-
-export async function waitForMode(mode: string, opts: Partial<WaitUntilOptions> = {}) {
-    const workbench = await browser.getWorkbench();
-    const statusBar = await new StatusBar(workbench.locatorMap);
-    const modeSet = await browser.waitUntil(
-        () => statusBar.getItem('Keybinding Mode: ' + mode),
-        opts
-    );
-    expect(modeSet).toBeTruthy();
-    return;
 }
 
 async function coordChange(
