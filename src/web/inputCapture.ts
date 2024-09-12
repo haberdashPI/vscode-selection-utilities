@@ -1,17 +1,20 @@
 import * as vscode from 'vscode';
 
 export interface TokenArgs {
-    text?: string
+    text?: string;
 }
 
-export function getInput(args: TokenArgs | undefined, message: string, validate: (str: string) => string | undefined){
-    if (!args || !args.text){
+export function getInput(
+    args: TokenArgs | undefined,
+    message: string,
+    validate: (str: string) => string | undefined
+) {
+    if (!args || !args.text) {
         return vscode.window.showInputBox({
             prompt: message,
-            validateInput: validate
+            validateInput: validate,
         });
-    }else{
+    } else {
         return Promise.resolve(args.text);
     }
 }
-
