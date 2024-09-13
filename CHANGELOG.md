@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.6.6]
+
+- **Feature**: add `select` flag for command `activePageMove` command
+
 ## [0.6.5]
 
 - **Feature**: add "subident" default motion unit (matches `foo` in `foo_bar` where subword would match `foo_`).

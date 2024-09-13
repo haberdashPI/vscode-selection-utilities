@@ -56,7 +56,7 @@ function revealActive(
     }
 }
 
-function activePageMove(args: {dir?: 'up' | 'down'; count?: number} = {}) {
+function activePageMove(args: {dir?: 'up' | 'down'; count?: number, select?: boolean} = {}) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const heights = editor.visibleRanges.map(range => {
@@ -70,7 +70,11 @@ function activePageMove(args: {dir?: 'up' | 'down'; count?: number} = {}) {
         const ed = editor;
         editor.selections = editor.selections.map(sel => {
             const active = clampedLineTranslate(sel.active, ed.document, steps);
-            return new vscode.Selection(sel.anchor, active);
+            let anchor = sel.anchor;
+            if (args.select === false) { // args.select === undefined defaults to true
+                anchor = active;
+            }
+            return new vscode.Selection(anchor, active);
         });
         revealActive();
     }

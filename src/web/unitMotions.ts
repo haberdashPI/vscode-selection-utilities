@@ -319,6 +319,7 @@ function* singleRegexUnitsForDoc(
                         : undefined,
             };
         }
+        return undefined;
     }
     let first = true;
     for (const [line, text] of docLines(document, from, forward)) {
@@ -630,7 +631,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
         if (boundary !== Boundary.Both) {
             if (forward) {
                 if (current === undefined)
-                    throw new Error('Unexepcted missing range bound');
+                    throw new Error('Unexpected missing range bound');
                 else if (current !== null)
                     yield new vscode.Selection(
                         current,
@@ -638,7 +639,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                     );
             } else {
                 if (current === undefined)
-                    throw new Error('Unexepcted missing range bound');
+                    throw new Error('Unexpected missing range bound');
                 else if (current !== null)
                     yield new vscode.Selection(current, firstPosition());
             }
