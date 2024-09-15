@@ -37,7 +37,8 @@
             {
                 "allowModules": [
                     "lodash",
-                    "wdio-vscode-service"
+                    "wdio-vscode-service",
+                    "string.prototype.replaceall"
                 ]
             }
         ],

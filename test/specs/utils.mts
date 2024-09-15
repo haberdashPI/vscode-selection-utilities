@@ -2,6 +2,7 @@ import {browser, expect} from '@wdio/globals';
 import 'wdio-vscode-service';
 import {Key} from 'webdriverio';
 import {InputBox, TextEditor, Workbench, sleep} from 'wdio-vscode-service';
+import replaceAll from 'string.prototype.replaceall';
 import loadash from 'lodash';
 const {isEqual} = loadash;
 import * as fs from 'fs';
@@ -68,6 +69,7 @@ export async function clearNotifications(workbench: Workbench) {
 }
 
 export async function setupEditor(str: string) {
+    str = replaceAll(str, /^\s+/g, '');
     const workbench = await browser.getWorkbench();
 
     // clear any older notificatoins

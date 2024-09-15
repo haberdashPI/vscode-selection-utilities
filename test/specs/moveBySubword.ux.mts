@@ -48,8 +48,8 @@ describe('Subword Motion', () => {
     it('Can move by end', async () => {
         await editor.moveCursor(1, 1);
 
-        await wordMoveSelects({selectWhole: true, boundary: 'start'}, 'foo');
-        await wordMoveSelects({selectWhole: true, boundary: 'start'}, ' bar');
+        await wordMoveSelects({selectWhole: true, boundary: 'end'}, 'foo');
+        await wordMoveSelects({selectWhole: true, boundary: 'end'}, ' bar');
     });
 
     it('Can move backwards by start', async () => {
@@ -58,7 +58,7 @@ describe('Subword Motion', () => {
         await wordMoveSelects({selectWhole: true, boundary: 'start', value: -1}, 'snake_');
     });
 
-    it('Can move backwards by start', async () => {
+    it('Can move backwards by end', async () => {
         await editor.moveCursor(1, 20);
 
         await wordMoveSelects({selectWhole: true, boundary: 'end', value: -1}, ' snake_');
@@ -80,8 +80,8 @@ describe('Subword Motion', () => {
     it('Can extend forward by end', async () => {
         await editor.moveCursor(1, 2);
 
-        await wordMoveSelects({select: true, boundary: 'start'}, 'oo');
-        await wordMoveSelects({select: true, boundary: 'start'}, 'oo bar');
+        await wordMoveSelects({select: true, boundary: 'end'}, 'oo');
+        await wordMoveSelects({select: true, boundary: 'end'}, 'oo bar');
     });
 
     it('Can extend bakcwards by start', async () => {
@@ -94,11 +94,21 @@ describe('Subword Motion', () => {
     it('Can extend bakcwards by end', async () => {
         await editor.moveCursor(1, 7);
 
-        await wordMoveSelects({select: true, boundary: 'start', value: -1}, ' ba');
-        await wordMoveSelects({select: true, boundary: 'start', value: -1}, 'foo ba');
+        await wordMoveSelects({select: true, boundary: 'end', value: -1}, ' ba');
+        await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'foo ba');
     });
 
-    // other cases...
+    it('Can extent to "start" at file end', async () => {
+        await editor.moveCursor(1, 29);
+
+        await wordMoveSelects({select: true, boundary: 'start', value: 1}, 'ent');
+    });
+
+    it('Can extent to "end" at file start', async () => {
+        await editor.moveCursor(1, 3);
+
+        await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'fo');
+    });
 
     after(async () => {
         await storeCoverageStats('simpleMotion');

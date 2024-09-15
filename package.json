@@ -450,6 +450,7 @@
     "nyc": "^17.0.0",
     "penv": "^0.2.0",
     "process": "^0.11.10",
+    "string.prototype.replaceall": "^1.0.10",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.3",
     "wdio-vscode-service": "^6.0.3",
