@@ -1,6 +1,7 @@
 # Selection Utilities
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Project%20Status-Active-green)](https://www.repostatus.org/#active)
+[![CI](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml)
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet)](https://github.com/google/gts)
 
 > [!WARNING] 🚧 under construction 🚧

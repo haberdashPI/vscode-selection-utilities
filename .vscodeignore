@@ -16,3 +16,4 @@ wdio.conf.mts
 test/**
 .wdio-vscode-service
 wdio.log
+coverage/**

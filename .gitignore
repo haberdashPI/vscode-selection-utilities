@@ -11,3 +11,4 @@ dist/*
 wdio.conf.mts
 .wdio-vscode-service
 wdio.log
+coverage/**
