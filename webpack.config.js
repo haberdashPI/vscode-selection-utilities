@@ -7,56 +7,79 @@
 'use strict';
 
 //@ts-check
-/** @typedef {import('webpack').Configuration} WebpackConfig **/
+/** @typedef {import('webpack').Configuration} Configuration **/
 
 const path = require('path');
 const webpack = require('webpack');
+// eslint-disable-next-line n/no-unpublished-require
+const ESLintPlugin = require('eslint-webpack-plugin');
 
-/** @type WebpackConfig */
-const webExtensionConfig = {
+/**
+ * webExtensionConfig: webpack configuration function
+ *
+ * @param {Record<string, string>} env
+ * @param {Record<string, string>} argv
+ * @returns {Configuration}
+ */
+const webExtensionConfig = (env, argv) => ({
     mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
-    target: 'webworker', // extensions run in a webworker context
+    target: env['wdio'] ? 'node' : 'webworker', // extensions run in a webworker context
+    cache: {
+        type: 'filesystem',
+        name: argv.mode + '-wdio_' + env['wdio'] + '-coverage_' + env['coverage'],
+        version: '1',
+    },
     entry: {
         extension: './src/web/extension.ts',
     },
     output: {
         filename: '[name].js',
-        path: path.join(__dirname, './dist/web'),
+        path: path.join(__dirname, 'dist', env['wdio'] ? 'desktop' : 'web'),
         libraryTarget: 'commonjs',
         devtoolModuleFilenameTemplate: '../../[resource-path]',
     },
     resolve: {
-        mainFields: ['browser', 'module', 'main'], // look for `browser` entry point in imported node modules
+        mainFields: env['wdio'] ? ['module', 'main'] : ['browser', 'module', 'main'], // look for `browser` entry point in imported node modules
         extensions: ['.ts', '.js'], // support ts-files and js-files
         alias: {
             // provides alternate implementation for node module and source files
         },
-        fallback: {
-            // Webpack 5 no longer polyfills Node.js core modules automatically.
-            // see https://webpack.js.org/configuration/resolve/#resolvefallback
-            // for the list of Node.js core module polyfills.
-            assert: require.resolve('assert'),
-        },
+        fallback: env['wdio']
+            ? {}
+            : {
+                  // Webpack 5 no longer polyfills Node.js core modules automatically.
+                  // see https://webpack.js.org/configuration/resolve/#resolvefallback
+                  // for the list of Node.js core module polyfills.
+                  assert: require.resolve('assert'),
+                  // eslint-disable-next-line n/no-unpublished-require
+                  'process/browser': require.resolve('process/browser'),
+              },
     },
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        loader: 'ts-loader',
-                    },
-                ],
+                exclude: [/node_modules/, /wdio\.conf\.mts/],
+                use: env['coverage']
+                    ? [
+                          {loader: '@jsdevtools/coverage-istanbul-loader'},
+                          {loader: 'ts-loader'},
+                      ]
+                    : [{loader: 'ts-loader'}],
             },
         ],
     },
     plugins: [
+        new ESLintPlugin(),
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks: 1, // disable chunks by default since web extensions must be a single bundle
         }),
         new webpack.ProvidePlugin({
             process: 'process/browser', // provide a shim for the global `process` variable
+        }),
+        new webpack.DefinePlugin({
+            'process.env.TESTING': JSON.stringify(env['wdio'] || false),
+            'process.env.COVERAGE': JSON.stringify(env['coverage'] || false),
         }),
     ],
     externals: {
@@ -69,6 +92,6 @@ const webExtensionConfig = {
     infrastructureLogging: {
         level: 'log', // enables logging required for problem matchers
     },
-};
+});
 
 module.exports = [webExtensionConfig];

@@ -34,40 +34,28 @@ interface MultiLineUnit {
 
 const allUnits: IHash<IHash<RegExp | MultiLineUnit>> = {};
 
-const defaultUnits = [
-    'subword',
-    'word',
-    'WORD',
-    'paragraph',
-    'section',
-    'subsection',
-];
+const defaultUnits = ['subword', 'word', 'WORD', 'paragraph', 'section', 'subsection'];
 
-export function updateUnits(
-    event?: vscode.ConfigurationChangeEvent,
-    newid?: string
-) {
+export function updateUnits(event?: vscode.ConfigurationChangeEvent, newid?: string) {
     if (!event || event.affectsConfiguration('selection-utilities')) {
         const ids = Object.keys(allUnits);
         ids.push('[GENERIC]');
         newid !== undefined && ids.push(newid);
         for (const id of ids) {
-            const config =
-                id !== '[GENERIC]'
-                    ? vscode.workspace.getConfiguration('selection-utilities', {
-                          languageId: id,
-                      })
-                    : vscode.workspace.getConfiguration('selection-utilities');
-            const newUnits =
-                config.get<Array<UnitDef | MultiUnitDef>>('motionUnits');
+            let config;
+            if (id !== '[GENERIC]') {
+                config = vscode.workspace.getConfiguration('selection-utilities', {
+                    languageId: id,
+                });
+            } else {
+                config = vscode.workspace.getConfiguration('selection-utilities');
+            }
+            const newUnits = config.get<Array<UnitDef | MultiUnitDef>>('motionUnits');
             const units: IHash<RegExp | MultiLineUnit> = {};
             if (newUnits) {
                 for (const unit of newUnits) {
                     if ((unit as UnitDef).regex) {
-                        units[unit.name] = RegExp(
-                            (unit as UnitDef).regex,
-                            'gu'
-                        );
+                        units[unit.name] = RegExp((unit as UnitDef).regex, 'gu');
                     } else if ((unit as MultiUnitDef).regexs) {
                         const unitdef = unit as MultiUnitDef;
                         let regexs: string[];
@@ -80,9 +68,7 @@ export function updateUnits(
                             regexs: regexs.map(x => RegExp(x, 'u')),
                         };
                     } else {
-                        vscode.window.showErrorMessage(
-                            'Malformed unit definition'
-                        );
+                        vscode.window.showErrorMessage('Malformed unit definition');
                     }
                 }
             }
@@ -109,9 +95,7 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
         (args: NarrowByArgs) => {
             const editor = vscode.window.activeTextEditor;
             if (editor) {
-                editor.selections = editor.selections.map(
-                    narrowTo(editor, args)
-                );
+                editor.selections = editor.selections.map(narrowTo(editor, args));
                 updateView(editor);
             }
         }
@@ -134,12 +118,10 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
                 const commandName = selType + dir + unitLabel;
                 command = vscode.commands.registerCommand(
                     'selection-utilities.' + commandName,
-                    dont_use => {
+                    _ => {
                         const editor = vscode.window.activeTextEditor;
                         if (editor) {
-                            editor.selections = editor.selections.map(
-                                moveBy(editor, args)
-                            );
+                            editor.selections = editor.selections.map(moveBy(editor, args));
                             updateView(editor);
                         }
                     }
@@ -163,16 +145,9 @@ function* singleLineUnitsForDoc(
     forwards: boolean
 ) {
     let offset: number | undefined = start.character;
-    for (const [line, i] of linesOf(
-        doc,
-        start,
-        wrapAround || false,
-        forwards
-    )) {
+    for (const [line, i] of linesOf(doc, start, wrapAround || false, forwards)) {
         const matchesItr = regexMatches(unit, line, forwards, offset);
-        const matches = forwards
-            ? matchesItr
-            : Array.from(matchesItr).reverse();
+        const matches = forwards ? matchesItr : Array.from(matchesItr).reverse();
 
         yield* mapIter(matches, ([start, len]) => {
             return {
@@ -217,11 +192,7 @@ function* regexMatches(
         if (offset !== undefined && !forward && match.index > offset) {
             return;
         }
-        if (
-            offset === undefined ||
-            !forward ||
-            match.index + match[0].length > offset
-        )
+        if (offset === undefined || !forward || match.index + match[0].length > offset)
             yield [match.index, match[0].length];
         const newmatch = matcher.exec(line);
         if (newmatch && newmatch.index > match.index) {
@@ -248,12 +219,7 @@ function unitsForDoc(
     if (unit instanceof RegExp) {
         return singleLineUnitsForDoc(document, from, unit, false, forward);
     } else {
-        return multiLineUnitsForDoc(
-            document,
-            from,
-            unit as MultiLineUnit,
-            forward
-        );
+        return multiLineUnitsForDoc(document, from, unit as MultiLineUnit, forward);
     }
 }
 
@@ -303,16 +269,13 @@ function* singleRegexUnitsForDoc(
         if (first_match !== undefined) {
             const startLine: null | number = forward ? first_match : line + 1;
             const endLine: null | number = forward ? line - 1 : first_match;
-            const endCol =
-                endLine === null
-                    ? null
-                    : document.lineAt(new vscode.Position(endLine, 0)).range.end
-                          .character;
+            let endCol: null | number = null;
+            if (endLine !== null) {
+                endCol = document.lineAt(new vscode.Position(endLine, 0)).range.end
+                    .character;
+            }
             return {
-                start:
-                    startLine !== null
-                        ? new vscode.Position(startLine, 0)
-                        : undefined,
+                start: startLine !== null ? new vscode.Position(startLine, 0) : undefined,
                 end:
                     endLine !== null && endCol !== null
                         ? new vscode.Position(endLine, endCol)
@@ -360,17 +323,11 @@ function* multiRegexUnitsForDoc(
         };
     } else {
         doesMatch = (unit: MultiLineUnit, buffer: [number, string][]) => {
-            return unit.regexs.every((x, i) =>
-                x.test(buffer[buffer.length - (i + 1)][1])
-            );
+            return unit.regexs.every((x, i) => x.test(buffer[buffer.length - (i + 1)][1]));
         };
     }
 
-    const start_from = clampedLineTranslate(
-        from,
-        document,
-        -unit.regexs.length + 1
-    );
+    const start_from = clampedLineTranslate(from, document, -unit.regexs.length + 1);
     for (const [line, text] of docLines(document, start_from, forward)) {
         buffer.push([line, text]);
         if (buffer.length > unit.regexs.length) {
@@ -378,12 +335,8 @@ function* multiRegexUnitsForDoc(
         }
         if (buffer.length === unit.regexs.length) {
             if (doesMatch(unit, buffer)) {
-                const startLine = forward
-                    ? buffer[0][0]
-                    : buffer[buffer.length - 1][0];
-                const endLine = !forward
-                    ? buffer[0][0]
-                    : buffer[buffer.length - 1][0];
+                const startLine = forward ? buffer[0][0] : buffer[buffer.length - 1][0];
+                const endLine = !forward ? buffer[0][0] : buffer[buffer.length - 1][0];
                 const endCol = document.lineAt(endLine).range.end.character;
                 yield {
                     start: new vscode.Position(startLine, 0),
@@ -566,8 +519,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     const unit = unitNameToRegex(editor, args.unit);
     const forward = args.value === undefined ? true : args.value > 0;
     const holdSelect = args.select === undefined ? false : args.select;
-    const selectWholeUnit =
-        args.selectWhole === undefined ? false : args.selectWhole;
+    const selectWholeUnit = args.selectWhole === undefined ? false : args.selectWhole;
     const selectOneUnit = args.selectOneUnit;
 
     const boundary = toBoundary(args);
@@ -582,10 +534,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     // translate a sequence of units (regex start and stop boundaries)
     // to a sequence of selection points (where we extend the active selection
     // point to a new unit boundary at each step)
-    function* selectBoundaries(
-        xs: Generator<Range>,
-        start: vscode.Position | undefined
-    ) {
+    function* selectBoundaries(xs: Generator<Range>, start: vscode.Position | undefined) {
         function withStart(x: vscode.Position) {
             if (start) return new vscode.Selection(start, x);
             else return new vscode.Selection(x, x);
@@ -622,8 +571,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                     yield new vscode.Selection(last, current);
                 }
             } else {
-                if (!x.start || !x.end)
-                    throw new Error('Unexpected missing range bound');
+                if (!x.start || !x.end) throw new Error('Unexpected missing range bound');
                 if (forward) yield new vscode.Selection(x.start, x.end);
                 else yield new vscode.Selection(x.start, x.end);
             }
@@ -633,10 +581,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                 if (current === undefined)
                     throw new Error('Unexpected missing range bound');
                 else if (current !== null)
-                    yield new vscode.Selection(
-                        current,
-                        lastPosition(editor.document)
-                    );
+                    yield new vscode.Selection(current, lastPosition(editor.document));
             } else {
                 if (current === undefined)
                     throw new Error('Unexpected missing range bound');
@@ -649,12 +594,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     // return a function that modifies each selection in turn
     // (it will be applied to all selections)
     return (select: vscode.Selection) => {
-        const units = unitsForDoc(
-            editor.document,
-            select.active,
-            unit,
-            forward
-        );
+        const units = unitsForDoc(editor.document, select.active, unit, forward);
         let selections;
         if (selectWholeUnit) {
             // if we are selecting whole units we need to use `resolveUnitBoundaries`
@@ -670,10 +610,7 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
             );
             selections = selectUnits(resolved, forward);
         } else {
-            selections = selectBoundaries(
-                units,
-                holdSelect ? select.anchor : undefined
-            );
+            selections = selectBoundaries(units, holdSelect ? select.anchor : undefined);
         }
         let count = 0;
         let lastsel;
@@ -728,9 +665,7 @@ function narrowTo(
             : narrowTo(editor, {
                   unit: args.then,
                   boundary:
-                      args.thenBoundary === undefined
-                          ? args.boundary
-                          : args.thenBoundary,
+                      args.thenBoundary === undefined ? args.boundary : args.thenBoundary,
               });
 
     const boundary = toBoundary(args);
@@ -766,7 +701,6 @@ function narrowTo(
             }
             return select;
         }
-        let result;
         if (select.anchor.isBefore(select.active)) {
             return new vscode.Selection(start, stop);
         } else {

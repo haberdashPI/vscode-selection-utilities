@@ -14,15 +14,13 @@ export function registerSelectionFilters(context: vscode.ExtensionContext) {
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.includeByRegex',
-            args => filterBy(args, true, true)
+        vscode.commands.registerCommand('selection-utilities.includeByRegex', args =>
+            filterBy(args, true, true)
         )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'selection-utilities.excludeByRegex',
-            args => filterBy(args, false, true)
+        vscode.commands.registerCommand('selection-utilities.excludeByRegex', args =>
+            filterBy(args, false, true)
         )
     );
 }
@@ -56,7 +54,7 @@ function filterBy(
         getInput(args, message, validateInput).then((by?: string) => {
             if (by !== undefined) {
                 const regex = RegExp(
-                    useRegex ? by : by.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+                    useRegex ? by : by.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
                 );
                 const getText = (x: vscode.Selection) =>
                     ed.document.getText(new vscode.Range(x.start, x.end));
