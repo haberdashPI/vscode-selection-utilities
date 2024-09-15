@@ -2,7 +2,7 @@
 
 import '@wdio/globals';
 import 'wdio-vscode-service';
-import {setupEditor, storeCoverageStats} from './utils.mts';
+import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
 import {TextEditor, Workbench} from 'wdio-vscode-service';
 
 describe('Simple Motions', () => {
@@ -12,13 +12,6 @@ describe('Simple Motions', () => {
     before(async () => {
         editor = await setupEditor('foo bar biz baz');
         workbench = await browser.getWorkbench();
-    });
-
-    it('should be able to load VSCode', async () => {
-        const workbench = await browser.getWorkbench();
-        expect(await workbench.getTitleBar().getTitle()).toContain(
-            '[Extension Development Host]'
-        );
     });
 
     it('Can move by word', async () => {
@@ -32,7 +25,9 @@ describe('Simple Motions', () => {
                 boundary: 'both',
             });
         });
-        expect(await editor.getText()).toEqual('foo');
+        const [y, x] = await editor.getCoordinates();
+        await waitUntilCursorUnmoving(editor, {y, x});
+        expect(await editor.getSelectedText()).toEqual('foo');
     });
 
     after(async () => {

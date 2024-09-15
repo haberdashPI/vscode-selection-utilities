@@ -2,6 +2,8 @@ import type {Options} from '@wdio/types';
 import 'wdio-vscode-service';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
+import {homedir} from 'os';
+import * as path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,7 +15,13 @@ export const config: Options.Testrunner = {
     // ====================
     // WebdriverIO supports running e2e tests as well as unit and component tests.
     runner: 'local',
-    tsConfigPath: './test/tsconfig.json',
+    autoCompileOpts: {
+        autoCompile: true,
+        tsNodeOpts: {
+            project: './test/tsconfig.json',
+            transpileOnly: true,
+        },
+    },
 
     //
     // =================
@@ -86,7 +94,7 @@ export const config: Options.Testrunner = {
                     'enable-features':
                         'ConversionMeasurement,AttributionReportingCrossAppWeb',
                 },
-                storagePath: __dirname + '/.wdio-vscode-service/storage/',
+                storagePath: path.join(homedir(), '/.wdio-vscode-service/storage/'),
             },
         },
     ],
@@ -161,7 +169,7 @@ export const config: Options.Testrunner = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    // reporters: ['dot'],
+    reporters: ['spec'],
 
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
