@@ -457,6 +457,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@wdio/spec-reporter": "^8.40.3",
     "ts-node": "^10.9.2"
   }
 }
