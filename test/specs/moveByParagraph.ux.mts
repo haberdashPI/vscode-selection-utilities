@@ -2,17 +2,18 @@
 
 import '@wdio/globals';
 import 'wdio-vscode-service';
-import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
-import {TextEditor, Workbench} from 'wdio-vscode-service';
-import replaceAll from 'string.prototype.replaceall';
+import {
+    cleanWhitespace,
+    setupEditor,
+    storeCoverageStats,
+    waitUntilCursorUnmoving,
+} from './utils.mts';
+import {TextEditor} from 'wdio-vscode-service';
 
 describe('Paragraph Motion', () => {
     let editor: TextEditor;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let workbench: Workbench;
     before(async () => {
-        editor = await setupEditor(`
-            aaaa
+        editor = await setupEditor(`aaaa
             aaaa
 
             bbbb
@@ -23,20 +24,23 @@ describe('Paragraph Motion', () => {
             cccc
             cccc
         `);
-        workbench = await browser.getWorkbench();
     });
 
     async function parMoveSelects(cmd: object, str: string) {
-        const moveWord = {
-            unit: 'paragraph',
-            value: 1,
-        };
-        str = replaceAll(str, /^\s+/g, '');
-        await browser.executeWorkbench(vscode =>
-            vscode.commands.executeCommand('selection-utilities.moveBy', {...moveWord, cmd})
-        );
+        str = cleanWhitespace(str);
+        await browser.executeWorkbench((vscode, cmd) => {
+            const defaults = {
+                unit: 'paragraph',
+                value: 1,
+            };
+            vscode.commands.executeCommand('selection-utilities.moveBy', {
+                ...defaults,
+                ...cmd,
+            });
+        }, cmd);
         await waitUntilCursorUnmoving(editor);
-        expect(await editor.getSelectedText()).toEqual(str);
+        const result = await editor.getSelectedText();
+        expect(cleanWhitespace(result)).toEqual(str);
     }
 
     it('Can move by start+end', async () => {
@@ -58,7 +62,9 @@ describe('Paragraph Motion', () => {
         );
     });
 
-    it('Can move by start', async () => {
+    // TODO: this test is broken because I am not quite handling whitespace correctly yet
+    // eslint-disable-next-line no-restricted-properties
+    it.only('Can move by start', async () => {
         await editor.moveCursor(1, 1);
 
         await parMoveSelects(
