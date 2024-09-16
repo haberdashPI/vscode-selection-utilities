@@ -416,7 +416,7 @@
     "prewdio:env": "penv wdio",
     "prewdio:package": "webpack --env wdio",
     "prewdio": "run-s prewdio:*",
-    "wdio": "wdio run ./wdio.conf.mts; penv base",
+    "wdio": "wdio run ./wdio.conf.mts > wdio.log; penv base",
     "postwdio": "npm run lint",
     "precoverage:dir": "mkdir -p coverage/raw",
     "precoverage:package": "webpack --env wdio --env coverage",

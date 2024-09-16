@@ -46,7 +46,7 @@ describe('Subword Motion', () => {
         await wordMoveSelects({selectWhole: true, boundary: 'start'}, 'bar ');
     });
 
-    // TODO: fix bug found in this test!!
+    // DEBUG: fix bug found in this test!!
     it.skip('Can move by end', async () => {
         await editor.moveCursor(1, 1);
 
@@ -54,7 +54,7 @@ describe('Subword Motion', () => {
         await wordMoveSelects({selectWhole: true, boundary: 'end'}, ' bar');
     });
 
-    // TODO: fix bug found in this test!
+    // DEBUG: fix bug found in this test!
     it.skip('Can move backwards by start', async () => {
         await editor.moveCursor(1, 20);
 
