@@ -454,6 +454,9 @@ function* resolveUnitBoundaries(
                     yield first_unit;
                     foundUnit = true;
                 }
+            } else if (first_unit?.end && first_unit?.start) {
+                yield first_unit;
+                foundUnit = true;
             }
         }
         for (const back of backwards) {
