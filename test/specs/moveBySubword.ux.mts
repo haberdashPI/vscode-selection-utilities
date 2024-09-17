@@ -113,8 +113,6 @@ describe('Subword Motion', () => {
         await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'fo');
     });
 
-    // TODO: find a good test to identify number selection issues
-
     after(async () => {
         await storeCoverageStats('simpleMotion');
     });
