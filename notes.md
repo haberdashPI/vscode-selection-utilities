@@ -1,4 +1,4 @@
-Currently debugging issue with `resolveUnit` in `unitMotions` it seems to
-handle the case of a single unit being present in the file... poorly.
+Currently debugging issue with `resolveUnit` in `unitMotions`
 
-TODO: we need unit tests for the section boundariers as well
+problem: when using start or end boundaries (instead of both), the selectWhole
+skips every even unit

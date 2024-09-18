@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {updateView} from './selectionMemory';
 import {clampedLineTranslate, IHash} from './util';
+import {cloneDeep} from 'lodash';
 
 interface MoveByArgs {
     unit?: string;
@@ -156,7 +157,7 @@ function* singleLineUnitsForDoc(
             };
         });
         // end/start of document boundaries
-        if (i >= doc.lineCount - 1) {
+        if (i >= doc.lineCount - 1 && forwards) {
             const last = lastPosition(doc);
             yield {
                 start: last,
@@ -195,11 +196,12 @@ function* linesOf(
 }
 
 function* regexMatches(
-    matcher: RegExp,
+    matcher_: RegExp,
     line: string,
     forward: boolean,
     offset: number | undefined
 ): Generator<[number, number]> {
+    const matcher = cloneDeep(matcher_);
     matcher.lastIndex = 0;
     let match = matcher.exec(line);
     while (match) {
@@ -415,40 +417,41 @@ function* resolveUnitBoundaries(
     unit: Unit,
     forward: boolean
 ): Generator<Range> {
-    function* resolveUnit(firstUnit: Range | undefined): Generator<Range> {
-        const backwards = unitsForDoc(document, from, unit, !forward);
-        function* resolveHelper(back: Range): Generator<Range> {
-            if (resolve === Boundary.Start && !firstUnit?.start) {
+    function* resolveHelper(firstUnit: Range, back: Range): Generator<Range> {
+        if (resolve === Boundary.Start && (!firstUnit?.start || !forward)) {
+            yield back;
+            yield firstUnit;
+        } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
+            yield back;
+            yield firstUnit;
+        } else if (!firstUnit?.start || !firstUnit?.end) {
+            if (back.start && back.end) {
                 yield back;
-                const next = popFirst(units);
-                if (next) yield next;
-            } else if (resolve === Boundary.End && !firstUnit?.end) {
-                yield back;
-                const next = popFirst(units);
-                if (next) yield next;
-            } else if (!firstUnit?.start || !firstUnit?.end) {
-                if (back.start && back.end) {
-                    yield back;
-                } else if (back.start && firstUnit?.end) {
-                    yield {start: back.start, end: firstUnit.end};
-                } else if (back.end && firstUnit?.start) {
-                    yield {start: firstUnit.start, end: back.end};
-                }
-            } else {
-                yield firstUnit;
+            } else if (back.start && firstUnit?.end) {
+                yield {start: back.start, end: firstUnit.end};
+            } else if (back.end && firstUnit?.start) {
+                yield {start: firstUnit.start, end: back.end};
             }
+        } else {
+            yield firstUnit;
         }
-
-        const back = popFirst(backwards);
-        if (back) {
-            yield* resolveHelper(back);
-        }
-        return;
     }
 
+    // TODO: this is where I'm currently stumped
     const firstUnit = popFirst(units);
-    yield* resolveUnit(firstUnit);
-    yield* units;
+    if (!firstUnit) {
+        return;
+    } else {
+        const backwards = unitsForDoc(document, from, unit, !forward);
+        let back = popFirst(backwards);
+        while (boundsMatch(back, firstUnit)) {
+            back = popFirst(backwards);
+        }
+        if (back) {
+            yield* resolveHelper(firstUnit, back);
+        }
+        yield* units;
+    }
 }
 
 function lastPosition(document: vscode.TextDocument) {
@@ -497,17 +500,23 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     // to a sequence of selections: the selections surround a single
     // unit around from start-to-start, end-to-end or start-to-end
     function* selectUnits(xs: Generator<Range>) {
-        let last: vscode.Position | undefined | null = null;
-        let current: vscode.Position | undefined | null;
-        for (const x of xs) {
-            if (boundary === Boundary.Both) {
+        if (boundary === Boundary.Both) {
+            for (const x of xs) {
                 if (x.start && x.end) {
                     yield new vscode.Selection(x.start, x.end);
                 }
-            } else {
+            }
+        } else {
+            let last: vscode.Position | undefined = undefined;
+            let current: vscode.Position | undefined = undefined;
+            for (const x of xs) {
                 last = current;
-                current = boundary === Boundary.Start ? x.start : x.end;
-                if (current && last) {
+                if (boundary === Boundary.Start) {
+                    current = x.start;
+                } else {
+                    current = x.end;
+                }
+                if (current !== undefined && last !== undefined) {
                     yield new vscode.Selection(last, current);
                 }
             }
@@ -570,11 +579,22 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     };
 }
 
-function boundsMatch(x: vscode.Selection, y: vscode.Selection) {
-    return (
-        (x.start.isEqual(y.start) && x.end.isEqual(y.end)) ||
-        (x.end.isEqual(y.start) && x.start.isEqual(y.end))
-    );
+function boundsMatch(x: Range | undefined, y: Range | undefined) {
+    let startEqual = false;
+    if (x?.start === undefined && y?.start === undefined) {
+        startEqual = true;
+    } else if (x?.start && y?.start) {
+        startEqual = x?.start.isEqual(y.start);
+    }
+
+    let endEqual = false;
+    if (x?.end === undefined && y?.end === undefined) {
+        endEqual = true;
+    } else if (x?.end && y?.end) {
+        endEqual = x?.end.isEqual(y.end);
+    }
+
+    return startEqual && endEqual;
 }
 
 function narrowTo(
