@@ -219,16 +219,12 @@ function* unitsForDoc(
     forward: boolean
 ): Generator<Range> {
     // 'units' to denote the start/end of a document (avoids edge cases downstream)
-    const first = new vscode.Position(0, 0);
     const startUnit = {
-        start: first,
-        end: first,
+        end: new vscode.Position(0, 0),
     };
 
-    const last = lastPosition(doc);
     const endUnit = {
-        start: last,
-        end: last,
+        start: lastPosition(doc),
     };
 
     if (unit instanceof RegExp) {
@@ -431,21 +427,49 @@ function* resolveUnitBoundaries(
     let backwards: Generator<Range>;
     function* resolveHelper(firstUnit: Range, back: Range): Generator<Range> {
         if (resolve === Boundary.Start && (!firstUnit?.start || !forward)) {
-            if (!firstUnit?.start || !firstUnit?.end || !back?.start || !back?.end) {
-                const moreBack = popFirst(backwards);
-                if (moreBack) {
-                    yield moreBack;
+            if (forward) {
+                if (!firstUnit?.start) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
                 }
+                yield back;
+                yield firstUnit;
+            } else {
+                if (!back?.start) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                yield back;
+                yield firstUnit;
             }
-            yield fuseRanges(firstUnit, back);
         } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
-            if (!firstUnit?.start || !firstUnit?.end || !back?.start || !back?.end) {
-                const moreBack = popFirst(backwards);
-                if (moreBack) {
-                    yield moreBack;
+            if (!forward) {
+                if (!firstUnit?.end) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
                 }
+                yield back;
+                yield firstUnit;
+            } else {
+                if (!back?.end) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                yield back;
+                yield firstUnit;
             }
-            yield fuseRanges(firstUnit, back);
         } else if (resolve === Boundary.Both && (!firstUnit?.start || !firstUnit?.end)) {
             yield fuseRanges(firstUnit, back);
         } else {
@@ -519,7 +543,11 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
         if (boundary === Boundary.Both) {
             for (const x of xs) {
                 if (x.start && x.end) {
-                    yield new vscode.Selection(x.start, x.end);
+                    if (forward) {
+                        yield new vscode.Selection(x.start, x.end);
+                    } else {
+                        yield new vscode.Selection(x.end, x.start);
+                    }
                 }
             }
         } else {
