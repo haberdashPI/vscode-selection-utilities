@@ -124,6 +124,6 @@ describe('Subword Motion', () => {
     });
 
     after(async () => {
-        await storeCoverageStats('simpleMotion');
+        await storeCoverageStats('subwordMotion');
     });
 });

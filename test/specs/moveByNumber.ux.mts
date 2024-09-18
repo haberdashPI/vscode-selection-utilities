@@ -2,7 +2,7 @@
 
 import '@wdio/globals';
 import 'wdio-vscode-service';
-import {setupEditor, waitUntilCursorUnmoving} from './utils.mts';
+import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
 import {TextEditor} from 'wdio-vscode-service';
 
 describe('Number Motion', () => {
@@ -23,5 +23,9 @@ describe('Number Motion', () => {
         });
         await waitUntilCursorUnmoving(editor);
         expect(await editor.getSelectedText()).toEqual('123');
+    });
+
+    after(async () => {
+        await storeCoverageStats('numberMotion');
     });
 });

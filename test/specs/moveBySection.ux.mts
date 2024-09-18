@@ -13,16 +13,28 @@ import {TextEditor} from 'wdio-vscode-service';
 describe('Paragraph Motion', () => {
     let editor: TextEditor;
     before(async () => {
-        editor = await setupEditor(`aaaa
-            aaaa
+        editor = await setupEditor(`// A
+            // --------------------
 
-            bbbb
-            bbbb
-            bbbb
+            joebob
+            bizzle
+
+            // B
+            // --------------------
+
+            billybob
+            bim
+
+            // A.2
+            // --------------------
+
+            wizard
+            bizard
+            milo
+            philo
+            dough
 
 
-            cccc
-            cccc
             `);
     });
 
@@ -30,7 +42,7 @@ describe('Paragraph Motion', () => {
         str = cleanWhitespace(str);
         await browser.executeWorkbench((vscode, cmd) => {
             const defaults = {
-                unit: 'paragraph',
+                unit: 'subsection',
                 value: 1,
             };
             vscode.commands.executeCommand('selection-utilities.moveBy', {
@@ -43,24 +55,22 @@ describe('Paragraph Motion', () => {
         expect(cleanWhitespace(result)).toEqual(str);
     }
 
-    // TODO: add tests for position of active cursor location
-
     it('Can move by start+end', async () => {
         await editor.moveCursor(1, 1);
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'both'},
-            `aaaa
-            aaaa`
+            `// A
+             // --------------------`
         );
     });
 
     it('Can move by start+end from middle', async () => {
-        await editor.moveCursor(2, 1);
+        await editor.moveCursor(2, 3);
         await parMoveSelects(
             {selectWhole: true, boundary: 'both'},
-            `aaaa
-            aaaa`
+            `// A
+             // --------------------`
         );
     });
 
@@ -69,17 +79,21 @@ describe('Paragraph Motion', () => {
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'start'},
-            `aaaa
-            aaaa
+            `// A
+            // --------------------
+
+            joebob
+            bizzle
 
             `
         );
         await parMoveSelects(
             {selectWhole: true, boundary: 'start'},
-            `bbbb
-            bbbb
-            bbbb
+            `// B
+            // --------------------
 
+            billybob
+            bim
 
             `
         );
@@ -90,54 +104,58 @@ describe('Paragraph Motion', () => {
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'end'},
-            `aaaa
-            aaaa`
+            `// A
+            // --------------------`
         );
         await parMoveSelects(
             {selectWhole: true, boundary: 'end'},
             `
 
-            bbbb
-            bbbb
-            bbbb`
+            joebob
+            bizzle
+
+            // B
+            // --------------------`
         );
     });
 
     it('Can move backwards by start', async () => {
-        await editor.moveCursor(6, 1);
+        await editor.moveCursor(9, 1);
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'start', value: -1},
-            `bbbb
-            bbbb
-            bbbb
+            `// B
+            // --------------------
 
+            billybob
+            bim
 
             `
         );
     });
 
     it('Can move backwards by end', async () => {
-        await editor.moveCursor(6, 1);
+        await editor.moveCursor(9, 1);
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'end', value: -1},
             `
 
-            bbbb
-            bbbb
-            bbbb`
+            billybob
+            bim
+
+            // A.2
+            // --------------------`
         );
     });
 
     it('Can move backwards by start+end', async () => {
-        await editor.moveCursor(6, 1);
+        await editor.moveCursor(9, 1);
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'both', value: -1},
-            `bbbb
-            bbbb
-            bbbb`
+            `// B
+             // --------------------`
         );
     });
 
@@ -146,18 +164,25 @@ describe('Paragraph Motion', () => {
 
         await parMoveSelects(
             {select: true, boundary: 'start'},
-            `aaaa
+            `// --------------------
+
+            joebob
+            bizzle
 
             `
         );
         await parMoveSelects(
             {select: true, boundary: 'start'},
-            `aaaa
+            `// --------------------
 
-            bbbb
-            bbbb
-            bbbb
+            joebob
+            bizzle
 
+            // B
+            // --------------------
+
+            billybob
+            bim
 
             `
         );
@@ -169,30 +194,41 @@ describe('Paragraph Motion', () => {
         await parMoveSelects({select: true, boundary: 'end'}, 'aaaa');
         await parMoveSelects(
             {select: true, boundary: 'end'},
-            `aaaa
+            `// --------------------
 
-            bbbb
-            bbbb
-            bbbb`
+            joebob
+            bizzle
+
+            // B
+            // --------------------`
         );
     });
 
     it('Can extend bakcwards by start', async () => {
-        await editor.moveCursor(6, 1);
+        await editor.moveCursor(9, 1);
 
         await parMoveSelects(
             {select: true, boundary: 'start', value: -1},
-            `bbbb
-            bbbb
+            `// B
+             // --------------------
+
+
+             billybob
             `
         );
         await parMoveSelects(
             {select: true, boundary: 'start', value: -1},
-            `aaaa
-            aaaa
+            `// A
+             // --------------------
 
-            bbbb
-            bbbb
+             joebob
+             bizzle
+
+             // B
+             // --------------------
+
+
+             billybob
             `
         );
     });
@@ -204,43 +240,59 @@ describe('Paragraph Motion', () => {
             {select: true, boundary: 'end', value: -1},
             `
 
-            bbbb
-            bbbb
+
+             billybob
             `
         );
         await parMoveSelects(
             {select: true, boundary: 'end', value: -1},
-            `aaaa
-            aaaa
+            `
 
-            bbbb
-            bbbb
+             joebob
+             bizzle
+
+             // B
+             // --------------------
+
+
+             billybob
             `
         );
     });
 
     it('Can extent to "start" at file end', async () => {
-        await editor.moveCursor(9, 1);
+        await editor.moveCursor(12, 1);
 
         await parMoveSelects(
             {select: true, boundary: 'start', value: 1},
-            `cccc
-            cccc
+            `// A.2
+            // --------------------
+
+            wizard
+            bizard
+            milo
+            philo
+            dough
+
+
             `
         );
     });
 
     it('Can extent to "end" at file start', async () => {
-        await editor.moveCursor(2, 1);
+        await editor.moveCursor(4, 1);
 
         await parMoveSelects(
             {select: true, boundary: 'end', value: -1},
-            `aaaa
+            `// A
+            // --------------------
+
+            joebob
             `
         );
     });
 
     after(async () => {
-        await storeCoverageStats('paragraphMotion');
+        await storeCoverageStats('sectionMotion');
     });
 });
