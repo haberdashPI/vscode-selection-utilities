@@ -53,6 +53,9 @@ describe('Subword Motion', () => {
         await wordMoveSelects({selectWhole: true, boundary: 'end'}, ' bar');
     });
 
+    // TODO:
+    // it('Keeps active to right moving forwards')
+
     it('Can move backwards by start', async () => {
         await editor.moveCursor(1, 20);
 
@@ -71,6 +74,9 @@ describe('Subword Motion', () => {
         await wordMoveSelects({selectWhole: true, boundary: 'both', value: -1}, 'snake_');
     });
 
+    // TODO:
+    // it('Keeps active to left moving backwards')
+
     it('Can extend forward by start', async () => {
         await editor.moveCursor(1, 2);
 
@@ -84,6 +90,9 @@ describe('Subword Motion', () => {
         await wordMoveSelects({select: true, boundary: 'end'}, 'oo');
         await wordMoveSelects({select: true, boundary: 'end'}, 'oo bar');
     });
+
+    // TODO:
+    // it('Keeps active to right extending forwards')
 
     it('Can extend bakcwards by start', async () => {
         await editor.moveCursor(1, 7);
@@ -99,13 +108,16 @@ describe('Subword Motion', () => {
         await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'foo ba');
     });
 
-    it('Can extent to "start" at file end', async () => {
+    // TODO:
+    // it('Keeps active to right extending backwards')
+
+    it('Can extend to "start" at file end', async () => {
         await editor.moveCursor(1, 29);
 
         await wordMoveSelects({select: true, boundary: 'start', value: 1}, 'dent');
     });
 
-    it('Can extent to "end" at file start', async () => {
+    it('Can extend to "end" at file start', async () => {
         await editor.moveCursor(1, 3);
 
         await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'fo');

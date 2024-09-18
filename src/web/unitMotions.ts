@@ -156,20 +156,6 @@ function* singleLineUnitsForDoc(
                 end: new vscode.Position(i, start + len),
             };
         });
-        // end/start of document boundaries
-        if (i >= doc.lineCount - 1 && forwards) {
-            const last = lastPosition(doc);
-            yield {
-                start: last,
-                end: last,
-            };
-        } else if (i === 0 && !forwards) {
-            const first = new vscode.Position(0, 0);
-            yield {
-                start: first,
-                end: first,
-            };
-        }
         offset = undefined;
     }
 }
@@ -226,17 +212,32 @@ function* mapIter<T, R>(iter: Iterable<T>, fn: (x: T) => R) {
 }
 
 type Unit = RegExp | MultiLineUnit | string[];
-function unitsForDoc(
-    document: vscode.TextDocument,
+function* unitsForDoc(
+    doc: vscode.TextDocument,
     from: vscode.Position,
     unit: Unit,
     forward: boolean
 ): Generator<Range> {
+    // 'units' to denote the start/end of a document (avoids edge cases downstream)
+    const first = new vscode.Position(0, 0);
+    const startUnit = {
+        start: first,
+        end: first,
+    };
+
+    const last = lastPosition(doc);
+    const endUnit = {
+        start: last,
+        end: last,
+    };
+
     if (unit instanceof RegExp) {
-        return singleLineUnitsForDoc(document, from, unit, false, forward);
+        yield* singleLineUnitsForDoc(doc, from, unit, false, forward);
     } else {
-        return multiLineUnitsForDoc(document, from, unit as MultiLineUnit, forward);
+        yield* multiLineUnitsForDoc(doc, from, unit as MultiLineUnit, forward);
     }
+
+    yield forward ? endUnit : startUnit;
 }
 
 export function popFirst<T>(x: Iterable<T>): T | undefined {
@@ -280,11 +281,11 @@ function* singleRegexUnitsForDoc(
     unit: MultiLineUnit,
     forward: boolean
 ) {
-    let first_match: undefined | null | number = undefined;
+    let firstMatch: undefined | null | number = undefined;
     function closeMatch(line: number) {
-        if (first_match !== undefined) {
-            const startLine: null | number = forward ? first_match : line + 1;
-            const endLine: null | number = forward ? line - 1 : first_match;
+        if (firstMatch !== undefined) {
+            const startLine: null | number = forward ? firstMatch : line + 1;
+            const endLine: null | number = forward ? line - 1 : firstMatch;
             let endCol: null | number = null;
             if (endLine !== null) {
                 endCol = document.lineAt(new vscode.Position(endLine, 0)).range.end
@@ -308,14 +309,14 @@ function* singleRegexUnitsForDoc(
                 // fall in the middle of a sequence of matching lines we
                 // represent the fact that we dont' know where this sequence
                 // starts using `null`
-                first_match = null;
-            } else if (first_match === undefined) {
-                first_match = line;
+                firstMatch = null;
+            } else if (firstMatch === undefined) {
+                firstMatch = line;
             }
         } else {
             const result = closeMatch(line);
             if (result !== undefined) {
-                first_match = undefined;
+                firstMatch = undefined;
                 yield result;
             }
         }
@@ -364,15 +365,15 @@ function* multiRegexUnitsForDoc(
 }
 
 function* multiLineUnitsForDoc(
-    document: vscode.TextDocument,
+    doc: vscode.TextDocument,
     from: vscode.Position,
     unit: MultiLineUnit,
     forward: boolean
 ): Generator<Range> {
     if (unit.regexs.length > 1) {
-        yield* multiRegexUnitsForDoc(document, from, unit, forward);
+        yield* multiRegexUnitsForDoc(doc, from, unit, forward);
     } else {
-        yield* singleRegexUnitsForDoc(document, from, unit, forward);
+        yield* singleRegexUnitsForDoc(doc, from, unit, forward);
     }
 }
 
@@ -405,6 +406,16 @@ function toBoundary(args: {boundary?: string}) {
     }
 }
 
+function fuseRanges(a: Range, b: Range): Range {
+    if (!a?.start && !b?.end) {
+        return {start: b?.start, end: a?.end};
+    } else if (!b?.start && !a?.end) {
+        return {start: a?.start, end: b?.end};
+    } else {
+        return a;
+    }
+}
+
 // this handles unit cleanup when looking for two boundaries: when you look for units in one
 // direction sometime you miss the start (or end) of a unit you're in the middle of (for
 // multi-line units in particular). If we want to resolve the boundaries of a unit, we need
@@ -417,21 +428,26 @@ function* resolveUnitBoundaries(
     unit: Unit,
     forward: boolean
 ): Generator<Range> {
+    let backwards: Generator<Range>;
     function* resolveHelper(firstUnit: Range, back: Range): Generator<Range> {
         if (resolve === Boundary.Start && (!firstUnit?.start || !forward)) {
-            yield back;
-            yield firstUnit;
-        } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
-            yield back;
-            yield firstUnit;
-        } else if (!firstUnit?.start || !firstUnit?.end) {
-            if (back.start && back.end) {
-                yield back;
-            } else if (back.start && firstUnit?.end) {
-                yield {start: back.start, end: firstUnit.end};
-            } else if (back.end && firstUnit?.start) {
-                yield {start: firstUnit.start, end: back.end};
+            if (!firstUnit?.start || !firstUnit?.end || !back?.start || !back?.end) {
+                const moreBack = popFirst(backwards);
+                if (moreBack) {
+                    yield moreBack;
+                }
             }
+            yield fuseRanges(firstUnit, back);
+        } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
+            if (!firstUnit?.start || !firstUnit?.end || !back?.start || !back?.end) {
+                const moreBack = popFirst(backwards);
+                if (moreBack) {
+                    yield moreBack;
+                }
+            }
+            yield fuseRanges(firstUnit, back);
+        } else if (resolve === Boundary.Both && (!firstUnit?.start || !firstUnit?.end)) {
+            yield fuseRanges(firstUnit, back);
         } else {
             yield firstUnit;
         }
@@ -442,7 +458,7 @@ function* resolveUnitBoundaries(
     if (!firstUnit) {
         return;
     } else {
-        const backwards = unitsForDoc(document, from, unit, !forward);
+        backwards = unitsForDoc(document, from, unit, !forward);
         let back = popFirst(backwards);
         while (boundsMatch(back, firstUnit)) {
             back = popFirst(backwards);

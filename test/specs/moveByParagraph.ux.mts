@@ -43,6 +43,8 @@ describe('Paragraph Motion', () => {
         expect(cleanWhitespace(result)).toEqual(str);
     }
 
+    // TODO: add tests for position of active cursor location
+
     it('Can move by start+end', async () => {
         await editor.moveCursor(1, 1);
 
