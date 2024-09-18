@@ -155,6 +155,20 @@ function* singleLineUnitsForDoc(
                 end: new vscode.Position(i, start + len),
             };
         });
+        // end/start of document boundaries
+        if (i >= doc.lineCount - 1) {
+            const last = lastPosition(doc);
+            yield {
+                start: last,
+                end: last,
+            };
+        } else if (i === 0 && !forwards) {
+            const first = new vscode.Position(0, 0);
+            yield {
+                start: first,
+                end: first,
+            };
+        }
         offset = undefined;
     }
 }
@@ -215,7 +229,7 @@ function unitsForDoc(
     from: vscode.Position,
     unit: Unit,
     forward: boolean
-) {
+): Generator<Range> {
     if (unit instanceof RegExp) {
         return singleLineUnitsForDoc(document, from, unit, false, forward);
     } else {
@@ -223,7 +237,7 @@ function unitsForDoc(
     }
 }
 
-export function first<T>(x: Iterable<T>): T | undefined {
+export function popFirst<T>(x: Iterable<T>): T | undefined {
     const itr: Iterator<T> = x[Symbol.iterator]();
     const result: IteratorResult<T, T> = itr.next();
     if (!result.done) {
@@ -389,15 +403,10 @@ function toBoundary(args: {boundary?: string}) {
     }
 }
 
-// this handles unit cleanup when looking for two boundaries, it handles two
-// problesm:
-// 1. when you look for units in one direction sometime you miss the start (or
-//    end) of a unit you're in the middle of (for multi-line units in particular).
-//    If we want to resolve the boundaries of a unit, we need to look
-//    backwards from the starting position.
-// 2. when you get to the end of the document you need to treat the edge of the
-//    document as unit boundaries to make things work out cleanly for
-//    'start-only' and `end-only` boundary resolution
+// this handles unit cleanup when looking for two boundaries: when you look for units in one
+// direction sometime you miss the start (or end) of a unit you're in the middle of (for
+// multi-line units in particular). If we want to resolve the boundaries of a unit, we need
+// to look backwards from the starting position.
 function* resolveUnitBoundaries(
     resolve: Boundary | undefined,
     units: Generator<Range>,
@@ -406,116 +415,46 @@ function* resolveUnitBoundaries(
     unit: Unit,
     forward: boolean
 ): Generator<Range> {
-    function* resolveUnit(first_unit: Range | undefined) {
+    function* resolveUnit(firstUnit: Range | undefined): Generator<Range> {
         const backwards = unitsForDoc(document, from, unit, !forward);
-        let foundUnit = false;
-        function* resolveHelper(back: Range) {
-            if (resolve === Boundary.Start) {
-                if (back.start) {
+        function* resolveHelper(back: Range): Generator<Range> {
+            if (resolve === Boundary.Start && !firstUnit?.start) {
+                yield back;
+                const next = popFirst(units);
+                if (next) yield next;
+            } else if (resolve === Boundary.End && !firstUnit?.end) {
+                yield back;
+                const next = popFirst(units);
+                if (next) yield next;
+            } else if (!firstUnit?.start || !firstUnit?.end) {
+                if (back.start && back.end) {
                     yield back;
-                    if (first_unit?.start) {
-                        yield first_unit;
-                    } else {
-                        const next = first(units);
-                        if (next?.start) {
-                            yield next;
-                        } else {
-                            yield {
-                                start: forward ? lastPosition(document) : firstPosition(),
-                            };
-                        }
-                    }
-                    foundUnit = true;
+                } else if (back.start && firstUnit?.end) {
+                    yield {start: back.start, end: firstUnit.end};
+                } else if (back.end && firstUnit?.start) {
+                    yield {start: firstUnit.start, end: back.end};
                 }
-            } else if (resolve === Boundary.End) {
-                if (back.end) {
-                    yield back;
-                    if (first_unit?.end) yield first_unit;
-                    else {
-                        const next = first(units);
-                        if (next?.end) yield next;
-                        else {
-                            yield {
-                                end: forward ? lastPosition(document) : firstPosition(),
-                            };
-                        }
-                    }
-                    foundUnit = true;
-                }
-            } else if (back.start) {
-                if (back.end) {
-                    foundUnit = true;
-                    yield back;
-                } else if (first_unit?.end) {
-                    foundUnit = true;
-                    yield {start: back.start, end: first_unit.end};
-                }
-                if (first_unit?.end && first_unit?.start) {
-                    yield first_unit;
-                    foundUnit = true;
-                }
-            } else if (first_unit?.end && first_unit?.start) {
-                yield first_unit;
-                foundUnit = true;
-            }
-        }
-        for (const back of backwards) {
-            yield* resolveHelper(back);
-            if (foundUnit) return;
-        }
-
-        if (resolve !== Boundary.Both) {
-            if (forward) {
-                const first = firstPosition();
-                yield* resolveHelper({start: first, end: first});
             } else {
-                const last = lastPosition(document);
-                yield* resolveHelper({start: last, end: last});
+                yield firstUnit;
             }
         }
+
+        const back = popFirst(backwards);
+        if (back) {
+            yield* resolveHelper(back);
+        }
+        return;
     }
 
-    const first_unit = first(units);
-    if (first_unit) {
-        if (forward) {
-            if (
-                resolve === Boundary.End
-                    ? !first_unit.end || first_unit.end.isAfter(from)
-                    : !first_unit.start || first_unit.start.isAfter(from)
-            ) {
-                yield* resolveUnit(first_unit);
-            } else yield first_unit;
-        } else if (
-            resolve === Boundary.Start
-                ? !first_unit.start || first_unit.start.isBefore(from)
-                : !first_unit.end || first_unit.end.isBefore(from)
-        ) {
-            yield* resolveUnit(first_unit);
-        } else {
-            yield first_unit;
-        }
-    } else {
-        yield* resolveUnit(first_unit);
-    }
+    const firstUnit = popFirst(units);
+    yield* resolveUnit(firstUnit);
     yield* units;
-    if (resolve !== Boundary.Both) {
-        if (forward) {
-            const last = lastPosition(document);
-            yield {start: last, end: last};
-        } else {
-            const first = firstPosition();
-            yield {start: first, end: first};
-        }
-    }
 }
 
 function lastPosition(document: vscode.TextDocument) {
     const last = document.lineCount - 1;
     const endCol = document.lineAt(last).range.end.character;
     return new vscode.Position(last, endCol);
-}
-function firstPosition() {
-    return new vscode.Position(0, 0);
 }
 
 function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
@@ -552,44 +491,25 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                 if (x.end) yield withStart(x.end);
             }
         }
-        // treat the edge of the document as a boundary as well
-        if (forward) {
-            yield withStart(lastPosition(editor.document));
-        } else {
-            yield withStart(firstPosition());
-        }
     }
 
     // translate a sequence of units (regex start and stop boundaries)
     // to a sequence of selections: the selections surround a single
     // unit around from start-to-start, end-to-end or start-to-end
-    function* selectUnits(xs: Generator<Range>, forward: boolean) {
+    function* selectUnits(xs: Generator<Range>) {
         let last: vscode.Position | undefined | null = null;
         let current: vscode.Position | undefined | null;
         for (const x of xs) {
-            if (boundary !== Boundary.Both) {
+            if (boundary === Boundary.Both) {
+                if (x.start && x.end) {
+                    yield new vscode.Selection(x.start, x.end);
+                }
+            } else {
                 last = current;
                 current = boundary === Boundary.Start ? x.start : x.end;
                 if (current && last) {
                     yield new vscode.Selection(last, current);
                 }
-            } else {
-                if (!x.start || !x.end) throw new Error('Unexpected missing range bound');
-                if (forward) yield new vscode.Selection(x.start, x.end);
-                else yield new vscode.Selection(x.start, x.end);
-            }
-        }
-        if (boundary !== Boundary.Both) {
-            if (forward) {
-                if (current === undefined)
-                    throw new Error('Unexpected missing range bound');
-                else if (current !== null)
-                    yield new vscode.Selection(current, lastPosition(editor.document));
-            } else {
-                if (current === undefined)
-                    throw new Error('Unexpected missing range bound');
-                else if (current !== null)
-                    yield new vscode.Selection(current, firstPosition());
             }
         }
     }
@@ -611,26 +531,26 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                 unit,
                 forward
             );
-            selections = selectUnits(resolved, forward);
+            selections = selectUnits(resolved);
         } else {
             selections = selectBoundaries(units, holdSelect ? select.anchor : undefined);
         }
-        let count = 0;
+        let count = 0; // how many selections have we advanced?
         let lastsel;
         let startSel: vscode.Position | undefined = undefined;
         for (const sel of selections) {
             if (count > 0 || !boundsMatch(sel, select)) {
-                if (
-                    forward
-                        ? sel.end.isAfter(select.active)
-                        : sel.start.isBefore(select.active)
-                )
+                if (forward && sel.end.isAfter(select.active)) {
                     count += 1;
+                } else if (!forward && sel.start.isBefore(select.active)) {
+                    count += 1;
+                }
                 if (count === 1) {
                     startSel = sel.anchor;
                 }
             }
             if (count >= steps) {
+                // do we need the selection to start from the first selection region?
                 if (!selectOneUnit && startSel && selectWholeUnit) {
                     return new vscode.Selection(startSel, sel.active);
                 } else {
