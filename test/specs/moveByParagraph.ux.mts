@@ -85,15 +85,12 @@ describe('Paragraph Motion', () => {
         );
     });
 
-    // DEBUG: fix bug found in this test!! (probably same as the equivalent
-    // test in the by-subword test)
-    it.skip('Can move by end', async () => {
+    it('Can move by end', async () => {
         await editor.moveCursor(1, 1);
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'end'},
-            `
-            aaaa
+            `aaaa
             aaaa`
         );
         await parMoveSelects(
@@ -120,8 +117,7 @@ describe('Paragraph Motion', () => {
         );
     });
 
-    // DEBUG: fix bug in this motion
-    it.skip('Can move backwards by end', async () => {
+    it('Can move backwards by end', async () => {
         await editor.moveCursor(6, 1);
 
         await parMoveSelects(
@@ -134,8 +130,7 @@ describe('Paragraph Motion', () => {
         );
     });
 
-    // DEBUG: fix bug in this motion
-    it.skip('Can move backwards by start+end', async () => {
+    it('Can move backwards by start+end', async () => {
         await editor.moveCursor(6, 1);
 
         await parMoveSelects(
