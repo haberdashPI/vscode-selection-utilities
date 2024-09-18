@@ -69,7 +69,7 @@ export async function clearNotifications(workbench: Workbench) {
 }
 
 export function cleanWhitespace(str: string) {
-    let result = replaceAll(str, /^[^\n\r\w]+(?=[\S\n\r])/gm, '');
+    let result = replaceAll(str, /^[^\n\r\S]+(?=[\S\n\r])/gm, '');
     result = replaceAll(result, /^[^\n\r\S]+$/gm, '');
     return result;
 }
