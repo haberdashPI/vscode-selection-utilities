@@ -282,6 +282,32 @@ describe('Paragraph Motion', () => {
         );
     });
 
+    it('Can extend to "end" at file end', async () => {
+        await editor.moveCursor(16, 1);
+
+        await parMoveSelects(
+            {select: true, boundary: 'end', value: 1},
+            `wizard
+            bizard
+            milo
+            philo
+            dough
+
+
+            `
+        );
+    });
+
+    it('Can extend to "start" at file start', async () => {
+        await editor.moveCursor(2, 1);
+
+        await parMoveSelects(
+            {select: true, boundary: 'start', value: -1},
+            `# A
+            `
+        );
+    });
+
     after(async () => {
         await storeCoverageStats('sectionMotion');
     });

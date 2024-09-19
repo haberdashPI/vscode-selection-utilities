@@ -240,6 +240,27 @@ describe('Paragraph Motion', () => {
         );
     });
 
+    it('Can extent to "end" at file end', async () => {
+        await editor.moveCursor(9, 1);
+
+        await parMoveSelects(
+            {select: true, boundary: 'end', value: 1},
+            `cccc
+            cccc
+            `
+        );
+    });
+
+    it('Can extent to "start" at file start', async () => {
+        await editor.moveCursor(2, 1);
+
+        await parMoveSelects(
+            {select: true, boundary: 'start', value: -1},
+            `aaaa
+            `
+        );
+    });
+
     after(async () => {
         await storeCoverageStats('paragraphMotion');
     });
