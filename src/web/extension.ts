@@ -8,6 +8,7 @@ import {registerSelectionModifiers} from './selectionModifiers';
 import {registerSelectionFilters} from './selectionFilters';
 import {registerSelectionAlignments} from './selectionAlignment';
 import {registerSymmetricModifiers} from './symmetricModifiers';
+import {registerTextModifiers} from './textModifiers';
 
 declare let __coverage__: object;
 export function activate(context: vscode.ExtensionContext) {
@@ -26,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerSelectionFilters(context);
     registerSelectionAlignments(context);
     registerSymmetricModifiers(context);
+    registerTextModifiers(context);
 
     if (process.env.COVERAGE) {
         context.subscriptions.push(
