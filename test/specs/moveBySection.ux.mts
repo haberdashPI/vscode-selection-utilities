@@ -97,6 +97,18 @@ describe('Section Motion', () => {
 
             `
         );
+
+        await editor.moveCursor(10, 1);
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'start'},
+            `# B
+            # --------------------
+
+            billybob
+            bim
+
+            `
+        );
     });
 
     it('Can move by end', async () => {
@@ -115,6 +127,19 @@ describe('Section Motion', () => {
             bizzle
 
             # B
+            # --------------------`
+        );
+
+        await editor.moveCursor(9, 1);
+
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'end'},
+            `
+
+            billybob
+            bim
+
+            # A.2
             # --------------------`
         );
     });
@@ -136,6 +161,17 @@ describe('Section Motion', () => {
 
     it('Can move backwards by end', async () => {
         await editor.moveCursor(9, 1);
+
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'end', value: -1},
+            `
+
+            billybob
+            bim
+
+            # A.2
+            # --------------------`
+        );
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'end', value: -1},
