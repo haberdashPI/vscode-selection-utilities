@@ -1,5 +1,3 @@
-// start with just some basic tests to verify all is well
-
 import '@wdio/globals';
 import 'wdio-vscode-service';
 import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';

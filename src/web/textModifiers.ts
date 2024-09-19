@@ -8,8 +8,11 @@ interface NumberUpdateArgs {
 function changeNumberHelper(text: string, index: number, args: NumberUpdateArgs) {
     let number = parseInt(text);
     const step = args.by || 1;
-    const offset = step * (args.stepEachSelection ? 1 : 0) * index;
-    number += step + offset;
+    if (args.stepEachSelection) {
+        number += step * index;
+    } else {
+        number += step;
+    }
     return number.toString();
 }
 
