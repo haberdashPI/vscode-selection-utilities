@@ -241,12 +241,11 @@ describe('Paragraph Motion', () => {
     });
 
     it('Can extent to "end" at file end', async () => {
-        await editor.moveCursor(9, 1);
+        await editor.moveCursor(10, 5);
 
         await parMoveSelects(
             {select: true, boundary: 'end', value: 1},
-            `cccc
-            cccc
+            `
             `
         );
     });
