@@ -136,10 +136,10 @@ describe('Section Motion', () => {
             {selectWhole: true, boundary: 'end'},
             `
 
-            joebob
-            bizzle
+            billybob
+            bim
 
-            # B
+            # A.2
             # --------------------`
         );
     });
@@ -161,6 +161,17 @@ describe('Section Motion', () => {
 
     it('Can move backwards by end', async () => {
         await editor.moveCursor(9, 1);
+
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'end', value: -1},
+            `
+
+            billybob
+            bim
+
+            # A.2
+            # --------------------`
+        );
 
         await parMoveSelects(
             {selectWhole: true, boundary: 'end', value: -1},
