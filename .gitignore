@@ -8,7 +8,7 @@ dist/*
 .DS_Store
 .cache/
 .parcel-cache
-wdio.conf.mts
 .wdio-vscode-service
 wdio.log
 coverage/**
+.package.json

@@ -2,6 +2,7 @@ import {browser, expect} from '@wdio/globals';
 import 'wdio-vscode-service';
 import {Key} from 'webdriverio';
 import {InputBox, TextEditor, Workbench, sleep} from 'wdio-vscode-service';
+import replaceAll from 'string.prototype.replaceall';
 import loadash from 'lodash';
 const {isEqual} = loadash;
 import * as fs from 'fs';
@@ -67,7 +68,14 @@ export async function clearNotifications(workbench: Workbench) {
     }
 }
 
+export function cleanWhitespace(str: string) {
+    let result = replaceAll(str, /^[^\n\r\S]+(?=[\S\n\r])/gm, '');
+    result = replaceAll(result, /^[^\n\r\S]+$/gm, '');
+    return result;
+}
+
 export async function setupEditor(str: string) {
+    str = cleanWhitespace(str);
     const workbench = await browser.getWorkbench();
 
     // clear any older notificatoins
@@ -82,7 +90,7 @@ export async function setupEditor(str: string) {
     // NOTE: setting editor text is somewhat flakey, so we verify that it worked
     console.log('[DEBUG]: setting text to: ' + str.slice(0, 200) + '...');
     await editor.setText(str);
-    await sleep(300);
+    await sleep(1000);
     await waitUntilCursorUnmoving(editor);
     const text = await editor.getText();
 
@@ -92,10 +100,6 @@ export async function setupEditor(str: string) {
     console.log('[DEBUG]: Focusing editor');
     await editor.moveCursor(1, 1);
 
-    // NOTE: I often see flaky tests at the very start of a spec. My first guess is we need
-    // to give some time for the editor to finish loading stuff asynchronously from
-    // `setupEditor` before it is responsive again.
-    await sleep(1000);
     return editor;
 }
 

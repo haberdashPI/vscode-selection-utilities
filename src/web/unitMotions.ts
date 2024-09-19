@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {updateView} from './selectionMemory';
 import {clampedLineTranslate, IHash} from './util';
+import {cloneDeep} from 'lodash';
 
 interface MoveByArgs {
     unit?: string;
@@ -132,9 +133,16 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
     }
 }
 
+enum RangePosition {
+    First,
+    Middle,
+    Last,
+}
+
 interface Range {
     start?: vscode.Position;
     end?: vscode.Position;
+    position?: RangePosition;
 }
 
 function* singleLineUnitsForDoc(
@@ -181,11 +189,12 @@ function* linesOf(
 }
 
 function* regexMatches(
-    matcher: RegExp,
+    matcher_: RegExp,
     line: string,
     forward: boolean,
     offset: number | undefined
 ): Generator<[number, number]> {
+    const matcher = cloneDeep(matcher_);
     matcher.lastIndex = 0;
     let match = matcher.exec(line);
     while (match) {
@@ -210,20 +219,37 @@ function* mapIter<T, R>(iter: Iterable<T>, fn: (x: T) => R) {
 }
 
 type Unit = RegExp | MultiLineUnit | string[];
-function unitsForDoc(
-    document: vscode.TextDocument,
+function* unitsForDoc(
+    doc: vscode.TextDocument,
     from: vscode.Position,
     unit: Unit,
     forward: boolean
-) {
+): Generator<Range> {
+    // 'units' to denote the start/end of a document (avoids edge cases downstream)
+    const first = new vscode.Position(0, 0);
+    const startUnit = {
+        start: first,
+        end: first,
+        position: RangePosition.First,
+    };
+
+    const last = lastPosition(doc);
+    const endUnit = {
+        start: last,
+        end: last,
+        position: RangePosition.Last,
+    };
+
     if (unit instanceof RegExp) {
-        return singleLineUnitsForDoc(document, from, unit, false, forward);
+        yield* singleLineUnitsForDoc(doc, from, unit, false, forward);
     } else {
-        return multiLineUnitsForDoc(document, from, unit as MultiLineUnit, forward);
+        yield* multiLineUnitsForDoc(doc, from, unit as MultiLineUnit, forward);
     }
+
+    yield forward ? endUnit : startUnit;
 }
 
-export function first<T>(x: Iterable<T>): T | undefined {
+export function popFirst<T>(x: Iterable<T>): T | undefined {
     const itr: Iterator<T> = x[Symbol.iterator]();
     const result: IteratorResult<T, T> = itr.next();
     if (!result.done) {
@@ -264,11 +290,11 @@ function* singleRegexUnitsForDoc(
     unit: MultiLineUnit,
     forward: boolean
 ) {
-    let first_match: undefined | null | number = undefined;
+    let firstMatch: undefined | null | number = undefined;
     function closeMatch(line: number) {
-        if (first_match !== undefined) {
-            const startLine: null | number = forward ? first_match : line + 1;
-            const endLine: null | number = forward ? line - 1 : first_match;
+        if (firstMatch !== undefined) {
+            const startLine: null | number = forward ? firstMatch : line + 1;
+            const endLine: null | number = forward ? line - 1 : firstMatch;
             let endCol: null | number = null;
             if (endLine !== null) {
                 endCol = document.lineAt(new vscode.Position(endLine, 0)).range.end
@@ -292,14 +318,14 @@ function* singleRegexUnitsForDoc(
                 // fall in the middle of a sequence of matching lines we
                 // represent the fact that we dont' know where this sequence
                 // starts using `null`
-                first_match = null;
-            } else if (first_match === undefined) {
-                first_match = line;
+                firstMatch = null;
+            } else if (firstMatch === undefined) {
+                firstMatch = line;
             }
         } else {
             const result = closeMatch(line);
             if (result !== undefined) {
-                first_match = undefined;
+                firstMatch = undefined;
                 yield result;
             }
         }
@@ -348,15 +374,15 @@ function* multiRegexUnitsForDoc(
 }
 
 function* multiLineUnitsForDoc(
-    document: vscode.TextDocument,
+    doc: vscode.TextDocument,
     from: vscode.Position,
     unit: MultiLineUnit,
     forward: boolean
 ): Generator<Range> {
     if (unit.regexs.length > 1) {
-        yield* multiRegexUnitsForDoc(document, from, unit, forward);
+        yield* multiRegexUnitsForDoc(doc, from, unit, forward);
     } else {
-        yield* singleRegexUnitsForDoc(document, from, unit, forward);
+        yield* singleRegexUnitsForDoc(doc, from, unit, forward);
     }
 }
 
@@ -389,15 +415,20 @@ function toBoundary(args: {boundary?: string}) {
     }
 }
 
-// this handles unit cleanup when looking for two boundaries, it handles two
-// problesm:
-// 1. when you look for units in one direction sometime you miss the start (or
-//    end) of a unit you're in the middle of (for multi-line units in particular).
-//    If we want to resolve the boundaries of a unit, we need to look
-//    backwards from the starting position.
-// 2. when you get to the end of the document you need to treat the edge of the
-//    document as unit boundaries to make things work out cleanly for
-//    'start-only' and `end-only` boundary resolution
+function fuseRanges(a: Range, b: Range): Range {
+    if (!a?.start) {
+        return {start: b?.start, end: a?.end};
+    } else if (!a?.end) {
+        return {start: a?.start, end: b?.end};
+    } else {
+        return a;
+    }
+}
+
+// this handles unit cleanup when looking for two boundaries: when you look for units in one
+// direction sometime you miss the start (or end) of a unit you're in the middle of (for
+// multi-line units in particular). If we want to resolve the boundaries of a unit, we need
+// to look backwards from the starting position.
 function* resolveUnitBoundaries(
     resolve: Boundary | undefined,
     units: Generator<Range>,
@@ -406,103 +437,81 @@ function* resolveUnitBoundaries(
     unit: Unit,
     forward: boolean
 ): Generator<Range> {
-    function* resolveUnit(first_unit: Range | undefined) {
-        const backwards = unitsForDoc(document, from, unit, !forward);
-        let foundUnit = false;
-        function* resolveHelper(back: Range) {
-            if (resolve === Boundary.Start) {
-                if (back.start) {
-                    yield back;
-                    if (first_unit?.start) {
-                        yield first_unit;
-                    } else {
-                        const next = first(units);
-                        if (next?.start) {
-                            yield next;
-                        } else {
-                            yield {
-                                start: forward ? lastPosition(document) : firstPosition(),
-                            };
-                        }
-                    }
-                    foundUnit = true;
-                }
-            } else if (resolve === Boundary.End) {
-                if (back.end) {
-                    yield back;
-                    if (first_unit?.end) yield first_unit;
-                    else {
-                        const next = first(units);
-                        if (next?.end) yield next;
-                        else {
-                            yield {
-                                end: forward ? lastPosition(document) : firstPosition(),
-                            };
-                        }
-                    }
-                    foundUnit = true;
-                }
-            } else if (back.start) {
-                if (back.end) {
-                    foundUnit = true;
-                    yield back;
-                } else if (first_unit?.end) {
-                    foundUnit = true;
-                    yield {start: back.start, end: first_unit.end};
-                }
-                if (first_unit?.end && first_unit?.start) {
-                    yield first_unit;
-                    foundUnit = true;
-                }
-            }
-        }
-        for (const back of backwards) {
-            yield* resolveHelper(back);
-            if (foundUnit) return;
-        }
-
-        if (resolve !== Boundary.Both) {
+    let backwards: Generator<Range>;
+    function* resolveHelper(firstUnit: Range, back: Range): Generator<Range> {
+        if (resolve === Boundary.Start && (!firstUnit?.start || !forward)) {
             if (forward) {
-                const first = firstPosition();
-                yield* resolveHelper({start: first, end: first});
+                if (!firstUnit?.start) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                if (back.position !== RangePosition.First) {
+                    yield back;
+                }
+                yield firstUnit;
             } else {
-                const last = lastPosition(document);
-                yield* resolveHelper({start: last, end: last});
+                if (!back?.start) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                if (back.position !== RangePosition.First) {
+                    yield back;
+                }
+                yield firstUnit;
             }
+        } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
+            if (!forward) {
+                if (!firstUnit?.end) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                if (back.position !== RangePosition.Last) {
+                    yield back;
+                }
+                yield firstUnit;
+            } else {
+                if (!back?.end) {
+                    firstUnit = fuseRanges(firstUnit, back);
+                    const moreBack = popFirst(backwards);
+                    if (moreBack) {
+                        back = moreBack;
+                    }
+                }
+                if (back.position !== RangePosition.Last) {
+                    yield back;
+                }
+                yield firstUnit;
+            }
+        } else if (resolve === Boundary.Both && (!firstUnit?.start || !firstUnit?.end)) {
+            yield fuseRanges(firstUnit, back);
+        } else {
+            yield firstUnit;
         }
     }
 
-    const first_unit = first(units);
-    if (first_unit) {
-        if (forward) {
-            if (
-                resolve === Boundary.End
-                    ? !first_unit.end || first_unit.end.isAfter(from)
-                    : !first_unit.start || first_unit.start.isAfter(from)
-            ) {
-                yield* resolveUnit(first_unit);
-            } else yield first_unit;
-        } else if (
-            resolve === Boundary.Start
-                ? !first_unit.start || first_unit.start.isBefore(from)
-                : !first_unit.end || first_unit.end.isBefore(from)
-        ) {
-            yield* resolveUnit(first_unit);
-        } else {
-            yield first_unit;
-        }
+    // TODO: this is where I'm currently stumped
+    const firstUnit = popFirst(units);
+    if (!firstUnit) {
+        return;
     } else {
-        yield* resolveUnit(first_unit);
-    }
-    yield* units;
-    if (resolve !== Boundary.Both) {
-        if (forward) {
-            const last = lastPosition(document);
-            yield {start: last, end: last};
-        } else {
-            const first = firstPosition();
-            yield {start: first, end: first};
+        backwards = unitsForDoc(document, from, unit, !forward);
+        let back = popFirst(backwards);
+        while (boundsMatch(back, firstUnit)) {
+            back = popFirst(backwards);
         }
+        if (back) {
+            yield* resolveHelper(firstUnit, back);
+        }
+        yield* units;
     }
 }
 
@@ -510,9 +519,6 @@ function lastPosition(document: vscode.TextDocument) {
     const last = document.lineCount - 1;
     const endCol = document.lineAt(last).range.end.character;
     return new vscode.Position(last, endCol);
-}
-function firstPosition() {
-    return new vscode.Position(0, 0);
 }
 
 function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
@@ -549,44 +555,35 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                 if (x.end) yield withStart(x.end);
             }
         }
-        // treat the edge of the document as a boundary as well
-        if (forward) {
-            yield withStart(lastPosition(editor.document));
-        } else {
-            yield withStart(firstPosition());
-        }
     }
 
     // translate a sequence of units (regex start and stop boundaries)
     // to a sequence of selections: the selections surround a single
     // unit around from start-to-start, end-to-end or start-to-end
-    function* selectUnits(xs: Generator<Range>, forward: boolean) {
-        let last: vscode.Position | undefined | null = null;
-        let current: vscode.Position | undefined | null;
-        for (const x of xs) {
-            if (boundary !== Boundary.Both) {
+    function* selectUnits(xs: Generator<Range>) {
+        if (boundary === Boundary.Both) {
+            for (const x of xs) {
+                if (x.start && x.end) {
+                    if (forward) {
+                        yield new vscode.Selection(x.start, x.end);
+                    } else {
+                        yield new vscode.Selection(x.end, x.start);
+                    }
+                }
+            }
+        } else {
+            let last: vscode.Position | undefined = undefined;
+            let current: vscode.Position | undefined = undefined;
+            for (const x of xs) {
                 last = current;
-                current = boundary === Boundary.Start ? x.start : x.end;
-                if (current && last) {
+                if (boundary === Boundary.Start) {
+                    current = x.start;
+                } else {
+                    current = x.end;
+                }
+                if (current !== undefined && last !== undefined) {
                     yield new vscode.Selection(last, current);
                 }
-            } else {
-                if (!x.start || !x.end) throw new Error('Unexpected missing range bound');
-                if (forward) yield new vscode.Selection(x.start, x.end);
-                else yield new vscode.Selection(x.start, x.end);
-            }
-        }
-        if (boundary !== Boundary.Both) {
-            if (forward) {
-                if (current === undefined)
-                    throw new Error('Unexpected missing range bound');
-                else if (current !== null)
-                    yield new vscode.Selection(current, lastPosition(editor.document));
-            } else {
-                if (current === undefined)
-                    throw new Error('Unexpected missing range bound');
-                else if (current !== null)
-                    yield new vscode.Selection(current, firstPosition());
             }
         }
     }
@@ -608,26 +605,26 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
                 unit,
                 forward
             );
-            selections = selectUnits(resolved, forward);
+            selections = selectUnits(resolved);
         } else {
             selections = selectBoundaries(units, holdSelect ? select.anchor : undefined);
         }
-        let count = 0;
+        let count = 0; // how many selections have we advanced?
         let lastsel;
         let startSel: vscode.Position | undefined = undefined;
         for (const sel of selections) {
             if (count > 0 || !boundsMatch(sel, select)) {
-                if (
-                    forward
-                        ? sel.end.isAfter(select.active)
-                        : sel.start.isBefore(select.active)
-                )
+                if (forward && sel.end.isAfter(select.active)) {
                     count += 1;
+                } else if (!forward && sel.start.isBefore(select.active)) {
+                    count += 1;
+                }
                 if (count === 1) {
                     startSel = sel.anchor;
                 }
             }
             if (count >= steps) {
+                // do we need the selection to start from the first selection region?
                 if (!selectOneUnit && startSel && selectWholeUnit) {
                     return new vscode.Selection(startSel, sel.active);
                 } else {
@@ -647,11 +644,22 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
     };
 }
 
-function boundsMatch(x: vscode.Selection, y: vscode.Selection) {
-    return (
-        (x.start.isEqual(y.start) && x.end.isEqual(y.end)) ||
-        (x.end.isEqual(y.start) && x.start.isEqual(y.end))
-    );
+function boundsMatch(x: Range | undefined, y: Range | undefined) {
+    let startEqual = false;
+    if (x?.start === undefined && y?.start === undefined) {
+        startEqual = true;
+    } else if (x?.start && y?.start) {
+        startEqual = x?.start.isEqual(y.start);
+    }
+
+    let endEqual = false;
+    if (x?.end === undefined && y?.end === undefined) {
+        endEqual = true;
+    } else if (x?.end && y?.end) {
+        endEqual = x?.end.isEqual(y.end);
+    }
+
+    return startEqual && endEqual;
 }
 
 function narrowTo(

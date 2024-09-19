@@ -24,6 +24,7 @@
 			"debugWebWorkerHost": true,
 			"request": "launch",
 			"args": [
+                "--profile=debug-profile",
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionDevelopmentKind=web"
 			],

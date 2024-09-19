@@ -4,7 +4,7 @@
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/vscode-selection-utilities",
   "description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.92.0"
@@ -45,6 +45,10 @@
               {
                 "name": "word",
                 "regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))"
+              },
+              {
+                "name": "number",
+                "regex": "[0-9]+"
               },
               {
                 "name": "subword",
@@ -450,6 +454,7 @@
     "nyc": "^17.0.0",
     "penv": "^0.2.0",
     "process": "^0.11.10",
+    "string.prototype.replaceall": "^1.0.10",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.3",
     "wdio-vscode-service": "^6.0.3",
