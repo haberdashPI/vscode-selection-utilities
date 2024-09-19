@@ -97,6 +97,18 @@ describe('Section Motion', () => {
 
             `
         );
+
+        await editor.moveCursor(10, 1);
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'start'},
+            `# B
+            # --------------------
+
+            billybob
+            bim
+
+            `
+        );
     });
 
     it('Can move by end', async () => {
@@ -107,6 +119,19 @@ describe('Section Motion', () => {
             `# A
             # --------------------`
         );
+        await parMoveSelects(
+            {selectWhole: true, boundary: 'end'},
+            `
+
+            joebob
+            bizzle
+
+            # B
+            # --------------------`
+        );
+
+        await editor.moveCursor(9, 1);
+
         await parMoveSelects(
             {selectWhole: true, boundary: 'end'},
             `
