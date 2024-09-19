@@ -10,7 +10,7 @@ import {
 } from './utils.mts';
 import {TextEditor} from 'wdio-vscode-service';
 
-describe('Paragraph Motion', () => {
+describe('Section Motion', () => {
     let editor: TextEditor;
     before(async () => {
         editor = await setupEditor(`# A
