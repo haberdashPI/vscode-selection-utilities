@@ -133,9 +133,16 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
     }
 }
 
+enum RangePosition {
+    First,
+    Middle,
+    Last,
+}
+
 interface Range {
     start?: vscode.Position;
     end?: vscode.Position;
+    position?: RangePosition;
 }
 
 function* singleLineUnitsForDoc(
@@ -219,12 +226,18 @@ function* unitsForDoc(
     forward: boolean
 ): Generator<Range> {
     // 'units' to denote the start/end of a document (avoids edge cases downstream)
+    const first = new vscode.Position(0, 0);
     const startUnit = {
-        end: new vscode.Position(0, 0),
+        start: first,
+        end: first,
+        position: RangePosition.First,
     };
 
+    const last = lastPosition(doc);
     const endUnit = {
-        start: lastPosition(doc),
+        start: last,
+        end: last,
+        position: RangePosition.Last,
     };
 
     if (unit instanceof RegExp) {
@@ -403,9 +416,9 @@ function toBoundary(args: {boundary?: string}) {
 }
 
 function fuseRanges(a: Range, b: Range): Range {
-    if (!a?.start && !b?.end) {
+    if (!a?.start) {
         return {start: b?.start, end: a?.end};
-    } else if (!b?.start && !a?.end) {
+    } else if (!a?.end) {
         return {start: a?.start, end: b?.end};
     } else {
         return a;
@@ -435,7 +448,9 @@ function* resolveUnitBoundaries(
                         back = moreBack;
                     }
                 }
-                yield back;
+                if (back.position !== RangePosition.First) {
+                    yield back;
+                }
                 yield firstUnit;
             } else {
                 if (!back?.start) {
@@ -445,7 +460,9 @@ function* resolveUnitBoundaries(
                         back = moreBack;
                     }
                 }
-                yield back;
+                if (back.position !== RangePosition.First) {
+                    yield back;
+                }
                 yield firstUnit;
             }
         } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
@@ -457,7 +474,9 @@ function* resolveUnitBoundaries(
                         back = moreBack;
                     }
                 }
-                yield back;
+                if (back.position !== RangePosition.Last) {
+                    yield back;
+                }
                 yield firstUnit;
             } else {
                 if (!back?.end) {
@@ -467,7 +486,9 @@ function* resolveUnitBoundaries(
                         back = moreBack;
                     }
                 }
-                yield back;
+                if (back.position !== RangePosition.Last) {
+                    yield back;
+                }
                 yield firstUnit;
             }
         } else if (resolve === Boundary.Both && (!firstUnit?.start || !firstUnit?.end)) {
