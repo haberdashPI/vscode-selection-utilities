@@ -4,7 +4,7 @@
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/vscode-selection-utilities",
   "description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.92.0"
@@ -400,6 +400,26 @@
       {
         "command": "selection-utilities.adjustSelections",
         "title": "Adjust selections inwards or outwards",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.incrementNumber",
+        "title": "Increment Number",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.decrementNumber",
+        "title": "Decrement Number",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.incrementNumberPerSelection",
+        "title": "Increment Number Per Selection",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.decrementNumberPerSelection",
+        "title": "Decrement Number Per Selection",
         "category": "Selection Utilities"
       }
     ]
