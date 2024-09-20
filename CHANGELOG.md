@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.6.9]
+
+- **Feature**: add `increment/decrementNumber`
+
+## [0.6.7-8]
+
+- **Bugfix**: thorough examination of edge-cases for unit motions (e.g. subword, word, paragraph, etc...)
+
 ## [0.6.6]
 
 - **Feature**: add `select` flag for command `activePageMove` command
