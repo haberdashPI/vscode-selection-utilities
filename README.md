@@ -4,7 +4,7 @@
 [![CI](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml)
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet)](https://github.com/google/gts)
 
-> [!WARNING] 🚧 under construction 🚧
+> [!WARNING] 🚧 documentation under construction 🚧
 > The documentation for selection utilities is under construction. The [older docs](https://haberdashpi.github.io/vscode-selection-utilities/stable/README.html) are currently accurate, but are missing some new commands, and upcoming updates may change some of the names of commands and their arguments
 
 This extension provides a series of utilities for manipulating, saving and creating both single and multiple selections, many of which are inspired by [Kakoune](http://kakoune.org/).
