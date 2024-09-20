@@ -439,7 +439,7 @@ function* resolveUnitBoundaries(
 ): Generator<Range> {
     let backwards: Generator<Range>;
     function* resolveHelper(firstUnit: Range, back: Range): Generator<Range> {
-        if (resolve === Boundary.Start && (!firstUnit?.start || !forward)) {
+        if (resolve === Boundary.Start) {
             if (forward) {
                 if (!firstUnit?.start) {
                     firstUnit = fuseRanges(firstUnit, back);
@@ -465,7 +465,7 @@ function* resolveUnitBoundaries(
                 }
                 yield firstUnit;
             }
-        } else if (resolve === Boundary.End && (!firstUnit?.end || forward)) {
+        } else if (resolve === Boundary.End) {
             if (!forward) {
                 if (!firstUnit?.end) {
                     firstUnit = fuseRanges(firstUnit, back);
