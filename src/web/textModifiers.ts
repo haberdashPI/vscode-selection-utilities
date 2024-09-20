@@ -23,7 +23,7 @@ function changeNumber(args: NumberUpdateArgs) {
         const badTexts = selTexts.filter(s => !/[0-9]/.test(s));
         if (badTexts.length > 0) {
             vscode.window.showErrorMessage(
-                `The selected text '${badTexts[0]}' is not a number`
+                `The selected text '${badTexts[0]}' is not a number.`
             );
             return;
         }

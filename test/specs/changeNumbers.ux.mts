@@ -1,8 +1,7 @@
 import '@wdio/globals';
 import 'wdio-vscode-service';
-import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
-import {TextEditor} from 'wdio-vscode-service';
-import { moveCursor } from 'readline';
+import {cleanWhitespace, setupEditor, storeCoverageStats} from './utils.mts';
+import {sleep, TextEditor} from 'wdio-vscode-service';
 
 describe('Number changes', () => {
     let editor: TextEditor;
@@ -14,17 +13,25 @@ describe('Number changes', () => {
 
         await editor.moveCursor(1, 1);
 
-        for (let i = 0; i < 4; i++) {
-            await browser.executeWorkbench(vscode => {
-                vscode.commands.executeCommand('editor.action.insertCursorBelow');
+        for (let i = 0; i < 3; i++) {
+            await browser.executeWorkbench(async vscode => {
+                await vscode.commands.executeCommand('editor.action.insertCursorBelow');
             });
+            sleep(100);
         }
 
-        // TODO: select next word here...
+        await browser.executeWorkbench(vscode => {
+            vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                boundary: 'both',
+                selectWhole: true,
+            });
+        });
     }
+
     before(async () => {
-        editor = await setupEditor(`
-            1
+        editor = await setupEditor(`1
             1
             1
             1
@@ -34,65 +41,86 @@ describe('Number changes', () => {
     });
 
     it('can increment numbers', async () => {
-        await browser.executeWorkbench(vscode => {
-            vscode.commands.executeCommand('selection-utilities.incrementNumber');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.incrementNumber');
         });
-        expect(await editor.getText()).toEqual(`
-            2
-            2
-            2
-            2
-        `);
+        await sleep(100);
+        expect(await editor.getText()).toEqual(
+            cleanWhitespace(`2
+                2
+                2
+                2
+            `)
+        );
     });
 
     it('can decrement numbers', async () => {
-        await browser.executeWorkbench(vscode => {
-            vscode.commands.executeCommand('selection-utilities.decrementNumber');
+        await setupCursors();
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.decrementNumber');
         });
-        expect(await editor.getText()).toEqual(`
-            1
-            1
-            1
-            1
-        `);
+        await sleep(100);
+        expect(await editor.getText()).toEqual(
+            cleanWhitespace(`1
+                1
+                1
+                1
+            `)
+        );
     });
 
     it('can increment numbers per selection', async () => {
-        await browser.executeWorkbench(vscode => {
-            vscode.commands.executeCommand(
+        await setupCursors();
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
                 'selection-utilities.incrementNumberPerSelection'
             );
         });
-        expect(await editor.getText()).toEqual(`
-            1
-            2
-            3
-            4
-        `);
+        expect(await editor.getText()).toEqual(
+            cleanWhitespace(`1
+                2
+                3
+                4
+            `)
+        );
     });
 
     it('can decrement numbers per selection', async () => {
-        await browser.executeWorkbench(vscode => {
-            vscode.commands.executeCommand(
+        await setupCursors();
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
                 'selection-utilities.decrementNumberPerSelection'
             );
         });
-        expect(await editor.getText()).toEqual(`
-            1
-            1
-            1
-            1
-        `);
+        expect(await editor.getText()).toEqual(
+            cleanWhitespace(`1
+                1
+                1
+                1
+            `)
+        );
     });
 
     it('errors with bad selection', async () => {
         editor = await setupEditor('a\n');
-        // select word here
-        await browser.executeWorkbench(vscode => {
-            vscode.commands.executeCommand('selection-utilities.incrementNumber');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                boundary: 'both',
+                selectWhole: true,
+            });
         });
 
-        // check notification errors
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.incrementNumber');
+        });
+
+        const workbench = await browser.getWorkbench();
+        const notifs = await Promise.all(
+            (await workbench.getNotifications()).map(n => n.getMessage())
+        );
+        expect(notifs).toContain("The selected text 'a' is not a number.");
     });
 
     after(async () => {
