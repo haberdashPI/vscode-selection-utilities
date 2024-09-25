@@ -68,17 +68,40 @@ function anyNode(x: SyntaxNode) {
     return true
 }
 
+function stepTo(named: boolean, pos: vscode.Range, stepper: (x: SyntaxNode) => SyntaxNode | null): vscode.Range | undefined {
+    let node = await smallestSurroundingNode(named ? isNamed : anyNode, pos);
+    if (node) {
+        const nextNode = stepper(node);
+        if (nextNode) {
+            return toRange(nextNode)
+        }
+    }
+    return undefined;
+}
+
 // STEPS:
 // 1. find node using functions above
 // 2. (lazy?) computation of boundary sequence
 // 3. do we leverage untiMotions over this boundary sequence? (how do we deal with statefulness of cursors?)
 // 3.b - implement expansions separately
 
-export function registerTreeSitter(context: vscode.ExtensionContext) {
+export async function registerTreeSitter(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.nextNamedSibling', () =>
-            smallestSurroundingFilteredChild(isNamed, sel)
-        );
+        vscode.commands.registerCommand(
+            'selection-utilities.selectNextNamedSibling',
+            () => {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    editor.selections = editor.selections.map(sel => {
+                        const sib = stepTo(true, sel, node => node.nextNamedSibling);
+                        if (sib) {
+                            return new vscode.Selection(sib.start, sib.end);
+                        } else {
+                            return sel;
+                        }
+                    });
+                }
+        })
     );
 
     treeSitter = await vscode.extensions.getExtension<TreeSitter>(
