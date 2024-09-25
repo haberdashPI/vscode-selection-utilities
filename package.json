@@ -478,6 +478,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.3",
     "wdio-vscode-service": "^6.0.3",
+    "web-tree-sitter": "^0.23.0",
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4"
   },
