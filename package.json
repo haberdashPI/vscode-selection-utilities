@@ -4,11 +4,14 @@
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/vscode-selection-utilities",
   "description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.92.0"
   },
+  "extensionKind": [
+    "ui"
+  ],
   "categories": [
     "Other"
   ],

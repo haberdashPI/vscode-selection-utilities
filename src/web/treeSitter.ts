@@ -289,10 +289,11 @@ export async function registerTreeSitter(context: vscode.ExtensionContext) {
         )
     );
 
-    // TODO: is the issue here that we're a web extension and tree-sitter is not?
-    // ANSWER: probably, since select by indent did work
+    // TODO: for this to work I think i need the extension to be a "ui" extension
+    // (which *should* be okay) but this will require changing my webpack setup
+    // to ignore node stuff
     const ext = vscode.extensions.getExtension<TreeSitter>('gregoire.tree-sitter');
-    const _ext2 = vscode.extensions.getExtension('haberdashPI.vscode-select-by-indent');
+    const _exts = vscode.extensions.all;
     let loaded = false;
     if (ext) {
         treeSitter = await ext.activate();
