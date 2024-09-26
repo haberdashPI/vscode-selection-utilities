@@ -421,6 +421,11 @@
         "command": "selection-utilities.decrementNumberPerSelection",
         "title": "Decrement Number Per Selection",
         "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.moveBySyntaxNode",
+        "title": "Move cursor by a given syntax unit",
+        "category": "Selection Utilities"
       }
     ]
   },

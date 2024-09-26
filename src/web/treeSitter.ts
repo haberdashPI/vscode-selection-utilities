@@ -289,7 +289,10 @@ export async function registerTreeSitter(context: vscode.ExtensionContext) {
         )
     );
 
-    const ext = await vscode.extensions.getExtension<TreeSitter>('gregoire.tree-sitter');
+    // TODO: is the issue here that we're a web extension and tree-sitter is not?
+    // ANSWER: probably, since select by indent did work
+    const ext = vscode.extensions.getExtension<TreeSitter>('gregoire.tree-sitter');
+    const _ext2 = vscode.extensions.getExtension('haberdashPI.vscode-select-by-indent');
     let loaded = false;
     if (ext) {
         treeSitter = await ext.activate();
