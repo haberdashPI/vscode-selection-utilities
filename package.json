@@ -9,9 +9,6 @@
   "engines": {
     "vscode": "^1.92.0"
   },
-  "extensionKind": [
-    "ui"
-  ],
   "categories": [
     "Other"
   ],

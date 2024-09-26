@@ -3,6 +3,7 @@ import {
     fromPosition,
     toPosition,
     toRange,
+    TreeSitter,
     type SyntaxNode,
     type Cache as TreeCache,
 } from './tree-sitter-api';
@@ -10,6 +11,8 @@ import {
 import {TreeCursor} from 'web-tree-sitter';
 import z from 'zod';
 import {validateInput} from './util';
+// TODO: something is up with this declaration, rexamine how
+// to setup typing for tree-sitter-api
 export type TreeSitter = typeof import('./tree-sitter-api');
 
 let treeSitter: TreeSitter | undefined;
