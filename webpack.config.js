@@ -45,12 +45,14 @@ const webExtensionConfig = (env, argv) => ({
             // provides alternate implementation for node module and source files
         },
         fallback: env['wdio']
-            ? {}
+            ? {fs: false, path: false}
             : {
                   // Webpack 5 no longer polyfills Node.js core modules automatically.
                   // see https://webpack.js.org/configuration/resolve/#resolvefallback
                   // for the list of Node.js core module polyfills.
                   assert: require.resolve('assert'),
+                  fs: false,
+                  path: false,
                   // eslint-disable-next-line n/no-unpublished-require
                   'process/browser': require.resolve('process/browser'),
               },
