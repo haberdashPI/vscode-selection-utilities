@@ -1,21 +1,12 @@
 import * as vscode from 'vscode';
-import {
-    fromPosition,
-    toPosition,
-    toRange,
-    Cache as TreeCache,
-    type SyntaxNode,
-} from './tree-sitter-api';
+import {fromPosition, toPosition, toRange, type SyntaxNode} from './tree-sitter-api';
 // eslint-disable-next-line n/no-unpublished-import
 import {TreeCursor} from 'web-tree-sitter';
 import z from 'zod';
 import {validateInput} from './util';
-// TODO: something is up with this declaration, rexamine how
-// to setup typing for tree-sitter-api
-export type API = typeof import('./tree-sitter-api');
+type API = typeof import('./tree-sitter-api');
 
 let treeSitter: API | undefined;
-let treeCache: TreeCache | undefined;
 
 function smallestSurroundingChild(
     range: vscode.Range,
@@ -60,12 +51,9 @@ async function smallestSurroundingNode(
     document: vscode.TextDocument,
     range: vscode.Range
 ): Promise<SyntaxNode | undefined> {
-    if (treeSitter && treeCache) {
+    if (treeSitter) {
         // TODO: configure timeout??
-        const tree = await treeSitter?.documentTree(document, {
-            cache: treeCache,
-            timeoutMs: 2000,
-        });
+        const tree = await treeSitter.documentTree(document, {timeoutMs: 2000});
         const node = smallestSurroundingChild(range, tree.walk());
         if (node) {
             return node;
@@ -298,9 +286,9 @@ export async function registerTreeSitter(context: vscode.ExtensionContext) {
     const _exts = vscode.extensions.all;
     let loaded = false;
     if (ext) {
-        treeSitter = await ext.activate();
+        await ext.activate();
+        treeSitter = ext.exports;
         if (treeSitter) {
-            treeCache = new TreeCache();
             loaded = true;
         }
     }
