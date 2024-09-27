@@ -59,7 +59,7 @@ magna aute velit id enim.
 import '@wdio/globals';
 import 'wdio-vscode-service';
 import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
-import {TextEditor} from 'wdio-vscode-service';
+import {sleep, TextEditor} from 'wdio-vscode-service';
 
 describe('Active motion', () => {
     let editor: TextEditor;
@@ -157,6 +157,37 @@ describe('Active motion', () => {
 
         await waitUntilCursorUnmoving(editor);
         expect(await editor.getSelectedText()).toEqual('bar biz biz ');
+    });
+
+    it('Can shrink to active', async () => {
+        await editor.moveCursor(1, 1);
+        await browser.executeWorkbench(vscode => {
+            vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 3,
+                select: true,
+                boundary: 'start',
+            });
+        });
+        await waitUntilCursorUnmoving(editor);
+        expect(await editor.getSelectedText()).toEqual('foo bar biz ');
+
+        await browser.executeWorkbench(vscode => {
+            vscode.commands.executeCommand('selection-utilities.shrinkToActive');
+        });
+        await waitUntilCursorUnmoving(editor);
+        await sleep(100);
+
+        expect(await editor.getCoordinates()).toEqual([1, 13]);
+        await browser.executeWorkbench(vscode => {
+            vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                select: true,
+                boundary: 'start',
+            });
+        });
+        expect(await editor.getSelectedText()).toEqual('biz ');
     });
 
     it('Can scroll by active', async () => {
