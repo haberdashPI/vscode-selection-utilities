@@ -3,9 +3,8 @@ import {
     fromPosition,
     toPosition,
     toRange,
-    TreeSitter,
+    Cache as TreeCache,
     type SyntaxNode,
-    type Cache as TreeCache,
 } from './tree-sitter-api';
 // eslint-disable-next-line n/no-unpublished-import
 import {TreeCursor} from 'web-tree-sitter';
@@ -13,9 +12,9 @@ import z from 'zod';
 import {validateInput} from './util';
 // TODO: something is up with this declaration, rexamine how
 // to setup typing for tree-sitter-api
-export type TreeSitter = typeof import('./tree-sitter-api');
+export type API = typeof import('./tree-sitter-api');
 
-let treeSitter: TreeSitter | undefined;
+let treeSitter: API | undefined;
 let treeCache: TreeCache | undefined;
 
 function smallestSurroundingChild(
@@ -295,13 +294,13 @@ export async function registerTreeSitter(context: vscode.ExtensionContext) {
     // TODO: for this to work I think i need the extension to be a "ui" extension
     // (which *should* be okay) but this will require changing my webpack setup
     // to ignore node stuff
-    const ext = vscode.extensions.getExtension<TreeSitter>('gregoire.tree-sitter');
+    const ext = vscode.extensions.getExtension<API>('gregoire.tree-sitter');
     const _exts = vscode.extensions.all;
     let loaded = false;
     if (ext) {
         treeSitter = await ext.activate();
         if (treeSitter) {
-            treeCache = new treeSitter.Cache();
+            treeCache = new TreeCache();
             loaded = true;
         }
     }

@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 // eslint-disable-next-line n/no-unpublished-import
-import TreeSitter, {Query, SyntaxNode, Tree} from 'web-tree-sitter';
+import * as TreeSitter from 'web-tree-sitter';
+// eslint-disable-next-line n/no-unpublished-import
+import {Query, SyntaxNode, Tree} from 'web-tree-sitter';
 export {Query, type SyntaxNode, type Tree, TreeSitter};
 
 /**
