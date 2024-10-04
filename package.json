@@ -21,14 +21,14 @@
         "properties": {
           "selection-utilities.primarySelectionColor": {
             "type": "string",
-            "default": "rgba(150,50,50,0.6)",
+            "default": "rgba(200,50,50,0.6)",
             "pattern": "^(?![\\s\\S])|rgba(\\([0-9]+,[0-9]+,[0-9]+,[0-9.]+\\)|#[0-9a-fA-F]{3,6})",
             "patternErrorMessage": "Must be empty (for default), a hex color (#ff0000 for red) or rgba function (rgba(255,0,0,1) for red).",
             "description": "A CSS-like color styling for the primary selection color."
           },
           "selection-utilities.savedSelectionColor": {
             "type": "string",
-            "default": "rgba(150,50,150,0.6)",
+            "default": "rgba(50,200,0,0.6)",
             "pattern": "^(?![\\s\\S])|rgba(\\([0-9]+,[0-9]+,[0-9]+,[0-9.]+\\)|#[0-9a-fA-F]{3,6})",
             "patternErrorMessage": "Must be empty (for default), a hex color (#ff0000 for red) or rgba function (rgba(255,0,0,1) for red).",
             "description": "A CSS-like color styling for the saved selection color."
