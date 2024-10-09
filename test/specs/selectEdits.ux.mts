@@ -1,7 +1,7 @@
 import '@wdio/globals';
 import 'wdio-vscode-service';
 import {setupEditor, storeCoverageStats} from './utils.mts';
-import {TextEditor} from 'wdio-vscode-service';
+import {sleep, TextEditor} from 'wdio-vscode-service';
 
 const startText = 'foo bar biz foo biz bar foo biz foo';
 describe('Selection edits', () => {
@@ -26,6 +26,35 @@ describe('Selection edits', () => {
         });
 
         expect(await editor.getText()).toEqual(' bar biz  biz bar foo biz foo');
+    });
+
+    it('can cancel selections', async () => {
+        await editor.setText(startText);
+        await editor.moveCursor(1, 1);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                select: true,
+                boundary: 'both',
+            });
+
+            await vscode.commands.executeCommand('selection-utilities.addNext');
+            await vscode.commands.executeCommand('selection-utilities.cancelSelection');
+            await vscode.commands.executeCommand('deleteRight');
+        });
+
+        expect(await editor.getText()).toEqual('foo bar biz foobiz bar foo biz foo');
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.restoreAndClear', {
+                register: 'cancel',
+            });
+            await vscode.commands.executeCommand('deleteRight');
+        });
+
+        expect(await editor.getText()).toEqual(' bar biz biz bar foo biz foo');
     });
 
     it('can skip by match', async () => {
@@ -141,6 +170,38 @@ describe('Selection edits', () => {
         });
 
         expect(await editor.getText()).toEqual('  biz foo biz bar foo biz foo');
+    });
+
+    it('can clear selection memory', async () => {
+        await editor.setText(startText);
+        await editor.moveCursor(1, 1);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.appendToMemory');
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.appendToMemory');
+        });
+        await sleep(100);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.clearMemory');
+            await vscode.commands.executeCommand('selection-utilities.cancelSelection');
+            await vscode.commands.executeCommand('selection-utilities.restoreAndClear');
+            await vscode.commands.executeCommand('deleteLeft');
+        });
+
+        expect(await editor.getText()).toEqual('foo ba biz foo biz bar foo biz foo');
     });
 
     it('can swap regions', async () => {
