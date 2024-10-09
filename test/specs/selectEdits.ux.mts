@@ -1,7 +1,7 @@
 import '@wdio/globals';
 import 'wdio-vscode-service';
 import {setupEditor, storeCoverageStats} from './utils.mts';
-import {sleep, TextEditor} from 'wdio-vscode-service';
+import {TextEditor} from 'wdio-vscode-service';
 
 const startText = 'foo bar biz foo biz bar foo biz foo';
 describe('Selection edits', () => {
@@ -107,7 +107,6 @@ describe('Selection edits', () => {
         await editor.setText(startText);
         await editor.moveCursor(1, 1);
 
-        await sleep(1000);
         await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.moveBy', {
                 unit: 'word',
@@ -115,60 +114,122 @@ describe('Selection edits', () => {
                 selectWhole: true,
                 boundary: 'both',
             });
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.appendToMemory');
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.moveBy', {
                 unit: 'word',
                 value: 1,
                 selectWhole: true,
                 boundary: 'both',
             });
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.appendToMemory');
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.moveBy', {
                 unit: 'word',
                 value: 1,
                 selectWhole: true,
                 boundary: 'both',
             });
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.appendToMemory');
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.moveBy', {
                 unit: 'word',
                 value: 1,
                 selectWhole: true,
                 boundary: 'both',
             });
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.deleteLastSaved');
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.restoreAndClear');
-        });
-        await sleep(1000);
-        await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('deleteRight');
         });
 
         expect(await editor.getText()).toEqual('  biz foo biz bar foo biz foo');
+    });
+
+    it('can swap regions', async () => {
+        await editor.setText(startText);
+        await editor.moveCursor(1, 1);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.swapWithMemory');
+
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.swapWithMemory');
+        });
+
+        expect(await editor.getText()).toEqual('bar foo biz foo biz bar foo biz foo');
+    });
+
+    it('can move symmetrically', async () => {
+        await editor.setText(startText);
+        await editor.moveCursor(1, 1);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.adjustSelections', {
+                dir: 'inward',
+                count: 1,
+            });
+        });
+
+        expect(await editor.getSelectedText()).toEqual('a');
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.adjustSelections', {
+                dir: 'outward',
+                count: 2,
+            });
+        });
+
+        expect(await editor.getSelectedText()).toEqual(' bar ');
+    });
+
+    it('can trim whitespace', async () => {
+        await editor.setText(startText);
+        await editor.moveCursor(1, 1);
+
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.moveBy', {
+                unit: 'word',
+                value: 1,
+                selectWhole: true,
+                boundary: 'both',
+            });
+            await vscode.commands.executeCommand('selection-utilities.adjustSelections', {
+                dir: 'outward',
+                count: 1,
+            });
+            await vscode.commands.executeCommand(
+                'selection-utilities.trimSelectionWhitespace'
+            );
+        });
+
+        expect(await editor.getSelectedText()).toEqual('bar');
     });
 
     after(async () => {
