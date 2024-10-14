@@ -232,6 +232,7 @@ describe('Selection edits', () => {
     it('can move symmetrically', async () => {
         await editor.setText(startText);
         await editor.moveCursor(1, 1);
+        await sleep(100);
 
         await browser.executeWorkbench(async vscode => {
             await vscode.commands.executeCommand('selection-utilities.moveBy', {
