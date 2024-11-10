@@ -614,9 +614,9 @@ function moveBy(editor: vscode.TextEditor, args: MoveByArgs) {
         let startSel: vscode.Position | undefined = undefined;
         for (const sel of selections) {
             if (count > 0 || !boundsMatch(sel, select)) {
-                if (forward && sel.end.isAfter(select.active)) {
+                if (forward && sel.active.isAfter(select.active)) {
                     count += 1;
-                } else if (!forward && sel.start.isBefore(select.active)) {
+                } else if (!forward && sel.active.isBefore(select.active)) {
                     count += 1;
                 }
                 if (count === 1) {
