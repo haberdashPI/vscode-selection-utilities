@@ -87,6 +87,7 @@ export const config: Options.Testrunner = {
             browserVersion: 'stable', // also possible: "insiders" or a specific version e.g. "1.80.0"
             'wdio:vscodeOptions': {
                 // points to directory where extension package.json is located
+                version: '1.93.0',
                 extensionPath: __dirname,
                 workspacePath: __dirname,
                 vscodeArgs: {

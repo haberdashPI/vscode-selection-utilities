@@ -1,7 +1,7 @@
 import '@wdio/globals';
 import 'wdio-vscode-service';
 import {setupEditor, storeCoverageStats, waitUntilCursorUnmoving} from './utils.mts';
-import {TextEditor} from 'wdio-vscode-service';
+import {sleep, TextEditor} from 'wdio-vscode-service';
 
 describe('Subword Motion', () => {
     let editor: TextEditor;
@@ -73,6 +73,13 @@ describe('Subword Motion', () => {
 
         await wordMoveSelects({select: true, boundary: 'start'}, 'oo ');
         await wordMoveSelects({select: true, boundary: 'start'}, 'oo bar ');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
+                'selection-utilities.exchangeAnchorActive'
+            );
+        });
+        await sleep(100);
+        await wordMoveSelects({select: true, boundary: 'start'}, 'bar ');
     });
 
     it('Can extend forward by end', async () => {
@@ -80,6 +87,13 @@ describe('Subword Motion', () => {
 
         await wordMoveSelects({select: true, boundary: 'end'}, 'oo');
         await wordMoveSelects({select: true, boundary: 'end'}, 'oo bar');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
+                'selection-utilities.exchangeAnchorActive'
+            );
+        });
+        await sleep(100);
+        await wordMoveSelects({select: true, boundary: 'end'}, ' bar');
     });
 
     it('Can extend bakcwards by start', async () => {
@@ -87,13 +101,27 @@ describe('Subword Motion', () => {
 
         await wordMoveSelects({select: true, boundary: 'start', value: -1}, 'ba');
         await wordMoveSelects({select: true, boundary: 'start', value: -1}, 'foo ba');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
+                'selection-utilities.exchangeAnchorActive'
+            );
+        });
+        await sleep(100);
+        await wordMoveSelects({select: true, boundary: 'start', value: -1}, 'foo ');
     });
 
-    it('Can extend bakcwards by end', async () => {
+    it('Can extend backwards by end', async () => {
         await editor.moveCursor(1, 7);
 
         await wordMoveSelects({select: true, boundary: 'end', value: -1}, ' ba');
         await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'foo ba');
+        await browser.executeWorkbench(async vscode => {
+            await vscode.commands.executeCommand(
+                'selection-utilities.exchangeAnchorActive'
+            );
+        });
+        await sleep(100);
+        await wordMoveSelects({select: true, boundary: 'end', value: -1}, 'foo');
     });
 
     it('Can extend to "start" at file end', async () => {
