@@ -3,7 +3,7 @@ import 'wdio-vscode-service';
 import {cleanWhitespace, setupEditor, storeCoverageStats} from './utils.mts';
 import {sleep, TextEditor} from 'wdio-vscode-service';
 
-describe('Number changes', () => {
+describe('Selection filtering', () => {
     let editor: TextEditor;
 
     async function setupCursors() {
