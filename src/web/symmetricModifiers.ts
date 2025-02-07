@@ -84,7 +84,9 @@ async function insertAround(args: InsertAroundArgs) {
     }
 }
 
-function deleteAround(args: {count?: number; followCursor: boolean}) {
+function deleteAround(
+    args: {count?: number; followCursor: boolean} = {followCursor: false}
+) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const ed = editor;

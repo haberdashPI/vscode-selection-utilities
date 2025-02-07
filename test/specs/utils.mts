@@ -74,8 +74,13 @@ export function cleanWhitespace(str: string) {
     return result;
 }
 
-export async function setupEditor(str: string) {
-    str = cleanWhitespace(str);
+export async function setupEditor(
+    str: string,
+    opts: {cleanWhitespace: boolean} = {cleanWhitespace: true}
+) {
+    if (opts.cleanWhitespace) {
+        str = cleanWhitespace(str);
+    }
     const workbench = await browser.getWorkbench();
 
     // clear any older notificatoins

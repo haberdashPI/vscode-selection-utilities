@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.6.11]
+
+- **Bugfix**: argument edge cases for `deleteAround`
+
+## [0.6.10]
+
+- **Bugfix**: moveBy edge cases for motions form middle of word
+
 ## [0.6.9]
 
 - **Feature**: add `increment/decrementNumber`
