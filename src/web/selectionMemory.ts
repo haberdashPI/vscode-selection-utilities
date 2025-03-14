@@ -113,30 +113,78 @@ export function registerSelectionMemoryCommands(context: vscode.ExtensionContext
         updateActiveSelection(e.textEditor, e.selections)
     );
 
+    /**
+     * @section Multiselection Primitives
+     * @sectionBody These commands modify the number of selections, usually in reference to
+     * the primary selection, which is colored differently than the other selections. Focus
+     * is generally moved with this primary selection.
+     * @order -5
+     * @command movePrimaryLeft
+     *
+     * Moves the primary selection the next selection to the left and downwards.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.movePrimaryLeft',
             movePrimaryLeft
         )
     );
+    /**
+     * @order -5
+     * @command movePrimaryRight
+     *
+     * Moves the primary selection the next selection to the right and upwards.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.movePrimaryRight',
             movePrimaryRight
         )
     );
+
+    /**
+     * @order -5
+     * @command focusPrimarySelection
+     *
+     * Focuses the view on the primary selection if it is not already focused.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.focusPrimarySelection',
             focusPrimarySelection
         )
     );
+
+    /**
+     * @order -5
+     * @command appendToMemory
+     *
+     * Saves the current selections to a memory. If existing selections have already been
+     * saved, the new selections are appended to the old. If the default register is used,
+     * the save selections are highlighted in green. Once stored in memory the selections
+     * are cleared from the editor. Selections can be restored using
+     * [restoreAndClear](/commands/restoreAndClear).
+     *
+     * ## Arguments
+     * - `register` (default="default") - The register to save the selections to. A
+     *   register is a distinct memory bank where selections can be stored.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.appendToMemory',
             appendToMemory
         )
     );
+
+    /**
+     * @order -5
+     * @command restoreAndClear
+     *
+     * Restores the saved selections, then clears the saved selections from memory.
+     *
+     * ## Arguments
+     * - `register` (default="default") - The register to restore selections from.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.restoreAndClear',
@@ -146,36 +194,106 @@ export function registerSelectionMemoryCommands(context: vscode.ExtensionContext
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.clearMemory', clearMemory)
     );
+
+    /**
+     * @order -5
+     * @command swapWithMemory
+     *
+     * If no selections have been saved, the current selections are saved to the memory. If
+     * selections have been saved, the content of the current selections in the editor are
+     * swapped with the content of the saved selections in the editor.
+     *
+     * ## Arguments
+     * - `register` (default="default") - The register to save the selections to.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.swapWithMemory',
             swapWithMemory
         )
     );
+
+    /**
+     * @order -5
+     * @command cancelSelection
+     *
+     * Clears the current selections from the editor, saving the old selections to the
+     * 'cancel' register.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.cancelSelection',
             cancelSelection
         )
     );
+
+    /**
+     * @order -5
+     * @command deleteLastSaved
+     *
+     * Remove the most recently saved set of selections from memory.
+     *
+     * ## Arguments
+     * - `register` (default="default") - The register to save the selections to.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.deleteLastSaved',
             deleteLastSaved
         )
     );
+
+    /**
+     * @order -5
+     * @command deletePrimary
+     *
+     * Clears the primary selection, making the previously added selection, if it exists,
+     * the primary selection.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.deletePrimary', deletePrimary)
     );
+
+    /**
+     * @order -5
+     * @command addNext
+     *
+     * Adds the next match of the current selection as a selection, making it the primary
+     * selection.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.addNext', addNext)
     );
+
+    /**
+     * @order -5
+     * @command skipNext
+     *
+     * Adds the next match of the current selection as a selection, removes the current
+     * selection, and makes the just added selection the primary selection.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.skipNext', skipNext)
     );
+
+    /**
+     * @order -5
+     * @command addPrev
+     *
+     * Adds the previous match of the current selection as a selection, making it the
+     * primary selection..
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.addPrev', () => addNext(false))
     );
+
+    /**
+     * @order -5
+     * @command skipPrev
+     *
+     * Adds the previous match of the current selection as a selection, removes the current
+     * selection, and makes the just added selection the primary selection.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.skipPrev', () =>
             skipNext(false)

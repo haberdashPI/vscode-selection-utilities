@@ -1,0 +1,70 @@
+[header]
+version = "0.2.1"
+
+[[comment]]
+extension = "*.md"
+start = '<!--\s*START_DOCS\s*-->'
+each_line = '<!--(.*)-->' # some lines will, and some lines wont' have this
+stop = '<!--\s*STOP_DOCS\s*-->'
+
+[[template.all]]
+tags = ["intro"]
+file = "index.md"
+output = """
+# Selection Utilities
+{{#items}}
+{{{__body__}}}
+{{/items}}
+"""
+
+[[template.all]]
+tags = ["command"]
+file = "index.md"
+output = """
+## Commands
+
+The following commands are available in Selection Utilities:
+
+{{#items}}
+{{#section}}
+
+### {{.}}
+
+{{sectionBody}}
+
+{{/section}}
+- [`selection-utilities.{{command}}`](/commands/{{command}}.md)
+{{/items}}
+"""
+
+[[template.all]]
+tags = ["command"]
+file = ".vitepress/commands.mjs"
+output = """
+export const commands = [
+{{#items}}
+{{#section}}
+{{^first}}
+        ]
+    },
+{{/first}}
+    {
+        text: '{{.}}',
+        items: [
+{{/section}}
+            {text: '{{command}}', link: '/commands/{{command}}.md'},
+{{/items}}
+        ]
+    }
+]
+"""
+
+[[template.foreach]]
+tags = ["command"]
+file = "commands/{{command}}.md"
+output = """
+
+# {{command}}
+
+{{{__body__}}}
+"""

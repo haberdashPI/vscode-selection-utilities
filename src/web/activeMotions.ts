@@ -3,6 +3,17 @@ import {updateView} from './selectionMemory';
 import {getPrimarySelection} from './selectionMemory';
 import {clampedLineTranslate} from './util';
 
+/**
+ * @first true
+ * @section Active Cursor Motions
+ * @sectionBody Active cursor motions change the position of the cursor. The location
+ * of the cursor in a selection is called the active end of the selection, while the
+ * other end of the selection is called the anchor.
+ * @command exchangeAnchorActive
+ * @order -10
+ *
+ * Swaps the position of the cursor from one side of the selection to the other
+ */
 function exchangeAnchorActive() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -13,6 +24,12 @@ function exchangeAnchorActive() {
     }
 }
 
+/**
+ * @command activeAtEnd
+ * @order -10
+ *
+ * Moves the cursor to the end of the selection
+ */
 function activeAtEnd() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -23,6 +40,12 @@ function activeAtEnd() {
     }
 }
 
+/**
+ * @command activeAtStart
+ * @order -10
+ *
+ * Moves the cursor to the start of the selection
+ */
 function activeAtStart() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -33,6 +56,12 @@ function activeAtStart() {
     }
 }
 
+/**
+ * @command shrinkToActive
+ * @order -10
+ *
+ * Shrinks the selection to the position of the cursor
+ */
 function shrinkToActive() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -43,6 +72,20 @@ function shrinkToActive() {
     }
 }
 
+/**
+ * @command revealActive
+ * @order -10
+ *
+ * Reveals the line of the primary cursor's position
+ *
+ * ## Arguments
+ * - `at` (default="center") - The window position the line should be positioned at. One of
+ *   the following:
+ *    - `top`
+ *    - `center`
+ *    - `bottom`
+ *
+ */
 function revealActive(args: {at: 'top' | 'center' | 'bottom'} = {at: 'center'}) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -54,6 +97,19 @@ function revealActive(args: {at: 'top' | 'center' | 'bottom'} = {at: 'center'}) 
     }
 }
 
+/**
+ * @command activePageMove
+ * @order -10
+ *
+ * Moves the cursor up or down at distance proportionate to the size
+ * of the current window.
+ *
+ * ## Arguments
+ * - `dir` (default="down") - The direction to move the cursor. One of the following:
+ *   - `up`
+ *   - `down`
+ * - `count` (default=1) - The distance to move up or down in page units.
+ */
 function activePageMove(
     args: {dir?: 'up' | 'down'; count?: number; select?: boolean} = {}
 ) {

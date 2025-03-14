@@ -38,6 +38,26 @@ interface InsertAroundArgs {
     followCursor: boolean;
 }
 
+/**
+ * @section Symmetric Editing
+ * @sectionBody These commands modify text or the selection at both ends of the current
+ * selections.
+ * @command insertAround
+ * @order 10
+ *
+ * Insert text before and after each selection.
+ *
+ * ## Arguments
+ * - `before`: the text to insert before each selection.
+ * - `after`: the text to insert after each selection.
+ * - `expandWith`: (default `false`) expand the selection to include the inserted text.
+ * - `followCursor`: (default `false`) if the cursor is at the start of the selection
+ *    selection will expand to include the cursor, and if its at the end it will not expand.
+ *    Expanding in this way leads to a natural symmetric typing experience when typing
+ *    multiple keys. Best used in conjunction with
+ *    [Master Key](https://github.com/haberdashPI/vscode-master-key). mode option
+ *    [`onType`](https://github.com/haberdashPI/vscode-master-key/bindings/bind#ontype-field).
+ */
 async function insertAround(args: InsertAroundArgs) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -84,6 +104,21 @@ async function insertAround(args: InsertAroundArgs) {
     }
 }
 
+/**
+ * @command deleteAround
+ * @order 10
+ *
+ * Delete characters at the start and end of each selection.
+ *
+ * ## Arguments
+ * - `count`: (default `1`) the number of characters to delete.
+ * - `followCursor`: (default `false`) if the cursor is at the start of the selection
+ *    selection will expand to include the cursor, and if its at the end it will not expand.
+ *    Expanding in this way leads to a natural symmetric typing experience when typing
+ *    multiple keys. Best used in conjunction with
+ *    [Master Key](https://github.com/haberdashPI/vscode-master-key). mode option
+ *    [`onType`](https://github.com/haberdashPI/vscode-master-key/bindings/bind#ontype-field).
+ */
 function deleteAround(
     args: {count?: number; followCursor: boolean} = {followCursor: false}
 ) {
@@ -121,6 +156,20 @@ function deleteAround(
     }
 }
 
+/**
+ * @command selectBetween
+ * @order 10
+ *
+ * Select text between the start and end of of a given set of characters.
+ *
+ * ## Arguments
+ * - `str`: text that starts and ends with this string will be selected. You can only
+ *   specify this if `between` isn't specified
+ * - `between`: an object with `from` and `to` fields; text that starts with `from` and ends
+ *   with `to` will be selected. You can only specify this if `str` isn't specified.
+ * - `inclusive`: whether to include the characters that start and end the selection (e.g.
+ *   `str` or `between`)
+ */
 function selectBetween(args: {
     str?: string;
     between?: {from: string; to: string};
@@ -180,6 +229,24 @@ function selectBetween(args: {
     }
 }
 
+/**
+ * @command adjustSelections
+ * @order 10
+ *
+ * Adjust the selection inwards or outwards from both sides.
+ *
+ * ## Arguments
+ * - `dir`: how to move the selection
+ *   - `inward`: move both ends of the selection so that the selection shrinks
+ *   - `outward`: move both ends of the selection so that the selection grows
+ *   - `forward`: if the cursor is at the start of a selection move both ends of the
+ *     selection inwards, if the cursor is at the end of a selection move both ends of the
+ *     selection outwards
+ *   - `backward`: if the cursor is at the start of a selection move both ends of the
+ *     selection outwards, if the cursor is at the end of a selection move both ends of the
+ *     selection inwards
+ * - `count`: (default 1) how many characters to move by when adjusting selection ends
+ */
 function adjustSelections(args: {dir: string; count: number}) {
     const editor = vscode.window.activeTextEditor;
     let step = args.count || 1;
@@ -199,6 +266,14 @@ function adjustSelections(args: {dir: string; count: number}) {
     }
 }
 
+/**
+ * @command expandWithinBrackets
+ * @order 10
+ *
+ * Expand the selection to contain all character inside brackets, exclusive of those
+ * brackets. Calling the command multiple times will expand to the next set of surrounding
+ * brackets.
+ */
 function expandWithinBrackets() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -218,6 +293,15 @@ function expandWithinBrackets() {
         });
     }
 }
+
+/**
+ * @command expandAroundBrackets
+ * @order 10
+ *
+ * Expand the selection to contain all character inside brackets, inclusive of those
+ * brackets. Calling the command multiple times will expand to the next set of surrounding
+ * brackets.
+ */
 
 function expandAroundBrackets() {
     const editor = vscode.window.activeTextEditor;

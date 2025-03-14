@@ -258,6 +258,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "Cursor-utilities.moveCursorToNextSubword",
+        "title": "Move Selection to Next Subword",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToNextSubword",
         "title": "Move Selection to Next Subword",
         "category": "Selection Utilities"
@@ -265,6 +270,11 @@
       {
         "command": "selection-utilities.selectToNextSubword",
         "title": "Select to Next Subword",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "Cursor-utilities.moveCursorToNextWord",
+        "title": "Move Selection to Next Word",
         "category": "Selection Utilities"
       },
       {
@@ -278,6 +288,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "Cursor-utilities.moveCursorToNextWORD",
+        "title": "Move Selection to Next non-whitespace characters",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToNextWORD",
         "title": "Move Selection to Next non-whitespace characters",
         "category": "Selection Utilities"
@@ -285,6 +300,11 @@
       {
         "command": "selection-utilities.selectToNextWORD",
         "title": "Select to Next non-whitespace characters",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "Cursor-utilities.moveCursorToNextParagraph",
+        "title": "Move Selection to Next Paragraph",
         "category": "Selection Utilities"
       },
       {
@@ -298,6 +318,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "selection-utilities.moveCursorToNextSubsection",
+        "title": "Move Cursor to Next Subsection",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToNextSubsection",
         "title": "Move Selection to Next Subsection",
         "category": "Selection Utilities"
@@ -305,6 +330,11 @@
       {
         "command": "selection-utilities.selectToNextSubsection",
         "title": "Select to Next Subsection",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.moveCursorToNextSection",
+        "title": "Move Cursor to Next Section",
         "category": "Selection Utilities"
       },
       {
@@ -318,6 +348,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "Cursor-utilities.moveCursorToPreviousSubword",
+        "title": "Move Selection to Previous Subword",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToPreviousSubword",
         "title": "Move Selection to Previous Subword",
         "category": "Selection Utilities"
@@ -325,6 +360,11 @@
       {
         "command": "selection-utilities.selectToPreviousSubword",
         "title": "Select to Subword",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "Cursor-utilities.moveCursorToPreviousWord",
+        "title": "Move Selection to Previous Word",
         "category": "Selection Utilities"
       },
       {
@@ -338,6 +378,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "Cursor-utilities.moveCursorToPreviousWORD",
+        "title": "Move Selection to Previous non-whitespace characters",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToPreviousWORD",
         "title": "Move Selection to Previous non-whitespace characters",
         "category": "Selection Utilities"
@@ -345,6 +390,11 @@
       {
         "command": "selection-utilities.selectToPreviousWORD",
         "title": "Select to non-whitespace characters",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "Cursor-utilities.moveCursorToPreviousParagraph",
+        "title": "Move Selection to Previous Paragraph",
         "category": "Selection Utilities"
       },
       {
@@ -358,6 +408,11 @@
         "category": "Selection Utilities"
       },
       {
+        "command": "Cursor-utilities.moveCursorToPreviousSubsection",
+        "title": "Move Selection to Previous Subsection",
+        "category": "Selection Utilities"
+      },
+      {
         "command": "selection-utilities.moveToPreviousSubsection",
         "title": "Move Selection to Previous Subsection",
         "category": "Selection Utilities"
@@ -365,6 +420,11 @@
       {
         "command": "selection-utilities.selectToPreviousSubsection",
         "title": "Select to Subsection",
+        "category": "Selection Utilities"
+      },
+      {
+        "command": "selection-utilities.moveCursorToPreviousSection",
+        "title": "Move Cursor to Previous Section",
         "category": "Selection Utilities"
       },
       {
@@ -448,7 +508,10 @@
     "coverage": "COVERAGE=true COVERAGE_PATH=./coverage/raw wdio run ./wdio.conf.mts",
     "postcoverage:report": "nyc report -t coverage/raw --report-dir coverage/summary --reporter=lcov --reporter=text; penv base",
     "postcoverage": "run-s postcoverage:*",
-    "ci": "npm run coverage"
+    "ci": "npm run coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@types/assert": "^1.5.10",
@@ -476,10 +539,11 @@
     "process": "^0.11.10",
     "string.prototype.replaceall": "^1.0.10",
     "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.3",
+    "vitepress": "^1.6.3",
     "wdio-vscode-service": "^6.1.0",
     "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4",
-    "ts-node": "^10.9.2"
+    "webpack-cli": "^5.1.4"
   }
 }
