@@ -79,6 +79,141 @@ export function updateUnits(event?: vscode.ConfigurationChangeEvent, newid?: str
 }
 
 export function registerUnitMotions(context: vscode.ExtensionContext) {
+    /**
+     * @section Unit Motions
+     * @sectionBody Moves or selects text according to a unit. Units are defined by one or
+     * more regular expressions.
+     * @command moveBy
+     *
+     * Move or select text according to a given unit. The units are predefined in the
+     * configuration for selection utilities. See below for details on how to define your
+     * own units.
+     *
+     * ## Arguments
+     *
+     * - `unit`: The name of the unit to move or select.
+     * - `select`: If true, select the text instead of moving the cursor.
+     * - `value`: The number of units to move or select forward. Use negative numbers to
+     *   move or select backwards.
+     * - `selectWhole`: If true, move the selection so it starts at the beginning of the
+     *   unit and ends at the end of the unit. If `value` > 1, multiple units will be
+     *   selected.
+     * - `selectOneUnit`: Like `selectWhole`, but only one unit is selected when the count
+     *   is greater than 1, moving to the nth such unit.
+     * - `boundary`: The boundaries to consder when moving. One of "start", "end", "both".
+     *   `selectWhole` with `start` set will select from the beginning of one unit up until
+     *   the beginning of the next unit.
+     *
+     * ## Defining Units
+     *
+     * Units are defined in your configuration file using `selection-utilities.motionUnits`.
+     * This is a language-specific configuration option, so you can define a different set
+     * of units for each language, if you wish. There are two types of units you can
+     * define:
+     *
+     * ### Single-line units
+     *
+     * These are the simplest and most common units. They are defined by a single regular
+     * expression. They have a "name" and a "regex". For example:
+     *
+     * ```json
+     * {
+     *   "selection-utilities.motionUnits": [
+     *     {
+     *       "name": "word",
+     *       "regex": "\\w+"
+     *     }
+     *   ]
+     * }
+     * ```
+     *
+     * This would define a unit called "word" that matches one or more word characters.
+     *
+     * ### Multi-line units
+     *
+     * These are units that span multiple lines. They are define by one or more regular
+     * expressions. They have a "name" and a "regexs" field. When "regexs" is a single
+     * regex string, it will match a serires of lines, all of which must match this regex.
+     * For example, to define a unit that matches a contiguous series of lines that
+     * have no empty lines in between you could do the following.
+     *
+     * ```json
+     * {
+     *   "selection-utilities.motionUnits": [
+     *     {
+     *       "name": "until",
+     *       "regexs": "\\S+"
+     *     }
+     *   ]
+     * }
+     * ```
+     *
+     * Alternatively, you can specify multiple regular expressions, in which case the unit
+     * is expected to contain a fixed number of lines, where each line matches one of the
+     * listed regexes in sequence. For example, section headers that have one line with
+     * at least 10 `/` characters, followed by a line with `// [section name]`,
+     * would match the following unit definition:
+     *
+     * ```json
+     * {
+     *   "selection-utilities.motionUnits": [
+     *     {
+     *       "name": "section",
+     *       "regexs": ["^/{10,}$", "^// \S+"]
+     *     }
+     *   ]
+     * }
+     * ```
+     *
+     * ## Default Units
+     *
+     * The default units are defined as follows:
+     *
+     * ```json
+     * {
+     *   "selection-utilities.motionUnits": [
+     *         {
+     *           "name": "WORD",
+     *           "regex": "[^\\s]+"
+     *         },
+     *         {
+     *           "name": "word",
+     *           "regex": "(_*[\\p{L}][_\\p{L}0-9]*)|(_+)|([0-9][0-9.]*)|((?<=[\\s\\r\\n])[^\\p{L}^\\s]+(?=[\\s\\r\\n]))"
+     *         },
+     *         {
+     *           "name": "number",
+     *           "regex": "[0-9]+"
+     *         },
+     *         {
+     *           "name": "subword",
+     *           "regex": "(_*[\\p{L}][0-9\\p{Ll}]+_*)|(_+)|(\\p{Lu}[\\p{Lu}0-9]+_*(?!\\p{Ll}))|(\\p{L})|([^\\p{L}^\\s^0-9])|([0-9][0-9.]*)"
+     *         },
+     *         {
+     *           "name": "subident",
+     *           "regex": "(\\p{L}[0-9\\p{Ll}]+)|([0-9][0-9.]*)"
+     *         },
+     *         {
+     *           "name": "paragraph",
+     *           "regexs": "\\S+"
+     *         },
+     *         {
+     *           "name": "section",
+     *           "regexs": [
+     *             ".+",
+     *             "^.*========+.*$"
+     *           ]
+     *         },
+     *         {
+     *           "name": "subsection",
+     *           "regexs": [
+     *             ".+",
+     *             "^.*(========+|--------+).*$"
+     *           ]
+     *         }
+     *       ]
+     *  }
+     *  ```
+     */
     let command = vscode.commands.registerCommand(
         'selection-utilities.moveBy',
         (args: MoveByArgs) => {
@@ -91,6 +226,20 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(command);
 
+    /**
+     * @command narrowTo
+     *
+     * Selects the next most narrow selection that contains all of a given unit type.
+     *
+     * ## Arguments
+     * - `unit`: the name of the unit type to narrow to; see [Motion
+     *   Units](/commands/moveBy#defining-units)
+     * - `boundary`: the boundaries to narrow to; either `start`, `end`, or `both`.
+     * - `then`: if there is no unit of the given type to narrow to, the command can attempt
+     *   to narrow to a second unit type, specified here.
+     * - `thenBoundary`: the boundaries to consider for `then`; one of `start`, `end`, or
+     *   `both`.
+     */
     command = vscode.commands.registerCommand(
         'selection-utilities.narrowTo',
         (args: NarrowByArgs) => {
@@ -102,6 +251,222 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
         }
     );
     context.subscriptions.push(command);
+
+    /**
+     * @command moveCursorToNextSubword
+     *
+     * Move cursor to next subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextSubword
+     *
+     * Move selection to next subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextSubword
+     *
+     * Select to next subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToNextWord
+     *
+     * Move cursor to next word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextWord
+     *
+     * Move selection to next word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextWord
+     *
+     * Select to next word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToNextWORD
+     *
+     * Move cursor to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextWORD
+     *
+     * Move selection to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextWORD
+     *
+     * Select to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToNextParagraph
+     *
+     * Move cursor to next paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextParagraph
+     *
+     * Move selection to next paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextParagraph
+     *
+     * Select to next paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToNextSubsection
+     *
+     * Move cursor to next subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextSubsection
+     *
+     * Move selection to next subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextSubsection
+     *
+     * Select to next subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToNextSection
+     *
+     * Move cursor to next section, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToNextSection
+     *
+     * Move selection to next section, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToNextSection
+     *
+     * Select to next section, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousSubword
+     *
+     * Move cursor to previous subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousSubword
+     *
+     * Move selection to previous subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousSubword
+     *
+     * Select to subword, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousWord
+     *
+     * Move cursor to previous word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousWord
+     *
+     * Move selection to previous word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousWord
+     *
+     * Select to word, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousWORD
+     *
+     * Move cursor to previous non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousWORD
+     *
+     * Move selection to previous non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousWORD
+     *
+     * Select to non-whitespace characters, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousParagraph
+     *
+     * Move cursor to previous paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousParagraph
+     *
+     * Move selection to previous paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousParagraph
+     *
+     * Select to paragraph, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousSubsection
+     *
+     * Move cursor to previous subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousSubsection
+     *
+     * Move selection to previous subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousSubsection
+     *
+     * Select to subsection, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveCursorToPreviousSection
+     *
+     * Move cursor to previous section, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command moveToPreviousSection
+     *
+     * Move selection to previous section, using [`moveBy`](/commands/moveBy)
+     */
+
+    /**
+     * @command selectToPreviousSection
+     *
+     * Select to section, using [`moveBy`](/commands/moveBy)
+     */
 
     for (const unit of defaultUnits) {
         for (const dir of ['Next', 'Previous']) {

@@ -3,12 +3,30 @@ import {compareSels} from './util';
 import {cloneDeep} from 'lodash';
 
 export function registerSelectionAlignments(context: vscode.ExtensionContext) {
+    /**
+     * @section Selection Alignment
+     * @command alignSelectionsLeft
+     * @order 5
+     *
+     * Align all selected regions of text by placing spaces in front of the selection (if the
+     * active is at the start) or at the end of the selection (if the active is at the end),
+     * such that the selections' left side are all at the same column position.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.alignSelectionsLeft',
             alignSelections
         )
     );
+
+    /**
+     * @command alignSelectionsRight
+     * @order 5
+     *
+     * Align all selected regions of text by placing spaces in front of the selection (if the
+     * active is at the start) or at the end of the selection (if the active is at the end),
+     * such that the selections' right side are all at the same column position.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.alignSelectionsRight', () =>
             alignSelections(false)

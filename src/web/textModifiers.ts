@@ -41,22 +41,51 @@ function changeNumber(args: NumberUpdateArgs) {
 }
 
 export function registerTextModifiers(context: vscode.ExtensionContext) {
+    /**
+     * @section Number Editing
+     * @sectionBody These commands increment or decrement a number in a selection.
+     * @command incrementNumber
+     * @order 5
+     *
+     * Increase all numbers by 1.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.incrementNumber', () =>
             changeNumber({by: 1})
         )
     );
+
+    /**
+     * @command decrementNumber
+     * @order 5
+     *
+     * Decrease all numbers by 1.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand('selection-utilities.decrementNumber', () =>
             changeNumber({by: -1})
         )
     );
+
+    /**
+     * @command incrementNumberPerSelection
+     * @order 5
+     *
+     * Increase the first selection by 0, the second by 1, the third by 2, etc.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.incrementNumberPerSelection',
             () => changeNumber({by: 1, stepEachSelection: true})
         )
     );
+
+    /**
+     * @command decrementNumberPerSelection
+     * @order 5
+     *
+     * Decrease the first selection by 0, the second by 1, the third by 2, etc.
+     */
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'selection-utilities.decrementNumberPerSelection',

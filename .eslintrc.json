@@ -77,7 +77,8 @@
                 "n/no-missing-require": "off",
                 "n/shebang": "off",
                 "no-dupe-class-members": "off",
-                "require-atomic-updates": "off"
+                "require-atomic-updates": "off",
+                "valid-jsdoc": "off"
             },
             "parserOptions": {
                 "ecmaVersion": 2018,

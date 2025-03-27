@@ -75,6 +75,14 @@ function trimWhitespace() {
     }
 }
 
+/**
+ * @section Selection Editing
+ * @sectionBody These commands tweak or modify what is selected.
+ * @command trimSelectionWhitespace
+ *
+ * Trims a selection so that it excludes leading and trailing whitespace.
+ */
+
 function trimSelectionWhitespace() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -86,6 +94,11 @@ function trimSelectionWhitespace() {
     }
 }
 
+/**
+ * @command splitByNewline
+ *
+ * Split the selection(s), making each line a separate selection.
+ */
 async function splitByNewline() {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -102,6 +115,52 @@ async function splitByNewline() {
         updateView(editor);
     }
 }
+
+/**
+ * @command splitBy
+ *
+ * Split the selection(s) by a string expression.
+ *
+ *
+ * ## Arguments
+ * - `text`: the string to split selections by. If not provided, a prompt will be shown to
+ *   the user.
+ */
+
+/**
+ * @command splitByRegex
+ *
+ * Split the selection(s) by a regular expression.
+ *
+ *
+ * ## Arguments
+ * - `text`: the regex to split selections by. If not provided, a prompt will be shown to
+ *   the user.
+ */
+
+/**
+ * @command createBy
+ *
+ * Create a new set of selections matching a given string that all fall within
+ * the current selection ranges.
+ *
+ *
+ * ## Arguments
+ * - `text`: the string to create selections by. If not provided, a prompt will be shown to
+ *   the user.
+ */
+
+/**
+ * @command createByRegex
+ *
+ * Create a new set of selections matching a given regex that all fall within
+ * the current selection ranges.
+ *
+ *
+ * ## Arguments
+ * - `text`: the regex to create selections by. If not provided, a prompt will be shown to
+ *   the user.
+ */
 
 async function splitBy(
     args: TokenArgs | undefined,
