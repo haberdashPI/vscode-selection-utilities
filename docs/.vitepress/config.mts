@@ -3,6 +3,7 @@ import { commands } from './commands.mjs';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: '/vscode-selection-utilities/',
   title: "Selection Utilities",
   description: "Kakaune-inspired collection of useful commands for manipulating selections.",
   themeConfig: {
