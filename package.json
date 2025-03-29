@@ -510,8 +510,11 @@
     "postcoverage": "run-s postcoverage:*",
     "ci": "npm run coverage",
     "docs:dev": "vitepress dev docs",
+    "predocs:dev": "simple-src-docs -d docs src README.md",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "predocs:build": "simple-src-docs -d docs src README.md",
+    "docs:preview": "vitepress preview docs",
+    "predocs:preview": "simple-src-docs -d docs src README.md"
   },
   "devDependencies": {
     "@types/assert": "^1.5.10",
