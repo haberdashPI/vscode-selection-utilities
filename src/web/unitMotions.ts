@@ -468,14 +468,21 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      * Select to section, using [`moveBy`](/commands/moveBy)
      */
 
-    for (const unit of defaultUnits) {
+    const units = defaultUnits.concat(['WORD']);
+    for (const unit of units) {
         for (const dir of ['Next', 'Previous']) {
             for (const selType of ['moveCursorTo', 'moveTo', 'selectTo']) {
                 const unitLabel = unit.charAt(0).toUpperCase() + unit.slice(1);
                 // console.log("unitLabel: ")
                 // console.log(unitLabel)
+                let realUnit;
+                if (unit === 'WORD') {
+                    realUnit = 'BigWord';
+                } else {
+                    realUnit = unit;
+                }
                 const args = {
-                    unit: unit,
+                    unit: realUnit,
                     select: selType !== 'moveCursorTo',
                     selectWhole: selType === 'moveTo',
                     value: dir === 'Next' ? 1 : -1,
@@ -485,6 +492,11 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
                 command = vscode.commands.registerCommand(
                     'selection-utilities.' + commandName,
                     _ => {
+                        if (unit === 'WORD') {
+                            vscode.window.showWarningMessage(
+                                'The `WORD` unit is deprecated. Use `BigWord` instead.'
+                            );
+                        }
                         const editor = vscode.window.activeTextEditor;
                         if (editor) {
                             editor.selections = editor.selections.map(moveBy(editor, args));

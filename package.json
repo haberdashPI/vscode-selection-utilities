@@ -258,8 +258,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToNextSubword",
-        "title": "Move Selection to Next Subword",
+        "command": "selection-utilities.moveCursorToNextSubword",
+        "title": "Move Cursor to Next Subword",
         "category": "Selection Utilities"
       },
       {
@@ -273,8 +273,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToNextWord",
-        "title": "Move Selection to Next Word",
+        "command": "selection-utilities.moveCursorToNextWord",
+        "title": "Move Cursor to Next Word",
         "category": "Selection Utilities"
       },
       {
@@ -288,8 +288,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToNextBigWord",
-        "title": "Move Selection to Next non-whitespace characters",
+        "command": "selection-utilities.moveCursorToNextBigWord",
+        "title": "Move Cursor to Next non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
@@ -303,8 +303,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToNextParagraph",
-        "title": "Move Selection to Next Paragraph",
+        "command": "selection-utilities.moveCursorToNextParagraph",
+        "title": "Move Cursor to Next Paragraph",
         "category": "Selection Utilities"
       },
       {
@@ -348,8 +348,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousSubword",
-        "title": "Move Selection to Previous Subword",
+        "command": "selection-utilities.moveCursorToPreviousSubword",
+        "title": "Move Cursor to Previous Subword",
         "category": "Selection Utilities"
       },
       {
@@ -363,8 +363,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousWord",
-        "title": "Move Selection to Previous Word",
+        "command": "selection-utilities.moveCursorToPreviousWord",
+        "title": "Move Cursor to Previous Word",
         "category": "Selection Utilities"
       },
       {
@@ -378,8 +378,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousBigWord",
-        "title": "Move Selection to Previous non-whitespace characters",
+        "command": "selection-utilities.moveCursorToPreviousBigWord",
+        "title": "Move Cursor to Previous non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
@@ -393,8 +393,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousParagraph",
-        "title": "Move Selection to Previous Paragraph",
+        "command": "selection-utilities.moveCursorToPreviousParagraph",
+        "title": "Move Cursor to Previous Paragraph",
         "category": "Selection Utilities"
       },
       {
@@ -408,8 +408,8 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousSubsection",
-        "title": "Move Selection to Previous Subsection",
+        "command": "selection-utilities.moveCursorToPreviousSubsection",
+        "title": "Move Cursor to Previous Subsection",
         "category": "Selection Utilities"
       },
       {
