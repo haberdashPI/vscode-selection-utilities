@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.7.0]
+- Change all `WORD` commands to `BigWord`
+- Updated the documentation for all commands
+
 ## [0.6.11]
 
 - **Bugfix**: argument edge cases for `deleteAround`

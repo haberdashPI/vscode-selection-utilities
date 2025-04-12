@@ -35,7 +35,7 @@ interface MultiLineUnit {
 
 const allUnits: IHash<IHash<RegExp | MultiLineUnit>> = {};
 
-const defaultUnits = ['subword', 'word', 'WORD', 'paragraph', 'section', 'subsection'];
+const defaultUnits = ['subword', 'word', 'BigWord', 'paragraph', 'section', 'subsection'];
 
 export function updateUnits(event?: vscode.ConfigurationChangeEvent, newid?: string) {
     if (!event || event.affectsConfiguration('selection-utilities')) {
@@ -173,7 +173,7 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      * {
      *   "selection-utilities.motionUnits": [
      *         {
-     *           "name": "WORD",
+     *           "name": "BigWord",
      *           "regex": "[^\\s]+"
      *         },
      *         {
@@ -289,19 +289,19 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      */
 
     /**
-     * @command moveCursorToNextWORD
+     * @command moveCursorToNextBigWord
      *
      * Move cursor to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */
 
     /**
-     * @command moveToNextWORD
+     * @command moveToNextBigWord
      *
      * Move selection to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */
 
     /**
-     * @command selectToNextWORD
+     * @command selectToNextBigWord
      *
      * Select to next non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */
@@ -397,19 +397,19 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      */
 
     /**
-     * @command moveCursorToPreviousWORD
+     * @command moveCursorToPreviousBigWord
      *
      * Move cursor to previous non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */
 
     /**
-     * @command moveToPreviousWORD
+     * @command moveToPreviousBigWord
      *
      * Move selection to previous non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */
 
     /**
-     * @command selectToPreviousWORD
+     * @command selectToPreviousBigWord
      *
      * Select to non-whitespace characters, using [`moveBy`](/commands/moveBy)
      */

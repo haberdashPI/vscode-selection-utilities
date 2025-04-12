@@ -4,7 +4,7 @@
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/vscode-selection-utilities",
   "description": "Kakaune-inspired collection of useful commands for manipulating selections.",
-  "version": "0.6.11",
+  "version": "0.7.0",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.92.0"
@@ -39,7 +39,7 @@
             "scope": "language-overridable",
             "default": [
               {
-                "name": "WORD",
+                "name": "BigWord",
                 "regex": "[^\\s]+"
               },
               {
@@ -288,17 +288,17 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToNextWORD",
+        "command": "Cursor-utilities.moveCursorToNextBigWord",
         "title": "Move Selection to Next non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
-        "command": "selection-utilities.moveToNextWORD",
+        "command": "selection-utilities.moveToNextBigWord",
         "title": "Move Selection to Next non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
-        "command": "selection-utilities.selectToNextWORD",
+        "command": "selection-utilities.selectToNextBigWord",
         "title": "Select to Next non-whitespace characters",
         "category": "Selection Utilities"
       },
@@ -378,17 +378,17 @@
         "category": "Selection Utilities"
       },
       {
-        "command": "Cursor-utilities.moveCursorToPreviousWORD",
+        "command": "Cursor-utilities.moveCursorToPreviousBigWord",
         "title": "Move Selection to Previous non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
-        "command": "selection-utilities.moveToPreviousWORD",
+        "command": "selection-utilities.moveToPreviousBigWord",
         "title": "Move Selection to Previous non-whitespace characters",
         "category": "Selection Utilities"
       },
       {
-        "command": "selection-utilities.selectToPreviousWORD",
+        "command": "selection-utilities.selectToPreviousBigWord",
         "title": "Select to non-whitespace characters",
         "category": "Selection Utilities"
       },
