@@ -1,4 +1,82 @@
 [tools]
-node = "18.20.6"
+node = "latest"
+"npm:pnpm" = "latest"
+"npm:typescript" = "latest"
 "npm:vsce" = "latest"
 "ubi:haberdashpi/simple-src-docs" = "0.6.0"
+"github:haberdashpi/simple-src-docs" = "latest"
+watchexec = "latest"
+
+[settings]
+lockfile = true
+
+[tasks.lint]
+run = 'pnpm exec eslint src'
+
+[tasks.check-types]
+run = 'tsc --noEmit --project tsconfig.json'
+
+[tasks.build]
+depends = ['check-types', 'lint']
+sources = ['src/**/*.ts']
+run = 'node esbuild.mjs'
+
+[tasks.package]
+depends = ['check-types', 'lint']
+sources = ['src/**/*.ts']
+run = [
+    'node esbuild.mjs --release',
+    'node esbuild.mjs --web --release',
+    'vsce package --no-dependencies',
+]
+# TODO: implement tests again (here's the example form master-key, but these probably
+# need to be simplified since we don't need to assemble rust and js tests for this project
+#
+# [tasks.build-tests]
+# depends = ['check-types', 'lint', 'build']
+# sources = ['src/test/**/*.ts']
+# outputs = ['out/test/**/*.js']
+# run = 'tsc -p src/test --outDir out/test'
+
+# [tasks.test]
+# depends = ['build-tests']
+# shell = 'nu -c'
+# run = '''
+# if ($env.COVERAGE? | default false | into bool) {
+#     (pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=.
+#         --version=insiders --coverage --coverage-output coverage/unit
+#         --coverage-reporter json)
+# } else {
+#     (pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=.
+#         --version=insiders)
+# }
+# '''
+
+# [tasks.test-web]
+# depends = ['build --web']
+# shell = 'nu -c'
+# run = '''
+# (pnpm exec vscode-test-web --extensionDevelopmentPath=.
+#     --extensionTestsPath=./out/browser/webExtensionTests.js)
+# '''
+
+# [tasks.run-web]
+# depends = ['build --web']
+# run = '''
+# (pnpm exec vscode-test-web --extensionDevelopmentPath=.)
+# '''
+
+[tasks.extract-docs]
+sources = ['README.md', 'src/extension/**/*.ts']
+outputs = ['docs/**/*.md']
+run = 'simple-src-docs -d docs src README.md'
+
+[tasks.dev-docs]
+depends = ['extract-docs']
+run = 'pnpm exec vitepress dev docs'
+
+[tasks.build-docs]
+sources = ['docs/**/*.md']
+outputs = ['docs/.vitepress/dist/**/*']
+depends = ['extract-docs']
+run = 'pnpm exec vitepress build docs'
