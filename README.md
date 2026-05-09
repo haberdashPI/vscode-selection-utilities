@@ -2,7 +2,6 @@
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Project%20Status-Active-green)](https://www.repostatus.org/#active)
 [![CI](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml/badge.svg)](https://github.com/haberdashPI/vscode-selection-utilities/actions/workflows/ci.yml)
-[![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet)](https://github.com/google/gts)
 [![codecov](https://codecov.io/gh/haberdashPI/vscode-selection-utilities/graph/badge.svg?token=IPGCOXOMBW)](https://codecov.io/gh/haberdashPI/vscode-selection-utilities)
 [![Docs](https://img.shields.io/badge/docs-stable-blue.png)](https://haberdashpi.github.io/vscode-selection-utilities/)
 

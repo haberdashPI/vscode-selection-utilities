@@ -1,3 +1,10 @@
+# documentation
+docs/.vitepress/cache
+docs/.vitepress/dist
+docs/.vitepress/commands.mjs
+docs/.vitepress/bindings.mjs
+docs/**/*.md
+
 out
 node_modules
 docs/build/*
