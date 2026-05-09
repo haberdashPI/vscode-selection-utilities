@@ -492,7 +492,7 @@
         "@types/assert": "^1.5.11",
         "@types/lodash": "^4.17.24",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^25.6.0",
+        "@types/node": "^25.6.2",
         "@types/vscode": "^1.118.0",
         "@types/web": "^0.0.349",
         "@typescript-eslint/eslint-plugin": "^8.59.2",
