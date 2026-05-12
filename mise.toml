@@ -12,10 +12,10 @@ lockfile = true
 
 [hooks]
 postinstall = '''
-if not ($env.CI? | default false | into bool) {
+if [ "$CI" != "true" ]; then
     pnpm install --frozen-lockfile
     pnpm exec playwright install
-}
+fi
 '''
 
 [tasks.lint]
@@ -48,30 +48,28 @@ run = 'tsc -p src/test --outDir out/test'
 
 [tasks.test]
 depends = ['build-tests']
-shell = 'nu -c'
 run = '''
-if ($env.COVERAGE? | default false | into bool) {
-    (pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=.
-        --version=insiders --coverage --coverage-output coverage/
-        --coverage-reporter lcov)
-} else {
-    (pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=.
-        --version=insiders)
-}
+if [ "$COVERAGE" = "true" ]; then
+    pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=. \
+        --version=insiders --coverage --coverage-output coverage/ \
+        --coverage-reporter lcov
+else
+    pnpm exec vscode-test --config .vscode-test.mjs --extensionDevelopmentPath=. \
+        --version=insiders
+fi
 '''
 
 [tasks.test-web]
 depends = ['build --web']
-shell = 'nu -c'
 run = '''
-(pnpm exec vscode-test-web --extensionDevelopmentPath=.
-    --extensionTestsPath=./out/browser/webExtensionTests.js)
+pnpm exec vscode-test-web --extensionDevelopmentPath=. \
+    --extensionTestsPath=./out/browser/webExtensionTests.js
 '''
 
 [tasks.run-web]
 depends = ['build --web']
 run = '''
-(pnpm exec vscode-test-web --extensionDevelopmentPath=.)
+pnpm exec vscode-test-web --extensionDevelopmentPath=.
 '''
 
 [tasks.extract-docs]
