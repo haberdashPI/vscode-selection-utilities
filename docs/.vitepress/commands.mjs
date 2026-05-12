@@ -81,6 +81,13 @@ export const commands = [
         ]
     },
     {
+        text: 'Selection Contexts',
+        items: [
+            {text: 'clipboardHasMultilineText', link: '/commands/clipboardHasMultilineText.md'},
+            {text: 'editorHasMultilineSelection', link: '/commands/editorHasMultilineSelection.md'},
+        ]
+    },
+    {
         text: 'Selection Editing',
         items: [
             {text: 'trimSelectionWhitespace', link: '/commands/trimSelectionWhitespace.md'},
