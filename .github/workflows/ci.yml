@@ -1,0 +1,58 @@
+name: CI
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - v[0-9]+.[0-9]+.[0-9]+
+        paths:
+            - src/**
+
+    pull_request:
+        types: ['opened', 'edited', 'reopened', 'synchronize', 'ready_for_review']
+
+jobs:
+    tests:
+        name: Tests
+        timeout-minutes: 60
+        if: '! github.event.pull_request.draft'
+        strategy:
+            matrix: { environment: ['-web', ''] }
+        runs-on: ubuntu-latest
+        env:
+          DISPLAY: ':99'
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Install Dev Environment
+          uses: jdx/mise-action@v3
+          with:
+            experimental: true # enables postinstall hooks
+            version: 2025.11.2
+            install: true
+            cache: true
+        - name: Install Xvfb
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+        - name: Setup Node and Cache NPM
+          uses: actions/setup-node@v6
+          with:
+            node-version: 20
+            cache: 'pnpm'
+        - name: Install node packages
+          run: |
+            pnpm install --frozen-lockfile
+            pnpm exec playwright install chromium
+        - name: Setup Xvfb
+          run: |
+            /usr/bin/Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+        - name: Unit Tests
+          env: { COVERAGE: 'true' }
+          run: |
+            mise test${{ matrix.environment }}
+        - name: Upload coverage to Codecov
+          if: matrix.environment == ''
+          uses: codecov/codecov-action@v4
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}

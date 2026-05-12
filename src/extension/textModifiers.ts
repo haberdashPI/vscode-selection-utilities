@@ -16,7 +16,7 @@ function changeNumberHelper(text: string, index: number, args: NumberUpdateArgs)
     return number.toString();
 }
 
-function changeNumber(args: NumberUpdateArgs) {
+async function changeNumber(args: NumberUpdateArgs) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const selTexts = editor.selections.map(s => editor.document.getText(s));
@@ -28,14 +28,13 @@ function changeNumber(args: NumberUpdateArgs) {
             return;
         }
 
-        editor.edit((edit) => {
+        await editor.edit((edit) => {
             for (let i = 0; i < editor.selections.length; i++) {
                 edit.replace(
                     editor.selections[i],
                     changeNumberHelper(selTexts[i], i, args),
                 );
             }
-            return edit;
         });
     }
 }
