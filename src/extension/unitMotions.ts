@@ -14,8 +14,6 @@ interface MoveByArgs {
 
 interface NarrowByArgs {
     unit?: string;
-    then?: string;
-    thenBoundary?: string;
     boundary?: string;
 }
 
@@ -236,14 +234,14 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      *
      * Selects the next most narrow selection that contains all of a given unit type.
      *
+     * For example with text "fooBar" and a selection of "fooBa", `narrowTo` would shrink
+     * the selection to "foo" when the `unit` was "subword". This is because the two
+     * subwords in this selection are "foo" and "Bar".
+     *
      * ## Arguments
      * - `unit`: the name of the unit type to narrow to; see [Motion
      *   Units](/commands/moveBy#defining-units)
      * - `boundary`: the boundaries to narrow to; either `start`, `end`, or `both`.
-     * - `then`: if there is no unit of the given type to narrow to, the command can attempt
-     *   to narrow to a second unit type, specified here.
-     * - `thenBoundary`: the boundaries to consider for `then`; one of `start`, `end`, or
-     *   `both`.
      */
     command = vscode.commands.registerCommand(
         'selection-utilities.narrowTo',
@@ -1050,14 +1048,6 @@ function narrowTo(
     args: NarrowByArgs,
 ): (select: vscode.Selection) => vscode.Selection {
     const unit = unitNameToRegex(editor, args.unit);
-    const thenNarrow =
-        args.then === undefined ?
-            undefined :
-                narrowTo(editor, {
-                    unit: args.then,
-                    boundary:
-                      args.thenBoundary === undefined ? args.boundary : args.thenBoundary,
-                });
 
     const boundary = toBoundary(args);
     if (boundary === undefined) {
@@ -1087,9 +1077,6 @@ function narrowTo(
             }
         }
         if (!stop || !start) {
-            if (thenNarrow) {
-                return thenNarrow(select);
-            }
             return select;
         }
         if (select.anchor.isBefore(select.active)) {
