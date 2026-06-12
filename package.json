@@ -501,7 +501,7 @@
         "@vscode/test-electron": "^2.5.2",
         "@vscode/test-web": "^0.0.80",
         "assert": "^2.1.0",
-        "esbuild": "^0.28.0",
+        "esbuild": "^0.28.1",
         "eslint": "^10.3.0",
         "glob": "^13.0.6",
         "globals": "^17.6.0",
