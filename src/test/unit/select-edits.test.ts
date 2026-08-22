@@ -226,4 +226,28 @@ suite('Selection edits', () => {
 
         assert.equal(editor.document.getText(editor.selection), 'bar');
     });
+
+    suite('appendToMemory with empty selection', () => {
+        test('expands to surrounding word by default', async () => {
+            cursorToPos(editor, 0, 1);
+            await vscode.commands.executeCommand('selection-utilities.appendToMemory');
+            await vscode.commands.executeCommand('selection-utilities.restoreAndClear');
+
+            assert.equal(editor.selection.isEmpty, false);
+            assert.equal(editor.selection.start.character, 0);
+            assert.equal(editor.selection.end.character, 3);
+        });
+
+        test('saves empty selection as-is when selectWordOnEmpty is false', async () => {
+            cursorToPos(editor, 0, 1);
+            await vscode.commands.executeCommand('selection-utilities.appendToMemory', {
+                selectWordOnEmpty: false,
+            });
+            await vscode.commands.executeCommand('selection-utilities.restoreAndClear');
+
+            assert.equal(editor.selection.isEmpty, true);
+            assert.equal(editor.selection.active.line, 0);
+            assert.equal(editor.selection.active.character, 1);
+        });
+    });
 });

@@ -52,6 +52,7 @@ const selectionRegisters: IHash<vscode.Selection[]> = {};
 
 interface SelectMemoryArgs {
     register?: string;
+    selectWordOnEmpty?: boolean;
 }
 
 function getSelectMemory(args: SelectMemoryArgs, order: boolean = true) {
@@ -168,6 +169,9 @@ export function registerSelectionMemoryCommands(context: vscode.ExtensionContext
      * ## Arguments
      * - `register` (default="default") - The register to save the selections to. A
      *   register is a distinct memory bank where selections can be stored.
+     * - `selectWordOnEmpty` (default=true) - When `true` an empty selection is converted to
+     *   a selection of the word currently under the cursor. With `false` the selection
+     *   is unchanged before being appended to the selection memory.
      */
     context.subscriptions.push(
         vscode.commands.registerCommand(
@@ -340,9 +344,15 @@ function appendToMemory(args: SelectMemoryArgs) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         let memory = getSelectMemory(args);
-        memory = memory.concat(curSelectionOrWord(editor));
+        let selectWordOnEmpty = true;
+        if (args && args.selectWordOnEmpty !== undefined) {
+            selectWordOnEmpty = args.selectWordOnEmpty;
+        }
+        const selections = selectWordOnEmpty ?
+                curSelectionOrWord(editor) :
+            editor.selections;
+        memory = memory.concat(selections);
         saveSelectMemory(memory, args, editor);
-
         editor.selection = getPrimarySelection(editor);
     }
 }
