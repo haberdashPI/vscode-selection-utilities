@@ -3,47 +3,39 @@
 // Hover to view descriptions of existing attributes.
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
-	"version": "0.2.0",
-	"configurations": [
-		// {
-		// 	"name": "Run Extension",
-		// 	"type": "extensionHost",
-		// 	"request": "launch",
-		// 	"runtimeExecutable": "${execPath}",
-		// 	"args": [
-		// 		"--extensionDevelopmentPath=${workspaceFolder}"
-		// 	],
-		// 	"outFiles": [
-		// 		"${workspaceFolder}/dist/main/**/*.js"
-		// 	],
-		// 	"preLaunchTask": "${defaultBuildTask}"
-		// },
-		{
-			"name": "Run Web Extension",
-			"type": "extensionHost",
-			"debugWebWorkerHost": true,
-			"request": "launch",
-			"args": [
-                "--profile=debug-profile",
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionDevelopmentKind=web"
-			],
-			"outFiles": ["${workspaceFolder}/dist/web/**/*.js"],
-			"preLaunchTask": "npm: watch-web"
-		},
-		{
-			"name": "Extension Tests",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/test/**/*.js"
-			],
-			"preLaunchTask": "${defaultBuildTask}"
-		}
-	]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--profile",
+                "selection-utilities-debug",
+                "--install-extension",
+                "tamasfe.even-better-toml",
+                "--install-extension",
+                "haberdashPI.master-key"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/node/**/*.js"
+            ],
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+        {
+            "name": "Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/test/**/*.js"
+            ],
+            "preLaunchTask": "${defaultBuildTask}"
+        }
+    ]
 }
