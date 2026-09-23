@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import z from 'zod';
 import { updateView } from './selectionMemory';
 import { getPrimarySelection } from './selectionMemory';
-import { clampedLineTranslate } from './util';
+import { clampedLineTranslate, validateInput } from './util';
 
 /**
  * @first true
@@ -86,7 +87,23 @@ function shrinkToActive() {
  *    - `bottom`
  *
  */
-function revealActive(args: { at: 'top' | 'center' | 'bottom' } = { at: 'center' }) {
+export const revealActiveArgs = z.
+    object({
+        at: z.enum(['top', 'center', 'bottom']).default('center'),
+    }).
+    strict();
+
+export type RevealActiveArgs = z.infer<typeof revealActiveArgs>;
+
+function revealActive(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.revealActive',
+        args_,
+        revealActiveArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const pos = getPrimarySelection(editor).active;
@@ -110,25 +127,40 @@ function revealActive(args: { at: 'top' | 'center' | 'bottom' } = { at: 'center'
  *   - `down`
  * - `count` (default=1) - The distance to move up or down in page units.
  */
-function activePageMove(
-    args: { dir?: 'up' | 'down'; count?: number; select?: boolean } = {},
-) {
+export const activePageMoveArgs = z.
+    object({
+        dir: z.enum(['up', 'down']).default('down'),
+        count: z.number().default(1),
+        select: z.boolean().default(true),
+    }).
+    strict();
+
+export type ActivePageMoveArgs = z.infer<typeof activePageMoveArgs>;
+
+function activePageMove(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.activePageMove',
+        args_,
+        activePageMoveArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const heights = editor.visibleRanges.map((range) => {
             return Math.max(1, range.end.line - range.start.line + 1);
         });
         const minHeight = heights.reduceRight((a, b) => Math.min(a, b));
-        let steps = Math.ceil(minHeight * (args.count || 1));
-        if (args?.dir === 'up') {
+        let steps = Math.ceil(minHeight * args.count);
+        if (args.dir === 'up') {
             steps *= -1;
         }
         const ed = editor;
         editor.selections = editor.selections.map((sel) => {
             const active = clampedLineTranslate(sel.active, ed.document, steps);
             let anchor = sel.anchor;
-            if (args.select === false) {
-                // args.select === undefined defaults to true
+            if (!args.select) {
                 anchor = active;
             }
             return new vscode.Selection(anchor, active);

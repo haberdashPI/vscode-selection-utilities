@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
-import { TokenArgs, getInput } from './inputCapture';
+import {
+    TokenArgs,
+    RegexTokenArgs,
+    tokenArgs,
+    regexTokenArgs,
+    getInput,
+} from './inputCapture';
+import { validateInput } from './util';
 
 export function registerSelectionFilters(context: vscode.ExtensionContext) {
     /**
@@ -15,8 +22,19 @@ export function registerSelectionFilters(context: vscode.ExtensionContext) {
      *   be shown to the user.
      */
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.includeBy', args =>
-            filterBy(args, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.includeBy',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.includeBy',
+                    args_,
+                    tokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                filterBy(args, true);
+            },
         ),
     );
     /**
@@ -30,8 +48,19 @@ export function registerSelectionFilters(context: vscode.ExtensionContext) {
      *   will be shown to the user.
      */
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.excludeBy', args =>
-            filterBy(args, false),
+        vscode.commands.registerCommand(
+            'selection-utilities.excludeBy',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.excludeBy',
+                    args_,
+                    tokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                filterBy(args, false);
+            },
         ),
     );
     /**
@@ -45,8 +74,19 @@ export function registerSelectionFilters(context: vscode.ExtensionContext) {
      *   be shown to the user.
      */
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.includeByRegex', args =>
-            filterBy(args, true, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.includeByRegex',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.includeByRegex',
+                    args_,
+                    regexTokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                filterBy(args, true, true);
+            },
         ),
     );
     /**
@@ -60,14 +100,25 @@ export function registerSelectionFilters(context: vscode.ExtensionContext) {
      *   will be shown to the user.
      */
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.excludeByRegex', args =>
-            filterBy(args, false, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.excludeByRegex',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.excludeByRegex',
+                    args_,
+                    regexTokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                filterBy(args, false, true);
+            },
         ),
     );
 }
 
 function filterBy(
-    args: TokenArgs | undefined,
+    args: TokenArgs | RegexTokenArgs | undefined,
     include: boolean,
     useRegex: boolean = false,
 ) {

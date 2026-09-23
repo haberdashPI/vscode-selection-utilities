@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { IHash, compareSels } from './util';
+import z from 'zod';
+import { IHash, compareSels, validateInput } from './util';
 import { cloneDeep } from 'lodash';
 
 let activeSelectDecorator: vscode.TextEditorDecorationType;
@@ -50,12 +51,24 @@ function updateSavedSelection(editor: vscode.TextEditor) {
 
 const selectionRegisters: IHash<vscode.Selection[]> = {};
 
-interface SelectMemoryArgs {
-    register?: string;
-    selectWordOnEmpty?: boolean;
-}
+export const selectMemoryArgs = z.
+    object({
+        register: z.string().default('default'),
+    }).
+    strict();
 
-function getSelectMemory(args: SelectMemoryArgs, order: boolean = true) {
+export type SelectMemoryArgs = z.infer<typeof selectMemoryArgs>;
+
+export const appendToMemoryArgs = z.
+    object({
+        register: z.string().default('default'),
+        selectWordOnEmpty: z.boolean().default(true),
+    }).
+    strict();
+
+export type AppendToMemoryArgs = z.infer<typeof appendToMemoryArgs>;
+
+function getSelectMemory(args?: { register?: string }, order: boolean = true) {
     let register = 'default';
     if (args?.register !== undefined) {
         register = args.register;
@@ -71,7 +84,7 @@ function getSelectMemory(args: SelectMemoryArgs, order: boolean = true) {
 
 function saveSelectMemory(
     sels: readonly vscode.Selection[],
-    args: SelectMemoryArgs,
+    args: { register?: string } | undefined,
     editor: vscode.TextEditor,
 ) {
     let register = 'default';
@@ -340,15 +353,19 @@ function focusPrimarySelection() {
     }
 }
 
-function appendToMemory(args: SelectMemoryArgs) {
+function appendToMemory(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.appendToMemory',
+        args_,
+        appendToMemoryArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         let memory = getSelectMemory(args);
-        let selectWordOnEmpty = true;
-        if (args && args.selectWordOnEmpty !== undefined) {
-            selectWordOnEmpty = args.selectWordOnEmpty;
-        }
-        const selections = selectWordOnEmpty ?
+        const selections = args.selectWordOnEmpty ?
                 curSelectionOrWord(editor) :
             editor.selections;
         memory = memory.concat(selections);
@@ -357,7 +374,15 @@ function appendToMemory(args: SelectMemoryArgs) {
     }
 }
 
-function restoreAndClear(args: SelectMemoryArgs) {
+function restoreAndClear(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.restoreAndClear',
+        args_,
+        selectMemoryArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const memory = getSelectMemory(args);
@@ -371,7 +396,15 @@ function restoreAndClear(args: SelectMemoryArgs) {
     }
 }
 
-function clearMemory(args: SelectMemoryArgs) {
+function clearMemory(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.clearMemory',
+        args_,
+        selectMemoryArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const memory = getSelectMemory(args);
@@ -433,7 +466,15 @@ function swapWithMemoryFn(
     };
 }
 
-function swapWithMemory(args: SelectMemoryArgs) {
+function swapWithMemory(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.swapWithMemory',
+        args_,
+        selectMemoryArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const memory = getSelectMemory(args);
@@ -461,7 +502,15 @@ function cancelSelection() {
     }
 }
 
-function deleteLastSaved(args: SelectMemoryArgs) {
+function deleteLastSaved(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.deleteLastSaved',
+        args_,
+        selectMemoryArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const memory = getSelectMemory(args, false);
