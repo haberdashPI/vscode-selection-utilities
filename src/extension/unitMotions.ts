@@ -1,21 +1,30 @@
 import * as vscode from 'vscode';
+import z from 'zod';
 import { updateView } from './selectionMemory';
-import { clampedLineTranslate, IHash } from './util';
+import { clampedLineTranslate, IHash, validateInput } from './util';
 import { cloneDeep } from 'lodash';
 
-interface MoveByArgs {
-    unit?: string;
-    select?: boolean;
-    selectWhole?: boolean;
-    selectOneUnit?: boolean;
-    value?: number;
-    boundary?: string;
-}
+export const moveByArgs = z.
+    object({
+        unit: z.string().optional(),
+        select: z.boolean().default(false),
+        selectWhole: z.boolean().default(false),
+        selectOneUnit: z.boolean().optional(),
+        value: z.number().default(1),
+        boundary: z.enum(['start', 'end', 'both']).default('start'),
+    }).
+    strict();
 
-interface NarrowByArgs {
-    unit?: string;
-    boundary?: string;
-}
+export type MoveByArgs = z.infer<typeof moveByArgs>;
+
+export const narrowToArgs = z.
+    object({
+        unit: z.string().optional(),
+        boundary: z.enum(['start', 'end', 'both']).optional(),
+    }).
+    strict();
+
+export type NarrowByArgs = z.infer<typeof narrowToArgs>;
 
 interface UnitDef {
     name: string;
@@ -219,7 +228,11 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
     /* eslint-enable @stylistic/max-len */
     let command = vscode.commands.registerCommand(
         'selection-utilities.moveBy',
-        (args: MoveByArgs) => {
+        (args_: unknown) => {
+            const args = validateInput('selection-utilities.moveBy', args_, moveByArgs);
+            if (!args) {
+                return;
+            }
             const editor = vscode.window.activeTextEditor;
             if (editor) {
                 editor.selections = editor.selections.map(moveBy(editor, args));
@@ -245,7 +258,11 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
      */
     command = vscode.commands.registerCommand(
         'selection-utilities.narrowTo',
-        (args: NarrowByArgs) => {
+        (args_: unknown) => {
+            const args = validateInput('selection-utilities.narrowTo', args_, narrowToArgs);
+            if (!args) {
+                return;
+            }
             const editor = vscode.window.activeTextEditor;
             if (editor) {
                 editor.selections = editor.selections.map(narrowTo(editor, args));
@@ -490,7 +507,7 @@ export function registerUnitMotions(context: vscode.ExtensionContext) {
                     select: selType !== 'moveCursorTo',
                     selectWhole: selType === 'moveTo',
                     value: dir === 'Next' ? 1 : -1,
-                    boundary: 'start',
+                    boundary: 'start' as const,
                 };
                 const commandName = selType + dir + unitLabel;
                 command = vscode.commands.registerCommand(

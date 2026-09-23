@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
 import { updateView } from './selectionMemory';
-import { TokenArgs, getInput } from './inputCapture';
+import {
+    TokenArgs,
+    RegexTokenArgs,
+    tokenArgs,
+    regexTokenArgs,
+    getInput,
+} from './inputCapture';
+import { validateInput } from './util';
 
 export function registerSelectionModifiers(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -22,21 +29,63 @@ export function registerSelectionModifiers(context: vscode.ExtensionContext) {
         ),
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.splitBy', splitBy),
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.splitByRegex', args =>
-            splitBy(args, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.splitBy',
+            (args_: unknown) => {
+                const args = validateInput('selection-utilities.splitBy', args_, tokenArgs);
+                if (!args) {
+                    return;
+                }
+                splitBy(args);
+            },
         ),
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.createBy', args =>
-            splitBy(args, false, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.splitByRegex',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.splitByRegex',
+                    args_,
+                    regexTokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                splitBy(args, true);
+            },
         ),
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('selection-utilities.createByRegex', args =>
-            splitBy(args, true, true),
+        vscode.commands.registerCommand(
+            'selection-utilities.createBy',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.createBy',
+                    args_,
+                    tokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                splitBy(args, false, true);
+            },
+        ),
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            'selection-utilities.createByRegex',
+            (args_: unknown) => {
+                const args = validateInput(
+                    'selection-utilities.createByRegex',
+                    args_,
+                    regexTokenArgs,
+                );
+                if (!args) {
+                    return;
+                }
+                splitBy(args, true, true);
+            },
         ),
     );
 }
@@ -165,7 +214,7 @@ async function splitByNewline() {
  */
 
 async function splitBy(
-    args: TokenArgs | undefined,
+    args: TokenArgs | RegexTokenArgs | undefined,
     useRegex: boolean = false,
     into: boolean = false,
 ) {

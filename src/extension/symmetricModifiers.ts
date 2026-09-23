@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { wrappedTranslate } from './util';
+import z from 'zod';
+import { wrappedTranslate, validateInput } from './util';
 
 export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -31,12 +32,16 @@ export function registerSymmetricModifiers(context: vscode.ExtensionContext) {
     );
 }
 
-interface InsertAroundArgs {
-    before: string;
-    after: string;
-    expandWith: boolean;
-    followCursor: boolean;
-}
+export const insertAroundArgs = z.
+    object({
+        before: z.string().default(''),
+        after: z.string().default(''),
+        expandWith: z.boolean().default(false),
+        followCursor: z.boolean().default(false),
+    }).
+    strict();
+
+export type InsertAroundArgs = z.infer<typeof insertAroundArgs>;
 
 /**
  * @section Symmetric Editing
@@ -61,7 +66,15 @@ interface InsertAroundArgs {
  * See
  * [`whenNoBinding.run`](https://haberdashpi.github.io/vscode-master-key/bindings/mode.html#fields)
  */
-async function insertAround(args: InsertAroundArgs) {
+async function insertAround(args_: unknown) {
+    const args = validateInput(
+        'selection-utilities.insertAround',
+        args_,
+        insertAroundArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const ed = editor;
@@ -127,9 +140,24 @@ async function insertAround(args: InsertAroundArgs) {
  * See
  * [`whenNoBinding.run`](https://haberdashpi.github.io/vscode-master-key/bindings/mode.html#fields)
  */
-function deleteAround(
-    args: { count?: number; followCursor: boolean } = { followCursor: false },
-) {
+export const deleteAroundArgs = z.
+    object({
+        count: z.number().default(1),
+        followCursor: z.boolean().default(false),
+    }).
+    strict();
+
+export type DeleteAroundArgs = z.infer<typeof deleteAroundArgs>;
+
+function deleteAround(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.deleteAround',
+        args_,
+        deleteAroundArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const ed = editor;
@@ -144,22 +172,22 @@ function deleteAround(
                         wrappedTranslate(
                             sel.start,
                             ed.document,
-                            -(1 - offset) * (args.count || 1),
+                            -(1 - offset) * args.count,
                         ),
                         wrappedTranslate(
                             sel.start,
                             ed.document,
-                            offset * (args.count || 1),
+                            offset * args.count,
                         ),
                     ),
                 );
                 builder.delete(
                     new vscode.Range(
-                        wrappedTranslate(sel.end, ed.document, -offset * (args.count || 1)),
+                        wrappedTranslate(sel.end, ed.document, -offset * args.count),
                         wrappedTranslate(
                             sel.end,
                             ed.document,
-                            (1 - offset) * (args.count || 1),
+                            (1 - offset) * args.count,
                         ),
                     ),
                 );
@@ -182,11 +210,38 @@ function deleteAround(
  * - `inclusive`: whether to include the characters that start and end the selection (e.g.
  *   `str` or `between`)
  */
-function selectBetween(args: {
-    str?: string;
-    between?: { from: string; to: string };
-    inclusive: false;
-}) {
+export const selectBetweenArgs = z.
+    object({
+        str: z.string().optional(),
+        between: z.
+            object({
+                from: z.string(),
+                to: z.string(),
+            }).
+            strict().
+            optional(),
+        inclusive: z.boolean().default(false),
+    }).
+    strict().
+    refine(
+        data => (data.str !== undefined) !== (data.between !== undefined),
+        {
+            message:
+                'Expected either `str` or `between = {from, to}` field for `selectBetween`',
+        },
+    );
+
+export type SelectBetweenArgs = z.infer<typeof selectBetweenArgs>;
+
+function selectBetween(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.selectBetween',
+        args_,
+        selectBetweenArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const ed = editor;
@@ -260,9 +315,26 @@ function selectBetween(args: {
  *     selection inwards
  * - `count`: (default 1) how many characters to move by when adjusting selection ends
  */
-function adjustSelections(args: { dir: string; count: number }) {
+export const adjustSelectionsArgs = z.
+    object({
+        dir: z.enum(['inward', 'outward', 'forward', 'backward']).default('forward'),
+        count: z.number().default(1),
+    }).
+    strict();
+
+export type AdjustSelectionsArgs = z.infer<typeof adjustSelectionsArgs>;
+
+function adjustSelections(args_?: unknown) {
+    const args = validateInput(
+        'selection-utilities.adjustSelections',
+        args_,
+        adjustSelectionsArgs,
+    );
+    if (!args) {
+        return;
+    }
     const editor = vscode.window.activeTextEditor;
-    let step = args.count || 1;
+    let step = args.count;
     const dirSign = args.dir === 'backward' || args.dir === 'inward' ? -1 : 1;
     const useCursor = args.dir === 'forward' || args.dir === 'backward';
     step = dirSign * step;
