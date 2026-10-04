@@ -90,6 +90,8 @@ export const commands = [
     {
         text: 'Selection Editing',
         items: [
+            {text: 'trimWhitespace', link: '/commands/trimWhitespace.md'},
+            {text: 'trimWhitespaceAround', link: '/commands/trimWhitespaceAround.md'},
             {text: 'trimSelectionWhitespace', link: '/commands/trimSelectionWhitespace.md'},
             {text: 'splitByNewline', link: '/commands/splitByNewline.md'},
             {text: 'splitBy', link: '/commands/splitBy.md'},

@@ -24,6 +24,12 @@ export function registerSelectionModifiers(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(
+            'selection-utilities.trimWhitespaceAround',
+            trimWhitespaceAround,
+        ),
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
             'selection-utilities.splitByNewline',
             splitByNewline,
         ),
@@ -110,23 +116,144 @@ function trimOneSelectionWhitespace(sel: vscode.Selection, editor: vscode.TextEd
     return new vscode.Selection(leadingPos, trailingPos);
 }
 
-function trimWhitespace() {
+const HORIZONTAL_WHITESPACE = /[^\S\r\n]/;
+
+function getLeftmostWhitespace(
+    document: vscode.TextDocument,
+    pos: vscode.Position,
+): vscode.Position {
+    const line = document.lineAt(pos.line);
+    let char = pos.character;
+    while (char > 0 && HORIZONTAL_WHITESPACE.test(line.text[char - 1])) {
+        char--;
+    }
+    return new vscode.Position(pos.line, char);
+}
+
+function getRightmostWhitespace(
+    document: vscode.TextDocument,
+    pos: vscode.Position,
+): vscode.Position {
+    const line = document.lineAt(pos.line);
+    let char = pos.character;
+    while (char < line.text.length && HORIZONTAL_WHITESPACE.test(line.text[char])) {
+        char++;
+    }
+    return new vscode.Position(pos.line, char);
+}
+
+function mergeRanges(ranges: vscode.Range[]): vscode.Range[] {
+    const nonActiveRanges = ranges.filter(r => !r.isEmpty);
+    nonActiveRanges.sort((a, b) => {
+        if (a.start.isBefore(b.start)) return -1;
+        if (a.start.isAfter(b.start)) return 1;
+        if (a.end.isBefore(b.end)) return -1;
+        if (a.end.isAfter(b.end)) return 1;
+        return 0;
+    });
+
+    const merged: vscode.Range[] = [];
+    for (const range of nonActiveRanges) {
+        if (merged.length === 0) {
+            merged.push(range);
+        } else {
+            const last = merged[merged.length - 1];
+            if (range.start.isBeforeOrEqual(last.end)) {
+                const newEnd = range.end.isAfter(last.end) ? range.end : last.end;
+                merged[merged.length - 1] = new vscode.Range(last.start, newEnd);
+            } else {
+                merged.push(range);
+            }
+        }
+    }
+    return merged;
+}
+
+function deleteRanges(
+    editor: vscode.TextEditor,
+    ranges: vscode.Range[],
+): Thenable<boolean> {
+    const merged = mergeRanges(ranges);
+    return editor.edit((edit: vscode.TextEditorEdit) => {
+        merged.forEach((range) => {
+            edit.delete(range);
+        });
+    });
+}
+
+async function trimWhitespaceImpl(around: boolean) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-        const ed = editor;
-        editor.edit((edit: vscode.TextEditorEdit) => {
-            ed.selections.forEach((sel) => {
-                const trimmed = trimOneSelectionWhitespace(sel, ed);
-                edit.delete(new vscode.Range(sel.start, trimmed.start));
-                edit.delete(new vscode.Range(trimmed.end, sel.end));
-            });
+        const rangesToDelete: vscode.Range[] = [];
+
+        editor.selections.forEach((sel) => {
+            if (sel.isEmpty) {
+                if (!around) {
+                    return;
+                }
+                const wordRange = editor.document.getWordRangeAtPosition(sel.start);
+                if (wordRange !== undefined) {
+                    const left = getLeftmostWhitespace(editor.document, wordRange.start);
+                    rangesToDelete.push(new vscode.Range(left, wordRange.start));
+                    const right = getRightmostWhitespace(editor.document, wordRange.end);
+                    rangesToDelete.push(new vscode.Range(wordRange.end, right));
+                } else {
+                    const left = getLeftmostWhitespace(editor.document, sel.start);
+                    const right = getRightmostWhitespace(editor.document, sel.start);
+                    rangesToDelete.push(new vscode.Range(left, right));
+                }
+            } else {
+                const normalizedStart = sel.start.isBefore(sel.end) ? sel.start : sel.end;
+                const normalizedEnd = sel.start.isBefore(sel.end) ? sel.end : sel.start;
+                const content = editor.document.getText(
+                    new vscode.Range(normalizedStart, normalizedEnd),
+                );
+                let left = normalizedStart;
+                let right = normalizedEnd;
+                if (around) {
+                    left = getLeftmostWhitespace(editor.document, normalizedStart);
+                    right = getRightmostWhitespace(editor.document, normalizedEnd);
+                }
+
+                if (content.trim().length === 0) {
+                    rangesToDelete.push(new vscode.Range(left, right));
+                } else {
+                    const trimmed = trimOneSelectionWhitespace(
+                        new vscode.Selection(normalizedStart, normalizedEnd),
+                        editor,
+                    );
+                    rangesToDelete.push(new vscode.Range(left, trimmed.start));
+                    rangesToDelete.push(new vscode.Range(trimmed.end, right));
+                }
+            }
         });
+
+        return deleteRanges(editor, rangesToDelete);
     }
 }
 
 /**
  * @section Selection Editing
  * @sectionBody These commands tweak or modify what is selected.
+ * @command trimWhitespace
+ *
+ * Trims whitespace at the start and end of the selection(s).
+ */
+async function trimWhitespace() {
+    return trimWhitespaceImpl(false);
+}
+
+/**
+ * @command trimWhitespaceAround
+ *
+ * Trims whitespace that is before or after selection(s) or surrounding word when cursor is
+ * empty.
+ */
+async function trimWhitespaceAround() {
+    return trimWhitespaceImpl(true);
+}
+
+/**
  * @command trimSelectionWhitespace
  *
  * Trims a selection so that it excludes leading and trailing whitespace.

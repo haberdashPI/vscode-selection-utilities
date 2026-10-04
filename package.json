@@ -209,6 +209,11 @@
                 "category": "Selection Utilities"
             },
             {
+                "command": "selection-utilities.trimWhitespaceAround",
+                "title": "Trim whitespace around selection",
+                "category": "Selection Utilities"
+            },
+            {
                 "command": "selection-utilities.trimSelectionWhitespace",
                 "title": "Trim selection to exclude whitespace at start/end",
                 "category": "Selection Utilities"
